@@ -2,6 +2,52 @@
 
 <p>This is a simple example of an Angular component.</p>
 
-<p aria-live="polite">Current count: <strong>{{ currentCount }}</strong></p>
+<p aria-live="polite">
+  Current count: <strong>{{ currentCount }}</strong>
+</p>
 
 <button class="btn btn-primary" (click)="incrementCounter()">Increment</button>
+
+<section>
+  <div class="example-label">Mini FAB</div>
+  <div class="example-button-row">
+    <div class="example-flex-container">
+      <div class="example-button-container">
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Example icon button with a menu icon"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+      </div>
+      <div class="example-button-container">
+        <button
+          mat-mini-fab
+          color="accent"
+          aria-label="Example icon button with a plus one icon"
+        >
+          <mat-icon>plus_one</mat-icon>
+        </button>
+      </div>
+      <div class="example-button-container">
+        <button
+          mat-mini-fab
+          color="warn"
+          aria-label="Example icon button with a filter list icon"
+        >
+          <mat-icon>filter_list</mat-icon>
+        </button>
+      </div>
+      <div class="example-button-container">
+        <button
+          mat-mini-fab
+          disabled
+          aria-label="Example icon button with a home icon"
+        >
+          <mat-icon>home</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
