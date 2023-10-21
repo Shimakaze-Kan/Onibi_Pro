@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Onibi_Pro/ClientApp/.angular/cache/16.2.7
