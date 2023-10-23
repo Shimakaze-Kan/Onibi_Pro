@@ -31,7 +31,10 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/styles.css"
+              "src/styles.scss",
+              {
+                "input": "src/onibi-default-theme.scss"
+              }
             ],
             "scripts": []
           },

@@ -23,4 +23,13 @@ code {
   border-color: #1861ac;
 }
 
-@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "onibi-default-theme.scss";
+@import "colors.scss";
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.gray-text-color {
+  color: $gray-text-color;
+}
