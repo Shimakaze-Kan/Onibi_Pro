@@ -1,9 +1,18 @@
 <header>
   <nav
-    class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"
+    class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white"
   >
+    <!-- <button
+      type="button"
+      mat-flat-button
+      color="accent"
+      (click)="showBack = !showBack"
+    >
+      show back
+    </button> -->
     <div class="container">
-      <a class="navbar-brand" [routerLink]="['/']">Onibi_Pro</a>
+      <!-- <a class="navbar-brand" [routerLink]="['/']">Onibi_Pro</a> -->
+      <h5 class="mb-0">{{ currentPageName }}</h5>
       <button
         class="navbar-toggler"
         type="button"
@@ -15,6 +24,7 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
+      <img class="navbar-logo" src="/assets/logos/onibi_plain_s.svg" />
       <div
         class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
         [ngClass]="{ show: isExpanded }"
@@ -37,8 +47,52 @@
               >Fetch data</a
             >
           </li>
+          <li>
+            <button mat-icon-button [matMenuTriggerFor]="logOutMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #logOutMenu="matMenu">
+              <button mat-menu-item>Log Out</button>
+            </mat-menu>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
+  <div class="d-flex w-100 /*position-absolute*/">
+    <div
+      *ngIf="showBack"
+      class="d-flex navbar-back-navigation box-shadow cursor-pointer"
+    >
+      <mat-icon>keyboard_return</mat-icon>
+      <p class="text-nowrap">
+        return to <span class="fw-bold">Main Page</span>
+      </p>
+    </div>
+    <div class="w-100">
+      <div class="bottom-navbar-shadow-holder box-shadow"></div>
+      <div class="nav-button-container">
+        <div *ngFor="let page of pages">
+          <button
+            (click)="currentPageId = page.id"
+            *ngIf="currentPageId === page.id"
+            mat-raised-button
+            color="primary"
+            routerLink="{{ page.url }}"
+          >
+            {{ page.name }}
+          </button>
+          <button
+            (click)="currentPageId = page.id"
+            *ngIf="currentPageId !== page.id"
+            mat-stroked-button
+            color="primary"
+            routerLink="{{ page.url }}"
+          >
+            {{ page.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>

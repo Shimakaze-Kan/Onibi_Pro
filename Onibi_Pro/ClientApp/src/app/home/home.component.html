@@ -27,6 +27,7 @@
             class="cursor-pointer"
             matSuffix
             (click)="showPassword = !showPassword"
+            [ngStyle]="{ opacity: showPassword ? '100%' : '50%' }"
             >remove_red_eye</mat-icon
           >
         </mat-form-field>
