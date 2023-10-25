@@ -94,6 +94,14 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+html {
+  body:first-of-type {
+    scrollbar-width: thin;
+    overflow-y: auto;
+    /*scrollbar-gutter: stable;*/
+  }
+}
+
 button {
   letter-spacing: 1.25px !important;
   text-transform: uppercase !important;

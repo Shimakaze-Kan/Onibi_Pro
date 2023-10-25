@@ -22,6 +22,7 @@ html {
   border-radius: 0 0 5px;
   width: auto;
   height: 2.8rem;
+  background-color: white;
 
   mat-icon {
     padding-left: 0.5rem;
@@ -56,6 +57,12 @@ html {
   gap: 0.5rem;
   display: flex;
   margin-left: 1.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  width: fit-content;
+  padding: 0.25rem;
+  transform: translateY(-0.25rem);
+  border-radius: 20rem;
 }
 
 .navbar-logo {
@@ -63,4 +70,11 @@ html {
   position: absolute;
   left: 50%;
   right: 50%;
+}
+
+.nav-container {
+  position: fixed;
+  z-index: 10000;
+  width: 100%;
+  top: 0;
 }
