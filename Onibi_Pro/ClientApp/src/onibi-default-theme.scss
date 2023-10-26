@@ -99,6 +99,7 @@ button {
   letter-spacing: 1.25px !important;
   text-transform: uppercase !important;
   border-radius: 20rem !important;
+  white-space: nowrap;
 
   &.mat-primary {
     --mat-mdc-fab-color: white !important;

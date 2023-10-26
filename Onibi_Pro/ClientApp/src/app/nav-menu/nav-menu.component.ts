@@ -71,6 +71,10 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
               url: event.urlAfterRedirects,
               name: this.currentPageName,
             });
+
+            this.historyRoutes = this.historyRoutes.filter(
+              (record, index, history) => record.url !== history[index + 1]?.url
+            );
           }
         })
       )
@@ -88,6 +92,14 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggle() {
     this.isExpanded = !this.isExpanded;
+  }
+
+  goBack() {
+    this.router.navigate([this.lastRoute?.url]);
+
+    if (this.historyRoutes.length > 0) {
+      this.historyRoutes.pop();
+    }
   }
 }
 

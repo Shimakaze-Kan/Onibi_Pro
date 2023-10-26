@@ -23,6 +23,7 @@
           [ngClass]="{ show: isExpanded }"
         >
           <ul class="navbar-nav flex-grow">
+            <!--
             <li
               class="nav-item"
               [routerLinkActive]="['link-active']"
@@ -40,6 +41,17 @@
                 >Fetch data</a
               >
             </li>
+            -->
+            <li>
+              <button mat-icon-button>
+                <mat-icon>favorite</mat-icon>
+              </button>
+            </li>
+            <li>
+              <button mat-icon-button>
+                <mat-icon>search</mat-icon>
+              </button>
+            </li>
             <li>
               <button mat-icon-button [matMenuTriggerFor]="logOutMenu">
                 <mat-icon>more_vert</mat-icon>
@@ -56,7 +68,7 @@
       <div
         *ngIf="showBack"
         class="d-flex navbar-back-navigation box-shadow cursor-pointer pe-auto"
-        routerLink="{{ lastRoute!.url }}"
+        (click)="goBack()"
       >
         <mat-icon>keyboard_return</mat-icon>
         <p class="text-nowrap">
