@@ -1,19 +1,10 @@
 <header>
   <div #placeholder></div>
-  <div class="nav-container" #navContainer>
+  <div class="nav-container pe-none" #navContainer>
     <nav
-      class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white"
+      class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white pe-auto"
     >
-      <!-- <button
-      type="button"
-      mat-flat-button
-      color="accent"
-      (click)="showBack = !showBack"
-    >
-      show back
-    </button> -->
       <div class="container">
-        <!-- <a class="navbar-brand" [routerLink]="['/']">Onibi_Pro</a> -->
         <h5 class="mb-0">{{ currentPageName }}</h5>
         <button
           class="navbar-toggler"
@@ -61,10 +52,10 @@
         </div>
       </div>
     </nav>
-    <div class="d-flex w-100 /*position-absolute*/">
+    <div class="d-flex w-100 pe-none">
       <div
         *ngIf="showBack"
-        class="d-flex navbar-back-navigation box-shadow cursor-pointer"
+        class="d-flex navbar-back-navigation box-shadow cursor-pointer pe-auto"
         routerLink="{{ lastRoute!.url }}"
       >
         <mat-icon>keyboard_return</mat-icon>
@@ -72,10 +63,10 @@
           return to <span class="fw-bold">{{ lastRoute!.name }}</span>
         </p>
       </div>
-      <div class="w-100">
+      <div class="w-100 pe-none">
         <div class="bottom-navbar-shadow-holder box-shadow"></div>
-        <div>
-          <div class="nav-button-container">
+        <div class="pe-none">
+          <div class="nav-button-container pe-auto">
             <div *ngFor="let page of pages">
               <button
                 (click)="currentPageId = page.id"

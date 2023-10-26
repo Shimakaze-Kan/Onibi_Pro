@@ -36,6 +36,7 @@ import { MatTableModule } from '@angular/material/table';
 import { PersonelManagementComponent } from './personel-management/personel-management.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { TakeSpaceDirective } from './directives/take-space.directive';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     FetchDataComponent,
     ScheduleComponent,
     PersonelManagementComponent,
+    TakeSpaceDirective,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),

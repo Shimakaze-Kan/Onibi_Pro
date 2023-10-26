@@ -84,6 +84,7 @@ $onibi-theme: mat.define-light-theme(
 
 @include mat.all-component-themes($onibi-theme);
 @include mat.form-field-density(-5);
+@import "colors.scss";
 
 html,
 body {
@@ -92,14 +93,6 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-}
-
-html {
-  body:first-of-type {
-    //scrollbar-width: thin;
-    //overflow-y: auto;
-    /*scrollbar-gutter: stable;*/
-  }
 }
 
 button {
@@ -119,3 +112,29 @@ button {
   position: absolute !important;
   right: 0;
 }
+
+/* scrollbar stuff start */
+$scrollbar-backcolor: rgb(210, 210, 210);
+$scrollbar-frontcolor: $logo-color;
+
+:root {
+  overflow-y: scroll;
+
+  /* firefox */
+  scrollbar-face-color: $scrollbar-frontcolor; /* Firefox 63 compatibility */
+  scrollbar-track-color: $scrollbar-backcolor; /* Firefox 63 compatibility */
+  scrollbar-color: $scrollbar-frontcolor $scrollbar-backcolor;
+  scrollbar-width: thin;
+
+  /* chrome based */
+  ::-webkit-scrollbar {
+    width: 9px;
+  }
+  ::-webkit-scrollbar-track {
+    background: $scrollbar-backcolor;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: $scrollbar-frontcolor;
+  }
+}
+/* scrollbar stuff end */

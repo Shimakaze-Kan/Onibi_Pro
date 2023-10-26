@@ -1,21 +1,13 @@
-import { ViewportScroller } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   ElementRef,
-  HostListener,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
-import {
-  NavigationEnd,
-  NavigationStart,
-  Router,
-  RoutesRecognized,
-} from '@angular/router';
-import { Subject, filter, takeUntil, tap } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subject, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-nav-menu',
@@ -38,11 +30,11 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     { name: 'Schedule', id: 3, url: '/schedule' },
     { name: 'History', id: 4 },
     { name: 'Calendar', id: 5 },
-    { name: 'Personel Management', id: 6, url: '/personel-management' },
+    { name: 'Personel Management', id: 5, url: '/personel-management' },
   ];
 
   get currentPageName(): string {
-    return this.pages.find((x) => x.url === this.currentPageUrl)!.name;
+    return this.pages.find((x) => x?.url === this.currentPageUrl)?.name || '';
   }
 
   get showBack(): boolean {
