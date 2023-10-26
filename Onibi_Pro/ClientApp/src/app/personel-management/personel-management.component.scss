@@ -1,0 +1,12 @@
+.content-top-shadow-container {
+  border-radius: 1.8rem 1.8rem 0 0;
+  background-color: white;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.25);
+
+  .content-container-header {
+    padding: 1.8rem;
+  }
+}

@@ -32,6 +32,10 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { PersonelManagementComponent } from './personel-management/personel-management.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   declarations: [
@@ -41,6 +45,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     CounterComponent,
     FetchDataComponent,
     ScheduleComponent,
+    PersonelManagementComponent,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -52,6 +57,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       { path: 'counter', component: CounterComponent },
       { path: 'fetch-data', component: FetchDataComponent },
       { path: 'schedule', component: ScheduleComponent },
+      { path: 'personel-management', component: PersonelManagementComponent },
     ]),
     MatButtonModule,
     MatCheckboxModule,
@@ -74,6 +80,9 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       useFactory: adapterFactory,
     }),
     MatButtonToggleModule,
+    MatTableModule,
+    MatPaginatorModule,
+    NgxMatSelectSearchModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

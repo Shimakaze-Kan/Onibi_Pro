@@ -1,0 +1,164 @@
+<form [formGroup]="employeeSearchForm" class="row mt-3">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="row">
+      <label class="mb-1" for="emailInput">Email</label>
+      <mat-form-field appearance="outline">
+        <input
+          id="emailInput"
+          matInput
+          placeholder="Email"
+          formControlName="email"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="row">
+      <label class="mb-1" for="firstNameInput">First Name</label>
+      <mat-form-field appearance="outline">
+        <input
+          id="firstNameInput"
+          matInput
+          placeholder="First Name"
+          formControlName="firstName"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="row">
+      <label class="mb-1" for="lastNameInput">Last Name</label>
+      <mat-form-field appearance="outline">
+        <input
+          id="lastNameInput"
+          matInput
+          placeholder="Last Name"
+          formControlName="lastName"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="row">
+      <label class="mb-1" for="supervisorSelect">Supervisor</label>
+      <mat-form-field appearance="outline">
+        <mat-select
+          id="supervisorSelect"
+          formControlName="supervisor"
+          placeholder="Supervisor"
+        >
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="supervisorFilterCtrl"
+              placeholderLabel="Type to search"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <mat-option style="color: gray">-- None --</mat-option>
+          <mat-option
+            *ngFor="let supervisor of filteredSupervisors | async"
+            [value]="supervisors"
+          >
+            {{ supervisor }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="row">
+      <label class="mb-1" for="citySelect">City</label>
+      <mat-form-field appearance="outline">
+        <mat-select id="citySelect" placeholder="City">
+          <mat-option> Test </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="row">
+      <label class="mb-1" for="restaurantIdInput">Restaurant Id</label>
+      <mat-form-field appearance="outline">
+        <input
+          id="restaurantIdInput"
+          matInput
+          placeholder="Restaurant Id"
+          formControlName="restaurantId"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-4 mx-auto">
+    <div class="row">
+      <label class="mb-1" for="positionSelect">Position</label>
+      <mat-form-field appearance="outline">
+        <mat-select id="positionSelect" placeholder="Position">
+          <mat-option>
+            <ngx-mat-select-search
+              placeholderLabel="Position"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <mat-option> Test </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="d-flex justify-content-around mt-3">
+      <button type="button" mat-flat-button color="accent">Clear</button>
+      <button type="submit" mat-flat-button color="primary">Search</button>
+    </div>
+  </div>
+</form>
+
+<div class="content-top-shadow-container mt-5">
+  <div class="content-container-header d-flex">
+    <button type="button" class="ms-auto" mat-flat-button color="primary">
+      Add Employee
+    </button>
+  </div>
+  <div class="mat-elevation-z8 container table-responsive">
+    <table mat-table [dataSource]="dataSource">
+      <!-- Position Column -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="firstName">
+        <th mat-header-cell *matHeaderCellDef>First Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="lastName">
+        <th mat-header-cell *matHeaderCellDef>Last Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
+      </ng-container>
+
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="supervisor">
+        <th mat-header-cell *matHeaderCellDef>Supervisor</th>
+        <td mat-cell *matCellDef="let element">{{ element.supervisor }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="city">
+        <th mat-header-cell *matHeaderCellDef>City</th>
+        <td mat-cell *matCellDef="let element">{{ element.city }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="restaurantId">
+        <th mat-header-cell *matHeaderCellDef>Restaurant Id</th>
+        <td mat-cell *matCellDef="let element">{{ element.restaurantId }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons
+      aria-label="Select page of periodic elements"
+    >
+    </mat-paginator>
+  </div>
+</div>
