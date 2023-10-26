@@ -57,7 +57,7 @@
             <mat-option style="color: gray">-- None --</mat-option>
             <mat-option
               *ngFor="let supervisor of filteredSupervisors | async"
-              [value]="supervisors"
+              [value]="supervisor"
             >
               {{ supervisor }}
             </mat-option>

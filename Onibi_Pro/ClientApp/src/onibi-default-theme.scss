@@ -113,6 +113,10 @@ button {
   right: 0;
 }
 
+button[mat-icon-button] {
+  display: inline-flex;
+}
+
 /* scrollbar stuff start */
 $scrollbar-backcolor: rgb(210, 210, 210);
 $scrollbar-frontcolor: $logo-color;
