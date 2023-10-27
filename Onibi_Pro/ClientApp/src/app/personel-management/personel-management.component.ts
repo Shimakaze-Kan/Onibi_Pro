@@ -22,6 +22,7 @@ export class PersonelManagementComponent
   displayedColumns = [
     'email',
     'firstName',
+    'lastName',
     'supervisor',
     'city',
     'restaurantId',
@@ -37,13 +38,17 @@ export class PersonelManagementComponent
     lastName: new FormControl<string>(''),
     restaurantId: new FormControl<number | undefined>(undefined),
     supervisor: new FormControl<string>(''),
+    city: new FormControl<string>(''),
+    position: new FormControl<string>(''),
   });
 
   supervisorFilterCtrl = new FormControl<string>('');
   cityFilterCtrl = new FormControl<string>('');
   positionFilterCtrl = new FormControl<string>('');
 
+  filteredCities = new ReplaySubject<string[]>(1);
   filteredSupervisors = new ReplaySubject<string[]>(1);
+  filteredPositions = new ReplaySubject<string[]>(1);
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
@@ -62,6 +67,26 @@ export class PersonelManagementComponent
       .subscribe(() => {
         this.filterSupervisors();
       });
+
+    this.filteredCities.next(this.cities.slice());
+
+    this.cityFilterCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy$))
+      .subscribe(() => {
+        this.filterCities();
+      });
+
+    this.filteredPositions.next(this.positions.slice());
+
+    this.positionFilterCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy$))
+      .subscribe(() => {
+        this.filterPositions();
+      });
+  }
+
+  reset() {
+    this.employeeSearchForm.reset();
   }
 
   private filterSupervisors() {
@@ -83,8 +108,77 @@ export class PersonelManagementComponent
       )
     );
   }
+
+  private filterCities() {
+    if (!this.cities) {
+      return;
+    }
+
+    let search = this.cityFilterCtrl.value;
+    if (!search) {
+      this.filteredCities.next(this.cities.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+
+    this.filteredCities.next(
+      this.cities.filter((city) => city.toLowerCase().includes(search!))
+    );
+  }
+
+  private filterPositions() {
+    if (!this.positions) {
+      return;
+    }
+
+    let search = this.positionFilterCtrl.value;
+    if (!search) {
+      this.filteredPositions.next(this.positions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+
+    this.filteredPositions.next(
+      this.positions.filter((position) =>
+        position.toLowerCase().includes(search!)
+      )
+    );
+  }
+
+  filterCollection() {
+    const props = Object.keys(this.employeeSearchForm.controls).map((key) => ({
+      key: key,
+      value: this.employeeSearchForm.get(key),
+    }));
+
+    this.dataSource.data = employees.filter((x) => {
+      let state = true;
+      props.forEach((pair) => {
+        const key = pair.key as ObjectKey;
+
+        if (
+          pair.key !== 'position' &&
+          !x[key]
+            .toString()
+            .toLocaleLowerCase()
+            .includes((pair.value?.value || '').toString().toLowerCase())
+        ) {
+          state = false;
+        }
+      });
+
+      return state;
+    });
+  }
+
   supervisors = ['Jane Smith', 'Bob Johnson'];
+  cities = ['New York', 'Sosnowiec'];
+  positions = ['Cashier', 'Restaurant Manager', 'Regional Manager'];
 }
+
+type ObjectKey = keyof (typeof employees)[0];
 
 interface EmployeeRecord {
   email: string;
@@ -95,7 +189,7 @@ interface EmployeeRecord {
   restaurantId: string;
 }
 
-const employees: Array<EmployeeRecord> = [
+let employees: Array<EmployeeRecord> = [
   {
     email: 'john.doe@example.com',
     firstName: 'John',

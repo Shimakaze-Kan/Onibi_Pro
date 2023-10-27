@@ -124,7 +124,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     const options = {
       root: null,
       rootMargin: '0px',
-      threshold: 1,
+      threshold: 0.99,
     };
 
     const lastButton = document.getElementById(firstDivId);
