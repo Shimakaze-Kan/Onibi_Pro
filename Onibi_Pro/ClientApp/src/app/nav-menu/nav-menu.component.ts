@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { Subject, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-nav-menu',
@@ -17,10 +17,14 @@ import { Subject, takeUntil, tap } from 'rxjs';
 export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('placeholder') private placeholder!: ElementRef;
   @ViewChild('navContainer') private navContainer!: ElementRef;
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
   private readonly _destroy$ = new Subject<void>();
+  private _observer!: IntersectionObserver;
   isExpanded = false;
   currentPageId = 1;
   currentPageUrl = '/';
+  showLeftScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  showRightScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   historyRoutes: IHistoryRouteRecord[] = [];
 
@@ -55,6 +59,8 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     const navContainerHeight =
       this.navContainer.nativeElement.getBoundingClientRect().height;
     this.placeholder.nativeElement.style.height = `${navContainerHeight}px`;
+
+    this.observeScrollContainer();
   }
 
   ngOnInit(): void {
@@ -84,6 +90,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
+    this._observer.disconnect();
   }
 
   collapse() {
@@ -100,6 +107,51 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.historyRoutes.length > 0) {
       this.historyRoutes.pop();
     }
+  }
+
+  scrollLeft() {
+    this.scrollContainer.nativeElement.scrollLeft -= 100;
+  }
+
+  scrollRight() {
+    this.scrollContainer.nativeElement.scrollLeft += 100;
+  }
+
+  private observeScrollContainer(): void {
+    const firstDivId = 'first-button-container';
+    const lastDivId = 'last-button-container';
+
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1,
+    };
+
+    const lastButton = document.getElementById(firstDivId);
+    const firstButton = document.getElementById(lastDivId);
+
+    this._observer = new IntersectionObserver((entries, _) => {
+      entries.forEach((entry: any) => {
+        if (entry.isIntersecting) {
+          if (entry.target.id === firstDivId) {
+            this.showLeftScrollButton$.next(false);
+          }
+          if (entry.target.id === lastDivId) {
+            this.showRightScrollButton$.next(false);
+          }
+        } else {
+          if (entry.target.id === firstDivId) {
+            this.showLeftScrollButton$.next(true);
+          }
+          if (entry.target.id === lastDivId) {
+            this.showRightScrollButton$.next(true);
+          }
+        }
+      });
+    }, options);
+
+    this._observer.observe(lastButton!);
+    this._observer.observe(firstButton!);
   }
 }
 

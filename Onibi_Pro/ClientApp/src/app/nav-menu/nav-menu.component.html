@@ -77,9 +77,29 @@
       </div>
       <div class="w-100 pe-none">
         <div class="bottom-navbar-shadow-holder box-shadow"></div>
-        <div class="pe-none">
-          <div class="nav-button-container pe-auto">
-            <div *ngFor="let page of pages">
+        <div class="pe-none position-relative nav-button-outer-container">
+          <button
+            *ngIf="showLeftScrollButton$ | async"
+            class="left-scroll-button"
+            mat-icon-button
+            (click)="scrollLeft()"
+          >
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div
+            class="nav-button-container pe-auto position-absolute w-100"
+            #scrollContainer
+          >
+            <div
+              *ngFor="let page of pages; index as i"
+              [id]="
+                pages.length - 1 === i
+                  ? 'last-button-container'
+                  : i === 0
+                  ? 'first-button-container'
+                  : ''
+              "
+            >
               <button
                 (click)="currentPageId = page.id"
                 *ngIf="currentPageUrl === page.url"
@@ -100,6 +120,14 @@
               </button>
             </div>
           </div>
+          <button
+            class="right-scroll-button"
+            mat-icon-button
+            (click)="scrollRight()"
+            *ngIf="showRightScrollButton$ | async"
+          >
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
         </div>
       </div>
     </div>
