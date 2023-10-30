@@ -32,7 +32,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     { name: 'Main Page', id: 1, url: '/' },
     { name: 'Delivery', id: 2, url: '/counter' },
     { name: 'Schedule', id: 3, url: '/schedule' },
-    { name: 'History', id: 4 },
+    { name: 'Welcome', id: 4, url: '/welcome' },
     { name: 'Calendar', id: 5 },
     { name: 'Personel Management', id: 5, url: '/personel-management' },
   ];

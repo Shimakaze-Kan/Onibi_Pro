@@ -37,6 +37,7 @@ import { PersonelManagementComponent } from './personel-management/personel-mana
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TakeSpaceDirective } from './directives/take-space.directive';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { TakeSpaceDirective } from './directives/take-space.directive';
     ScheduleComponent,
     PersonelManagementComponent,
     TakeSpaceDirective,
+    WelcomeComponent,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -55,11 +57,16 @@ import { TakeSpaceDirective } from './directives/take-space.directive';
     FormsModule,
     BrowserAnimationsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
+      {
+        path: '',
+        component: WelcomeComponent /*HomeComponent*/,
+        pathMatch: 'full',
+      },
       { path: 'counter', component: CounterComponent },
       { path: 'fetch-data', component: FetchDataComponent },
       { path: 'schedule', component: ScheduleComponent },
       { path: 'personel-management', component: PersonelManagementComponent },
+      { path: 'welcome', component: WelcomeComponent },
     ]),
     MatButtonModule,
     MatCheckboxModule,

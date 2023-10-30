@@ -1,0 +1,15 @@
+img {
+  object-fit: cover;
+}
+
+.section-container {
+  gap: 120px;
+
+  div {
+    div {
+      position: sticky;
+      align-self: flex-start;
+      top: 105px;
+    }
+  }
+}
