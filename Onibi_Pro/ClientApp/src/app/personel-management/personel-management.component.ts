@@ -6,9 +6,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ReplaySubject, Subject, takeUntil } from 'rxjs';
+import { AddEmployeeComponent } from './add-employee/add-employee.component';
 
 @Component({
   selector: 'app-personel-management',
@@ -50,6 +52,8 @@ export class PersonelManagementComponent
   filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
+  constructor(private readonly dialog: MatDialog) {}
+
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
   }
@@ -87,6 +91,18 @@ export class PersonelManagementComponent
 
   reset() {
     this.employeeSearchForm.reset();
+  }
+
+  openAddEmployeeDialog() {
+    const dialogRef = this.dialog.open(AddEmployeeComponent, {
+      minHeight: '80%',
+      maxHeight: '100%',
+      maxWidth: '750px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The dialog was closed');
+    });
   }
 
   private filterSupervisors() {

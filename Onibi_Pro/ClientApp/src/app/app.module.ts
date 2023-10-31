@@ -38,6 +38,13 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TakeSpaceDirective } from './directives/take-space.directive';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { AddEmployeeComponent } from './personel-management/add-employee/add-employee.component';
+import {
+  MatDialog,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -50,6 +57,7 @@ import { WelcomeComponent } from './welcome/welcome.component';
     PersonelManagementComponent,
     TakeSpaceDirective,
     WelcomeComponent,
+    AddEmployeeComponent,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -92,6 +100,8 @@ import { WelcomeComponent } from './welcome/welcome.component';
     MatTableModule,
     MatPaginatorModule,
     NgxMatSelectSearchModule,
+    MatRadioModule,
+    MatDialogModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

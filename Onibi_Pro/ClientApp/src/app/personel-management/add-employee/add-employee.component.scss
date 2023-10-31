@@ -1,0 +1,7 @@
+.dialog-content {
+  scrollbar-width: thin;
+
+  ::-webkit-scrollbar {
+    width: 9px;
+  }
+}
