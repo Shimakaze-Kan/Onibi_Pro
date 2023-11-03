@@ -9,11 +9,11 @@
     Reply
   </button>
 </div>
-<div>
+<div class="mt-2">
   <ng-container *ngIf="!isLoadingMessage; else headerPlaceholder">
-    <span class="mt-b">Title: {{ message.title }}</span>
+    <span class="mt-b"><b>Title:</b> {{ message.title }}</span>
     <div class="d-flex justify-content-between">
-      <span>Sender: {{ message.sender }}</span>
+      <span><b>Sender:</b> {{ message.sender }}</span>
       <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
     </div>
   </ng-container>

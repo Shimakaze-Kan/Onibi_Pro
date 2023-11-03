@@ -91,6 +91,10 @@ export class MessageManagerComponent implements OnInit {
     },
   ];
 
+  outBoxMessages = JSON.parse(JSON.stringify(this.messages)).sort(
+    (b: IMessage, a: IMessage) => a.messageId - b.messageId
+  );
+
   get showMessageView(): boolean {
     return !!this.viewMessageId && !this.showNewMessage;
   }

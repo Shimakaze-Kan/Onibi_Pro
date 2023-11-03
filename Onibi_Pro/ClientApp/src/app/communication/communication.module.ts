@@ -14,6 +14,7 @@ import { NewMessageComponent } from './new-message/new-message.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatSelectModule } from '@angular/material/select';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatSelectModule,
     NgxMatSelectSearchModule,
     NgxSkeletonLoaderModule,
+    MatTabsModule,
   ],
   exports: [MessageManagerComponent],
   providers: [DatePipe],

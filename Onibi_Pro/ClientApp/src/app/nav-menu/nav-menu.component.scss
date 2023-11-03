@@ -148,6 +148,7 @@ $attached-bottom-nav-height: 2.8rem;
   border-radius: 0 0 0 25px;
   overflow: auto;
   z-index: 1000;
+  scrollbar-gutter: stable;
 
   @include scrollbar-width;
 }

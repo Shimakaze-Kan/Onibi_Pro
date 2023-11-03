@@ -8,8 +8,16 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, Subject, takeUntil, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subject,
+  filter,
+  fromEvent,
+  takeUntil,
+  tap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-nav-menu',
@@ -35,6 +43,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('messagesPanel', { static: false }) messagesPanel!: ElementRef;
   private readonly _destroy$ = new Subject<void>();
   private _observer!: IntersectionObserver;
+  private _title = (name: string) => `${name} :: Onibi Pro`;
   showMessages = false;
   isExpanded = false;
   currentPageId = 1;
@@ -71,7 +80,8 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private readonly router: Router,
-    private readonly changeDetectorRef: ChangeDetectorRef
+    private readonly changeDetectorRef: ChangeDetectorRef,
+    private readonly titleService: Title
   ) {}
 
   ngAfterViewInit(): void {
@@ -100,8 +110,18 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
             this.historyRoutes = this.historyRoutes.filter(
               (record, index, history) => record.url !== history[index + 1]?.url
             );
+
+            this.titleService.setTitle(this._title(this.currentPageName));
           }
         })
+      )
+      .subscribe();
+
+    fromEvent(window, 'resize')
+      .pipe(
+        takeUntil(this._destroy$),
+        filter(() => !!this.messagesPanel),
+        tap(() => this.resizeMessagePanel())
       )
       .subscribe();
   }
@@ -141,16 +161,20 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.showMessages) {
       this.changeDetectorRef.detectChanges();
-      const top = this.messagesPanel.nativeElement.offsetTop;
-      this.messagesPanel.nativeElement.style.height = `${
-        window.innerHeight - top
-      }px`;
+      this.resizeMessagePanel();
     }
   }
 
+  private resizeMessagePanel(): void {
+    const top = this.messagesPanel.nativeElement.offsetTop;
+    this.messagesPanel.nativeElement.style.height = `${
+      window.innerHeight - top
+    }px`;
+  }
+
   private observeScrollContainer(): void {
-    const firstDivId = 'first-button-container';
-    const lastDivId = 'last-button-container';
+    const firstDivClass = 'first-button-container';
+    const lastDivClass = 'last-button-container';
 
     const options = {
       root: null,
@@ -158,23 +182,23 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       threshold: 0.99,
     };
 
-    const lastButton = document.getElementById(firstDivId);
-    const firstButton = document.getElementById(lastDivId);
+    const lastButton = document.getElementsByClassName(firstDivClass)[0];
+    const firstButton = document.getElementsByClassName(lastDivClass)[0];
 
     this._observer = new IntersectionObserver((entries, _) => {
-      entries.forEach((entry: any) => {
+      entries.forEach((entry: IntersectionObserverEntry) => {
         if (entry.isIntersecting) {
-          if (entry.target.id === firstDivId) {
+          if (entry.target.classList.contains(firstDivClass)) {
             this.showLeftScrollButton$.next(false);
           }
-          if (entry.target.id === lastDivId) {
+          if (entry.target.classList.contains(lastDivClass)) {
             this.showRightScrollButton$.next(false);
           }
         } else {
-          if (entry.target.id === firstDivId) {
+          if (entry.target.classList.contains(firstDivClass)) {
             this.showLeftScrollButton$.next(true);
           }
-          if (entry.target.id === lastDivId) {
+          if (entry.target.classList.contains(lastDivClass)) {
             this.showRightScrollButton$.next(true);
           }
         }

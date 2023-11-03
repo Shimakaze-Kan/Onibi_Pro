@@ -91,14 +91,9 @@
             #scrollContainer
           >
             <div
-              *ngFor="let page of pages; index as i"
-              [id]="
-                pages.length - 1 === i
-                  ? 'last-button-container'
-                  : i === 0
-                  ? 'first-button-container'
-                  : ''
-              "
+              *ngFor="let page of pages; first as first; last as last"
+              [class.first-button-container]="first"
+              [class.last-button-container]="last"
             >
               <button
                 (click)="currentPageId = page.id"

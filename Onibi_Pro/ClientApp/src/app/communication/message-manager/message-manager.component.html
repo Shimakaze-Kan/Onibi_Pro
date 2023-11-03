@@ -15,32 +15,21 @@
   </div>
 
   <ul *ngIf="showMessageList">
-    <ng-container [ngSwitch]="isLoadingList">
-      <ng-container *ngSwitchCase="true">
-        <li *ngFor="let _ of [].constructor(3)">
-          <ng-container *ngTemplateOutlet="messageListElementPlaceholder">
-          </ng-container>
-        </li>
-      </ng-container>
-      <ng-container *ngSwitchDefault>
-        <li *ngFor="let message of messages; last as last">
-          <ng-container
-            *ngTemplateOutlet="messageElement; context: { message: message }"
-          ></ng-container>
-          <mat-divider *ngIf="!last"></mat-divider>
-        </li>
-      </ng-container>
-    </ng-container>
+    <mat-tab-group>
+      <mat-tab label="Inbox">
+        <ng-container
+          *ngTemplateOutlet="messageList; context: { messages: messages }"
+        ></ng-container>
+      </mat-tab>
+      <mat-tab label="Outbox">
+        <ng-container
+          *ngTemplateOutlet="messageList; context: { messages: outBoxMessages }"
+        ></ng-container>
+      </mat-tab>
+    </mat-tab-group>
   </ul>
   <div *ngIf="showMessageView">
-    <button
-      (click)="backToMessageList()"
-      mat-icon-button
-      aria-label="Back to message list"
-      class="position-absolute"
-    >
-      <mat-icon>keyboard_backspace</mat-icon>
-    </button>
+    <ng-container *ngTemplateOutlet="backToInbox"></ng-container>
     <app-message-view
       (replyMessage)="onReply($event)"
       class="mt-1"
@@ -49,14 +38,7 @@
   </div>
 
   <div *ngIf="showNewMessage">
-    <button
-      (click)="backToMessageList()"
-      mat-icon-button
-      aria-label="Back to message list"
-      class="position-absolute"
-    >
-      <mat-icon>keyboard_backspace</mat-icon>
-    </button>
+    <ng-container *ngTemplateOutlet="backToInbox"></ng-container>
     <app-new-message
       [title]="replyMessage.title"
       [receiverId]="replyMessage.receiverId"
@@ -112,5 +94,43 @@
       <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
     </div>
     <span class="mt-2">{{ message.title }}</span>
+  </div>
+</ng-template>
+
+<ng-template #messageList let-messages="messages">
+  <ng-container [ngSwitch]="isLoadingList">
+    <ng-container *ngSwitchCase="true">
+      <li *ngFor="let _ of [].constructor(3)">
+        <ng-container *ngTemplateOutlet="messageListElementPlaceholder">
+        </ng-container>
+      </li>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      <li *ngFor="let message of messages; last as last">
+        <ng-container
+          *ngTemplateOutlet="messageElement; context: { message: message }"
+        ></ng-container>
+        <mat-divider *ngIf="!last"></mat-divider>
+      </li>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template #backToInbox>
+  <div class="position-absolute d-flex">
+    <button
+      (click)="backToMessageList()"
+      mat-icon-button
+      aria-label="Back to message list"
+      #backButton
+    >
+      <mat-icon>keyboard_backspace</mat-icon>
+    </button>
+    <span
+      class="mb-auto mt-auto cursor-pointer"
+      (click)="backButton._elementRef.nativeElement.click()"
+    >
+      Back To Inbox</span
+    >
   </div>
 </ng-template>
