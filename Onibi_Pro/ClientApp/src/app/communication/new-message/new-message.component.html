@@ -1,0 +1,75 @@
+<form
+  [formGroup]="newMessageForm"
+  class="d-flex flex-column"
+  autocomplete="off"
+  (ngSubmit)="onSubmit()"
+>
+  <div class="d-flex mb-2">
+    <button
+      (click)="onSubmit()"
+      type="submit"
+      class="ms-auto"
+      mat-flat-button
+      color="primary"
+      [disabled]="newMessageForm.invalid"
+    >
+      Send
+    </button>
+  </div>
+  <div class="row">
+    <label class="mb-1" for="titleInput">Title</label>
+    <mat-form-field appearance="outline">
+      <input
+        id="titleInput"
+        matInput
+        placeholder="Title"
+        formControlName="title"
+      />
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <label class="mb-1" for="receiversSelect">Receivers</label>
+    <mat-form-field appearance="outline">
+      <mat-select
+        id="receiversSelect"
+        formControlName="receivers"
+        placeholder="Receivers"
+        multiple
+      >
+        <mat-option>
+          <ngx-mat-select-search
+            [formControl]="receiversFilterCtrl"
+            placeholderLabel="Type to search"
+          ></ngx-mat-select-search>
+        </mat-option>
+        <div
+          class="cursor-pointer"
+          (click)="newMessageForm.controls.receivers.reset()"
+        >
+          <mat-option class="none">-- None --</mat-option>
+        </div>
+        <mat-option
+          *ngFor="let receiver of filteredReceivers | async"
+          [value]="receiver.id"
+        >
+          {{ receiver.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <label class="mb-1" for="messageTextArea">Message</label>
+    <mat-form-field appearance="outline">
+      <textarea
+        matInput
+        #message
+        maxlength="250"
+        id="messageTextArea"
+        placeholder="Message"
+        formControlName="text"
+        rows="5"
+      ></textarea>
+      <mat-hint align="end">{{ message.value.length }}/250</mat-hint>
+    </mat-form-field>
+  </div>
+</form>

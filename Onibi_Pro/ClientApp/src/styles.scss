@@ -65,3 +65,13 @@ code {
     vertical-align: middle;
   }
 }
+
+mat-option.none {
+  &.mat-mdc-option-multiple {
+    mat-pseudo-checkbox {
+      display: none;
+    }
+    pointer-events: none;
+  }
+  color: gray;
+}

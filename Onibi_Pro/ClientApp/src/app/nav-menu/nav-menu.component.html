@@ -48,8 +48,8 @@
               </button>
             </li>
             <li>
-              <button mat-icon-button>
-                <mat-icon>search</mat-icon>
+              <button mat-icon-button (click)="toggleMessages()">
+                <mat-icon>local_post_office</mat-icon>
               </button>
             </li>
             <li>
@@ -129,6 +129,13 @@
             <mat-icon>keyboard_arrow_right</mat-icon>
           </button>
         </div>
+      </div>
+      <div
+        *ngIf="showMessages"
+        class="messages-panel p-3 pt-0 pe-auto"
+        #messagesPanel
+      >
+        <app-message-manager></app-message-manager>
       </div>
     </div>
   </div>

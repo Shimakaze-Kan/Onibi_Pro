@@ -1,0 +1,7 @@
+@mixin scrollbar-width {
+  scrollbar-width: thin;
+
+  ::-webkit-scrollbar {
+    width: 9px;
+  }
+}

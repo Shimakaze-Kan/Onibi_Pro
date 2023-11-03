@@ -55,7 +55,7 @@
                 placeholderLabel="Type to search"
               ></ngx-mat-select-search>
             </mat-option>
-            <mat-option style="color: gray">-- None --</mat-option>
+            <mat-option class="none">-- None --</mat-option>
             <mat-option
               *ngFor="let supervisor of filteredSupervisors | async"
               [value]="supervisor"
@@ -77,7 +77,7 @@
                 placeholderLabel="Type to search"
               ></ngx-mat-select-search>
             </mat-option>
-            <mat-option style="color: gray">-- None --</mat-option>
+            <mat-option class="none">-- None --</mat-option>
             <mat-option
               *ngFor="let city of filteredCities | async"
               [value]="city"
@@ -117,7 +117,7 @@
                 placeholderLabel="Type to search"
               ></ngx-mat-select-search>
             </mat-option>
-            <mat-option style="color: gray">-- None --</mat-option>
+            <mat-option class="none">-- None --</mat-option>
             <mat-option
               *ngFor="let position of filteredPositions | async"
               [value]="position"

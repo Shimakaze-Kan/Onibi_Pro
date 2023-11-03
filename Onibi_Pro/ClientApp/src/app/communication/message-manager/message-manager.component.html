@@ -1,0 +1,63 @@
+<div *ngIf="showMessageList" class="d-flex flex-row justify-content-between">
+  <h3>Messages</h3>
+  <div>
+    <button
+      (click)="showNewMessage = true"
+      class="me-2"
+      mat-flat-button
+      color="primary"
+    >
+      New Message
+    </button>
+    <button mat-flat-button color="primary">Clear</button>
+  </div>
+</div>
+
+<ul *ngIf="showMessageList">
+  <li *ngFor="let message of messages; last as last">
+    <div
+      class="message-list-element cursor-pointer"
+      [class.viewed]="message.isViewed"
+      (click)="viewMessage(message.messageId)"
+    >
+      <div class="d-flex justify-content-between">
+        <span>{{ message.sender }}</span>
+        <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+      </div>
+      <span class="mt-2">{{ message.title }}</span>
+    </div>
+    <mat-divider *ngIf="!last"></mat-divider>
+  </li>
+</ul>
+<div *ngIf="showMessageView">
+  <button
+    (click)="backToMessageList()"
+    mat-icon-button
+    aria-label="Back to message list"
+    class="position-absolute"
+  >
+    <mat-icon>keyboard_backspace</mat-icon>
+  </button>
+  <app-message-view
+    (replyMessage)="onReply($event)"
+    class="mt-1"
+    [messageId]="viewMessageId!"
+  ></app-message-view>
+</div>
+
+<div *ngIf="showNewMessage">
+  <button
+    (click)="backToMessageList()"
+    mat-icon-button
+    aria-label="Back to message list"
+    class="position-absolute"
+  >
+    <mat-icon>keyboard_backspace</mat-icon>
+  </button>
+  <app-new-message
+    [title]="replyMessage.title"
+    [receiverId]="replyMessage.receiverId"
+    [text]="replyMessage.text"
+    (messageSent)="backToMessageList()"
+  ></app-new-message>
+</div>

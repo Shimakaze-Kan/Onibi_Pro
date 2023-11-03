@@ -1,0 +1,16 @@
+<div class="d-flex">
+  <button class="ms-auto" (click)="reply()" mat-flat-button color="primary">
+    Reply
+  </button>
+</div>
+<div>
+  <span class="mt-b">Title: {{ message.title }}</span>
+  <div class="d-flex justify-content-between">
+    <span>Sender: {{ message.sender }}</span>
+    <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="d-flex flex-column mt-2">
+    <span *ngFor="let line of message.text.split('\n')">{{ line }}</span>
+  </div>
+</div>

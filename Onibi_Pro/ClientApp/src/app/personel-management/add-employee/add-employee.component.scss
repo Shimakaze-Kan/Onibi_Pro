@@ -1,7 +1,5 @@
-.dialog-content {
-  scrollbar-width: thin;
+@import "/src/mixins.scss";
 
-  ::-webkit-scrollbar {
-    width: 9px;
-  }
+.dialog-content {
+  @include scrollbar-width;
 }

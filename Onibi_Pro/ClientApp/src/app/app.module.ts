@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { Route, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -45,6 +45,39 @@ import {
   MatDialogRef,
   MatDialogModule,
 } from '@angular/material/dialog';
+import { CommunicationModule } from './communication/communication.module';
+import { UtilsModule } from './utils/utils.module';
+
+const MATERIAL_MODULES = [
+  MatButtonModule,
+  MatCheckboxModule,
+  MatIconModule,
+  MatDividerModule,
+  MatRadioModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatSelectModule,
+  MatListModule,
+  MatMenuModule,
+  MatButtonToggleModule,
+  MatTableModule,
+  MatPaginatorModule,
+  NgxMatSelectSearchModule,
+  MatDialogModule,
+];
+
+const ROUTES: Array<Route> = [
+  {
+    path: '',
+    component: WelcomeComponent /*HomeComponent*/,
+    pathMatch: 'full',
+  },
+  { path: 'counter', component: CounterComponent },
+  { path: 'fetch-data', component: FetchDataComponent },
+  { path: 'schedule', component: ScheduleComponent },
+  { path: 'personel-management', component: PersonelManagementComponent },
+  { path: 'welcome', component: WelcomeComponent },
+];
 
 @NgModule({
   declarations: [
@@ -64,44 +97,16 @@ import {
     HttpClientModule,
     FormsModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot([
-      {
-        path: '',
-        component: WelcomeComponent /*HomeComponent*/,
-        pathMatch: 'full',
-      },
-      { path: 'counter', component: CounterComponent },
-      { path: 'fetch-data', component: FetchDataComponent },
-      { path: 'schedule', component: ScheduleComponent },
-      { path: 'personel-management', component: PersonelManagementComponent },
-      { path: 'welcome', component: WelcomeComponent },
-    ]),
-    MatButtonModule,
-    MatCheckboxModule,
-    MatIconModule,
-    MatDividerModule,
-    MatFormFieldModule,
-    MatInputModule,
+    RouterModule.forRoot(ROUTES),
     FormsModule,
     ReactiveFormsModule,
-    MatCheckboxModule,
-    MatRadioModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatIconModule,
-    MatListModule,
-    MatMenuModule,
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory,
     }),
-    MatButtonToggleModule,
-    MatTableModule,
-    MatPaginatorModule,
-    NgxMatSelectSearchModule,
-    MatRadioModule,
-    MatDialogModule,
+    ...MATERIAL_MODULES,
+    CommunicationModule,
+    UtilsModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

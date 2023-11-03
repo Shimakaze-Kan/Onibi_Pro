@@ -1,0 +1,20 @@
+@import "/src/colors.scss";
+
+.message-list-element {
+  padding: 0.5rem;
+  border: solid 1px transparent;
+  border-radius: 5px;
+
+  &.viewed {
+    font-weight: bold;
+  }
+
+  &:hover {
+    border-color: $logo-color;
+  }
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}

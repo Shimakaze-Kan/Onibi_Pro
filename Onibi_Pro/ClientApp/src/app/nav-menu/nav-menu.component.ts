@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -18,8 +19,10 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('placeholder') private placeholder!: ElementRef;
   @ViewChild('navContainer') private navContainer!: ElementRef;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('messagesPanel', { static: false }) messagesPanel!: ElementRef;
   private readonly _destroy$ = new Subject<void>();
   private _observer!: IntersectionObserver;
+  showMessages = false;
   isExpanded = false;
   currentPageId = 1;
   currentPageUrl = '/';
@@ -53,7 +56,10 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     return;
   }
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly changeDetectorRef: ChangeDetectorRef
+  ) {}
 
   ngAfterViewInit(): void {
     const navContainerHeight =
@@ -115,6 +121,18 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
 
   scrollRight() {
     this.scrollContainer.nativeElement.scrollLeft += 100;
+  }
+
+  toggleMessages() {
+    this.showMessages = !this.showMessages;
+
+    if (this.showMessages) {
+      this.changeDetectorRef.detectChanges();
+      const top = this.messagesPanel.nativeElement.offsetTop;
+      this.messagesPanel.nativeElement.style.height = `${
+        window.innerHeight - top
+      }px`;
+    }
   }
 
   private observeScrollContainer(): void {

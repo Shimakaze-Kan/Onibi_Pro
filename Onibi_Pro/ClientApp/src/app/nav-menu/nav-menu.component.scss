@@ -1,3 +1,5 @@
+@import "/src/mixins.scss";
+
 a.navbar-brand {
   white-space: normal;
   text-align: center;
@@ -53,6 +55,7 @@ $attached-bottom-nav-height: 2.8rem;
   transform: translateY(-100%);
   pointer-events: none;
   height: 10px;
+  clip-path: inset(-20px 0px -47px 0px);
 }
 
 .nav-button-outer-container {
@@ -134,4 +137,15 @@ $attached-bottom-nav-height: 2.8rem;
   @include scroll-button(270deg);
   left: 0;
   transform: translateX(-25%);
+}
+
+.messages-panel {
+  width: 70%;
+  background: white;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 0 0 0 25px;
+  overflow: auto;
+  z-index: 1000;
+
+  @include scrollbar-width;
 }

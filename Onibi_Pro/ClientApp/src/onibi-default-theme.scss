@@ -119,6 +119,7 @@ button[mat-icon-button] {
 }
 
 /* scrollbar stuff start */
+@import "./mixins.scss";
 $scrollbar-backcolor: rgb(210, 210, 210);
 $scrollbar-frontcolor: $logo-color;
 
@@ -129,17 +130,20 @@ $scrollbar-frontcolor: $logo-color;
   scrollbar-face-color: $scrollbar-frontcolor; /* Firefox 63 compatibility */
   scrollbar-track-color: $scrollbar-backcolor; /* Firefox 63 compatibility */
   scrollbar-color: $scrollbar-frontcolor $scrollbar-backcolor;
-  scrollbar-width: thin;
+  @include scrollbar-width;
 
-  /* chrome based */
-  ::-webkit-scrollbar {
-    width: 9px;
-  }
   ::-webkit-scrollbar-track {
     background: $scrollbar-backcolor;
   }
   ::-webkit-scrollbar-thumb {
     background-color: $scrollbar-frontcolor;
   }
+}
+
+textarea {
+  @include scrollbar-width;
+}
+div {
+  @include scrollbar-width;
 }
 /* scrollbar stuff end */
