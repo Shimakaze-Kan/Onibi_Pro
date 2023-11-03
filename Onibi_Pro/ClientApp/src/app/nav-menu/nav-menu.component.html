@@ -131,11 +131,12 @@
         </div>
       </div>
       <div
+        [@slideInOut]
         *ngIf="showMessages"
         class="messages-panel p-3 pt-0 pe-auto"
         #messagesPanel
       >
-        <app-message-manager></app-message-manager>
+        <app-message-manager class="w-100"></app-message-manager>
       </div>
     </div>
   </div>

@@ -1,16 +1,67 @@
 <div class="d-flex">
-  <button class="ms-auto" (click)="reply()" mat-flat-button color="primary">
+  <button
+    class="ms-auto"
+    (click)="reply()"
+    [disabled]="isLoadingMessage"
+    mat-flat-button
+    color="primary"
+  >
     Reply
   </button>
 </div>
 <div>
-  <span class="mt-b">Title: {{ message.title }}</span>
-  <div class="d-flex justify-content-between">
-    <span>Sender: {{ message.sender }}</span>
-    <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
-  </div>
+  <ng-container *ngIf="!isLoadingMessage; else headerPlaceholder">
+    <span class="mt-b">Title: {{ message.title }}</span>
+    <div class="d-flex justify-content-between">
+      <span>Sender: {{ message.sender }}</span>
+      <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+    </div>
+  </ng-container>
   <mat-divider></mat-divider>
   <div class="d-flex flex-column mt-2">
-    <span *ngFor="let line of message.text.split('\n')">{{ line }}</span>
+    <ng-container *ngIf="!isLoadingMessage; else messageBodyPlaceholder">
+      <span *ngFor="let line of message.text.split('\n')">{{ line }}</span>
+    </ng-container>
   </div>
 </div>
+
+<ng-template #headerPlaceholder>
+  <div class="wrapper">
+    <ngx-skeleton-loader
+      [theme]="{
+        width: '50%',
+        'border-radius': '0',
+        height: '15px',
+        'margin-bottom': '10px'
+      }"
+    ></ngx-skeleton-loader>
+  </div>
+  <div class="d-flex justify-content-between">
+    <div class="wrapper" style="width: 20%">
+      <ngx-skeleton-loader
+        [theme]="{
+          width: '100%',
+          'border-radius': '0',
+          height: '15px',
+          'margin-bottom': '0px'
+        }"
+      ></ngx-skeleton-loader>
+    </div>
+    <div class="wrapper ms-auto" style="width: 30%">
+      <ngx-skeleton-loader
+        [theme]="{
+          width: '100%',
+          'border-radius': '0',
+          height: '15px',
+          'margin-bottom': '0px'
+        }"
+      ></ngx-skeleton-loader>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #messageBodyPlaceholder>
+  <ngx-skeleton-loader
+    [theme]="{ width: '70%', height: '100px' }"
+  ></ngx-skeleton-loader>
+</ng-template>

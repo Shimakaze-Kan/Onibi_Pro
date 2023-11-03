@@ -10,6 +10,7 @@ export class MessageViewComponent implements OnInit {
   @Input({ required: true }) messageId!: number;
   @Output() replyMessage = new EventEmitter<IReplyMessage>();
   message!: IMessage;
+  isLoadingMessage = true;
 
   constructor(private readonly datePipe: DatePipe) {}
 
@@ -29,6 +30,7 @@ export class MessageViewComponent implements OnInit {
     };
 
     this.message = dummyMessage;
+    setTimeout(() => (this.isLoadingMessage = false), 1000);
   }
 
   reply(): void {

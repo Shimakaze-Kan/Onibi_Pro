@@ -1,3 +1,4 @@
+import { animate, style, transition, trigger } from '@angular/animations';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -14,6 +15,18 @@ import { BehaviorSubject, Subject, takeUntil, tap } from 'rxjs';
   selector: 'app-nav-menu',
   templateUrl: './nav-menu.component.html',
   styleUrls: ['./nav-menu.component.scss'],
+  animations: [
+    trigger('slideInOut', [
+      transition(':enter', [
+        style({ transform: 'translateY(-100%)', zIndex: '-1' }),
+        animate('150ms ease-in', style({ transform: 'translateY(0%)' })),
+      ]),
+      transition(':leave', [
+        style({ zIndex: '-1' }),
+        animate('150ms ease-in', style({ transform: 'translateY(-100%)' })),
+      ]),
+    ]),
+  ],
 })
 export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('placeholder') private placeholder!: ElementRef;

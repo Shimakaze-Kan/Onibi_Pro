@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IReplyMessage } from '../message-view/message-view.component';
 
 @Component({
@@ -6,9 +6,10 @@ import { IReplyMessage } from '../message-view/message-view.component';
   templateUrl: './message-manager.component.html',
   styleUrls: ['./message-manager.component.scss'],
 })
-export class MessageManagerComponent {
+export class MessageManagerComponent implements OnInit {
   viewMessageId: number | undefined;
   showNewMessage: boolean = false;
+  isLoadingList = true;
   replyMessage: IReplyMessage = {
     title: '',
     receiverId: undefined,
@@ -96,6 +97,10 @@ export class MessageManagerComponent {
 
   get showMessageList(): boolean {
     return !this.viewMessageId && !this.showNewMessage;
+  }
+
+  ngOnInit(): void {
+    setTimeout(() => (this.isLoadingList = false), 1000);
   }
 
   viewMessage(messageId: number): void {

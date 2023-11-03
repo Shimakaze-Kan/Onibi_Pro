@@ -13,6 +13,7 @@ import { UtilsModule } from '../utils/utils.module';
 import { NewMessageComponent } from './new-message/new-message.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatSelectModule } from '@angular/material/select';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { MatSelectModule } from '@angular/material/select';
     UtilsModule,
     MatSelectModule,
     NgxMatSelectSearchModule,
+    NgxSkeletonLoaderModule,
   ],
   exports: [MessageManagerComponent],
   providers: [DatePipe],

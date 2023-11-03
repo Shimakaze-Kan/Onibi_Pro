@@ -47,6 +47,7 @@ import {
 } from '@angular/material/dialog';
 import { CommunicationModule } from './communication/communication.module';
 import { UtilsModule } from './utils/utils.module';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -107,6 +108,7 @@ const ROUTES: Array<Route> = [
     ...MATERIAL_MODULES,
     CommunicationModule,
     UtilsModule,
+    NgxSkeletonLoaderModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

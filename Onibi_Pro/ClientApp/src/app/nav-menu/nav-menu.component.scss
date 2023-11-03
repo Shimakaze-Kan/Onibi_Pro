@@ -140,7 +140,9 @@ $attached-bottom-nav-height: 2.8rem;
 }
 
 .messages-panel {
-  width: 70%;
+  display: flex;
+  min-width: 40vw;
+  max-width: 40vw;
   background: white;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 0 0 0 25px;
