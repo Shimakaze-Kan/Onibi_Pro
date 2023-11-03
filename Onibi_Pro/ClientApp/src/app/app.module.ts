@@ -48,6 +48,8 @@ import {
 import { CommunicationModule } from './communication/communication.module';
 import { UtilsModule } from './utils/utils.module';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { DeliveryModule } from './delivery/delivery.module';
+import { DeliveryComponent } from './delivery/delivery/delivery.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -78,6 +80,7 @@ const ROUTES: Array<Route> = [
   { path: 'schedule', component: ScheduleComponent },
   { path: 'personel-management', component: PersonelManagementComponent },
   { path: 'welcome', component: WelcomeComponent },
+  { path: 'delivery', component: DeliveryComponent },
 ];
 
 @NgModule({
@@ -109,6 +112,7 @@ const ROUTES: Array<Route> = [
     CommunicationModule,
     UtilsModule,
     NgxSkeletonLoaderModule,
+    DeliveryModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

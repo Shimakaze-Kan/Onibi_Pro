@@ -55,7 +55,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
 
   pages = [
     { name: 'Main Page', id: 1, url: '/' },
-    { name: 'Delivery', id: 2, url: '/counter' },
+    { name: 'Delivery', id: 2, url: '/delivery' },
     { name: 'Schedule', id: 3, url: '/schedule' },
     { name: 'Welcome', id: 4, url: '/welcome' },
     { name: 'Calendar', id: 5 },

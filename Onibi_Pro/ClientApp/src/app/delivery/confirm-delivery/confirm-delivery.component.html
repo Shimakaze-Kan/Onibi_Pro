@@ -1,0 +1,79 @@
+<h1 mat-dialog-title>Confirm Delivery</h1>
+<div mat-dialog-content class="dialog-content">
+  <form
+    [formGroup]="confirmDeliveryForm"
+    class="d-flex flex-row"
+    autocomplete="off"
+  >
+    <div class="col-5">
+      <div class="row">
+        <label class="mb-1" for="codeInput">Code</label>
+        <mat-form-field appearance="outline">
+          <input
+            id="codeInput"
+            matInput
+            placeholder="Code"
+            formControlName="code"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <span class="text-center col-2 m-auto">OR</span>
+    <button
+      (click)="openScanner()"
+      class="col-5 mt-auto mb-auto"
+      mat-flat-button
+      color="primary"
+      [disabled]="showNoCameraException"
+    >
+      Scan QR Code
+    </button>
+  </form>
+  <div *ngIf="showCamera">
+    <zxing-scanner
+      #scanner
+      (camerasFound)="camerasFoundHandler($event)"
+      (camerasNotFound)="camerasNotFoundHandler($event)"
+      (scanSuccess)="onCodeResult($event)"
+      [device]="currentCamera"
+      [ngStyle]="{ visibility: firstRun ? 'hidden' : 'visible' }"
+      [class.position-fixed]="firstRun"
+    ></zxing-scanner>
+    <div *ngIf="!firstRun" class="d-flex flex-row next-camera">
+      <span class="me-2 mt-auto mb-auto"
+        >Camera: {{ cameraNumber + 1 }} / {{ cameras.length }}</span
+      >
+      <button
+        (click)="nextCamera()"
+        mat-flat-button
+        color="primary"
+        [disabled]="showNoCameraException"
+      >
+        Next
+      </button>
+    </div>
+    <div *ngIf="firstRun">
+      <!--required by security-->
+      <button
+        (click)="nextCamera()"
+        mat-flat-button
+        color="primary"
+        [disabled]="showNoCameraException"
+      >
+        Open Camera
+      </button>
+    </div>
+  </div>
+  <p *ngIf="showNoCameraException">No camera was found.</p>
+</div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button
+    mat-button
+    color="primary"
+    [disabled]="confirmDeliveryForm.invalid"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
+</div>
