@@ -5,3 +5,7 @@
   padding: 0.5rem;
   border-radius: 5px;
 }
+
+zxing-scanner::ng-deep video {
+  border-radius: 5px;
+}

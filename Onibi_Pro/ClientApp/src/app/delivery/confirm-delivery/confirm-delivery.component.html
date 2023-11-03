@@ -47,7 +47,7 @@
         (click)="nextCamera()"
         mat-flat-button
         color="primary"
-        [disabled]="showNoCameraException"
+        [disabled]="showNoCameraException || (cameras || []).length <= 1"
       >
         Next
       </button>
