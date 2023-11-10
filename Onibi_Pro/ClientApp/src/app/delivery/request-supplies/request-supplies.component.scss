@@ -1,3 +1,5 @@
+@import "/../src/colors.scss";
+
 .small-mat-icon {
   min-width: 0px;
   mat-icon {
@@ -11,5 +13,18 @@
     display: flex;
     list-style-type: none;
     margin-bottom: 0;
+
+    span:first-of-type {
+      padding-left: 0.3rem;
+    }
+  }
+}
+
+.border-list {
+  border: 1px solid transparent;
+  border-radius: 4px;
+
+  &:not(.form):hover {
+    border-color: $logo-color;
   }
 }

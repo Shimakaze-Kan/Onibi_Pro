@@ -36,7 +36,11 @@
         <span class="col-5 mt-auto mb-auto">Name</span>
         <span class="col-3 mt-auto mb-auto">Amount</span>
       </li>
-      <li *ngFor="let productForm of supplies.controls; let i = index">
+      <li
+        class="border-list"
+        [class.form]="isIndexEdited(i)"
+        *ngFor="let productForm of supplies.controls; let i = index"
+      >
         <ng-container
           *ngTemplateOutlet="
             isIndexEdited(i) ? supplyItemForm : supplyItem;
