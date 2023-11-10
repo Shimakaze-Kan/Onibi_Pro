@@ -18,9 +18,16 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ConfirmDeliveryComponent } from './confirm-delivery/confirm-delivery.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { RequestSuppliesComponent } from './request-supplies/request-supplies.component';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @NgModule({
-  declarations: [DeliveryComponent, ConfirmDeliveryComponent],
+  declarations: [
+    DeliveryComponent,
+    ConfirmDeliveryComponent,
+    RequestSuppliesComponent,
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -41,6 +48,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTableModule,
     MatPaginatorModule,
     MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   exports: [DeliveryComponent],
 })

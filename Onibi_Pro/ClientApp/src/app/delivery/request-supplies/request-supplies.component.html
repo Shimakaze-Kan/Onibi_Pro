@@ -1,0 +1,171 @@
+<h1 mat-dialog-title>Request The Supplies</h1>
+<div mat-dialog-content class="dialog-content">
+  <form [formGroup]="newSupplyForm" autocomplete="off">
+    <div class="d-flex flex-row">
+      <div class="col-6">
+        <div class="row">
+          <label class="mb-1" for="untilDatePicker">Until</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="untilDatePicker"
+              matInput
+              formControlName="until"
+              [matDatepicker]="picker"
+              [min]="currentDate"
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+      <mat-checkbox
+        class="ms-4 mt-auto mb-auto"
+        color="primary"
+        formControlName="isUrgent"
+        >Is Urgent?</mat-checkbox
+      >
+    </div>
+    <mat-divider></mat-divider>
+
+    <ul class="supply-list mt-2">
+      <li *ngIf="!!supplies.controls.length" style="color: black">
+        <span class="col-1 mt-auto mb-auto">No.</span>
+        <span class="col-5 mt-auto mb-auto">Name</span>
+        <span class="col-3 mt-auto mb-auto">Amount</span>
+      </li>
+      <li *ngFor="let productForm of supplies.controls; let i = index">
+        <ng-container
+          *ngTemplateOutlet="
+            isIndexEdited(i) ? supplyItemForm : supplyItem;
+            context: {
+              form: productForm,
+              supplyOpertaion: supplyOperation.Update,
+              index: i
+            }
+          "
+        ></ng-container>
+        <button
+          *ngIf="isIndexEdited(i)"
+          (click)="updateSupply(i)"
+          class="ms-3 mt-auto mb-auto col-2"
+          [disabled]="productForm.invalid"
+          mat-flat-button
+          color="primary"
+        >
+          Update
+        </button>
+      </li>
+    </ul>
+    <mat-divider></mat-divider>
+    <form
+      class="d-flex flex-row mt-2"
+      [formGroup]="tmpSupplyForm"
+      autocomplete="off"
+    >
+      <ng-container
+        *ngTemplateOutlet="
+          supplyItemForm;
+          context: { form: tmpSupplyForm, supplyOpertaion: supplyOperation.Add }
+        "
+      ></ng-container>
+      <button
+        (click)="addSupplyForm()"
+        class="ms-3 mt-auto mb-auto col-2"
+        [disabled]="tmpSupplyForm.invalid"
+        mat-flat-button
+        color="primary"
+      >
+        Add
+      </button>
+    </form>
+  </form>
+</div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button
+    mat-button
+    color="primary"
+    [disabled]="newSupplyForm.invalid || supplies.controls.length === 0"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
+</div>
+
+<ng-template
+  #supplyItemForm
+  let-form="form"
+  let-index="index"
+  let-supplyOpertaion="supplyOpertaion"
+>
+  <form
+    class="col-6"
+    [formGroup]="form"
+    (ngSubmit)="addOrUpdate(supplyOpertaion, index)"
+    autocomplete="off"
+  >
+    <div class="row">
+      <label class="mb-1" for="productSelect">Product</label>
+      <mat-form-field appearance="outline">
+        <mat-select
+          id="productSelect"
+          formControlName="name"
+          placeholder="Product"
+        >
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="productFilterCtrl"
+              placeholderLabel="Type to search"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <mat-option style="color: gray">-- None --</mat-option>
+          <mat-option
+            *ngFor="let product of filteredProducts | async"
+            [value]="product"
+          >
+            {{ product }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+  <form
+    class="ms-4 col-3"
+    [formGroup]="form"
+    (ngSubmit)="addOrUpdate(supplyOpertaion, index)"
+    autocomplete="off"
+  >
+    <div class="row">
+      <label class="mb-1" for="amountInput">Amount</label>
+      <mat-form-field appearance="outline">
+        <input
+          id="amountInput"
+          matInput
+          formControlName="amount"
+          placeholder="Amount"
+        />
+      </mat-form-field>
+    </div>
+  </form>
+</ng-template>
+<ng-template #supplyItem let-form="form" let-index="index">
+  <span class="col-1 mt-auto mb-auto text-break">{{ index + 1 }}.</span>
+  <span class="col-5 mt-auto mb-auto text-break">{{
+    form.get("name")?.value
+  }}</span>
+  <span class="col-3 mt-auto mb-auto text-break">{{
+    form.get("amount")?.value
+  }}</span>
+
+  <div class="ms-auto">
+    <button mat-button (click)="editSupply(index)" class="small-mat-icon">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-button (click)="deleteSupply(index)" class="small-mat-icon">
+      <mat-icon>remove_circle_outline</mat-icon>
+    </button>
+  </div>
+</ng-template>

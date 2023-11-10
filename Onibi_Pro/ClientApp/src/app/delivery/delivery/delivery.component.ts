@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDeliveryComponent } from '../confirm-delivery/confirm-delivery.component';
+import { RequestSuppliesComponent } from '../request-supplies/request-supplies.component';
 
 @Component({
   selector: 'app-delivery',
@@ -86,6 +87,17 @@ export class DeliveryComponent implements AfterViewInit {
 
   openConfirmDeliveryDialog() {
     const dialogRef = this.dialog.open(ConfirmDeliveryComponent, {
+      maxWidth: '750px',
+      width: '600px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The dialog was closed');
+    });
+  }
+
+  openRequestSuppliesDialog() {
+    const dialogRef = this.dialog.open(RequestSuppliesComponent, {
       maxWidth: '750px',
       width: '600px',
     });

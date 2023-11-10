@@ -5,9 +5,11 @@
       class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white pe-auto"
     >
       <div class="container">
-        <h5 class="mb-0">{{ currentPageName }}</h5>
+        <h5 class="mb-0" style="transform: translateX(-50%); margin-left: 50%">
+          {{ currentPageName }}
+        </h5>
         <button
-          class="navbar-toggler"
+          class="navbar-toggler ms-auto"
           type="button"
           data-toggle="collapse"
           data-target=".navbar-collapse"
@@ -17,7 +19,6 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <img class="navbar-logo" src="/assets/logos/onibi_plain_s.svg" />
         <div
           class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
           [ngClass]="{ show: isExpanded }"
@@ -90,29 +91,31 @@
             class="nav-button-container pe-auto position-absolute w-100"
             #scrollContainer
           >
-            <div
-              *ngFor="let page of pages; first as first; last as last"
-              [class.first-button-container]="first"
-              [class.last-button-container]="last"
-            >
-              <button
-                (click)="currentPageId = page.id"
-                *ngIf="currentPageUrl === page.url"
-                mat-flat-button
-                color="primary"
-                routerLink="{{ page.url }}"
+            <div>
+              <div
+                *ngFor="let page of pages; first as first; last as last"
+                [class.first-button-container]="first"
+                [class.last-button-container]="last"
               >
-                {{ page.name }}
-              </button>
-              <button
-                (click)="currentPageId = page.id"
-                *ngIf="currentPageUrl !== page.url"
-                mat-stroked-button
-                color="primary"
-                routerLink="{{ page.url }}"
-              >
-                {{ page.name }}
-              </button>
+                <button
+                  (click)="currentPageId = page.id"
+                  *ngIf="currentPageUrl === page.url"
+                  mat-flat-button
+                  color="primary"
+                  routerLink="{{ page.url }}"
+                >
+                  {{ page.name }}
+                </button>
+                <button
+                  (click)="currentPageId = page.id"
+                  *ngIf="currentPageUrl !== page.url"
+                  mat-stroked-button
+                  color="primary"
+                  routerLink="{{ page.url }}"
+                >
+                  {{ page.name }}
+                </button>
+              </div>
             </div>
           </div>
           <button

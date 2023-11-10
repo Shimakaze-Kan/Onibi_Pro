@@ -83,14 +83,9 @@ $attached-bottom-nav-height: 2.8rem;
     backdrop-filter: blur(5px);
     gap: 0.5rem;
     padding: 0.25rem;
-
-    &:last-child {
-      border-radius: 0 $chip-radius $chip-radius 0;
-    }
-
-    &:first-child {
-      border-radius: $chip-radius 0 0 $chip-radius;
-    }
+    border-radius: $chip-radius;
+    display: flex;
+    flex-direction: row;
   }
 }
 
@@ -151,4 +146,10 @@ $attached-bottom-nav-height: 2.8rem;
   scrollbar-gutter: stable;
 
   @include scrollbar-width;
+}
+
+nav > .container {
+  background: url("/assets/logos/onibi.svg") no-repeat;
+  background-position: 0 center;
+  background-size: contain;
 }
