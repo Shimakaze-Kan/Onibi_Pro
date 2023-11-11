@@ -1,48 +1,15 @@
 <header>
   <div #placeholder></div>
   <div class="nav-container pe-none" #navContainer>
-    <nav
-      class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white pe-auto"
-    >
+    <nav class="navbar navbar-light bg-white pe-auto">
       <div class="container">
-        <h5 class="mb-0" style="transform: translateX(-50%); margin-left: 50%">
-          {{ currentPageName }}
-        </h5>
-        <button
-          class="navbar-toggler ms-auto"
-          type="button"
-          data-toggle="collapse"
-          data-target=".navbar-collapse"
-          aria-label="Toggle navigation"
-          [attr.aria-expanded]="isExpanded"
-          (click)="toggle()"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div
-          class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
-          [ngClass]="{ show: isExpanded }"
-        >
-          <ul class="navbar-nav flex-grow">
-            <!--
-            <li
-              class="nav-item"
-              [routerLinkActive]="['link-active']"
-              [routerLinkActiveOptions]="{ exact: true }"
-            >
-              <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
-            </li>
-            <li class="nav-item" [routerLinkActive]="['link-active']">
-              <a class="nav-link text-dark" [routerLink]="['/counter']"
-                >Counter</a
-              >
-            </li>
-            <li class="nav-item" [routerLinkActive]="['link-active']">
-              <a class="nav-link text-dark" [routerLink]="['/fetch-data']"
-                >Fetch data</a
-              >
-            </li>
-            -->
+        <div class="ms-auto">
+          <h5 class="mb-0 d-none d-sm-block current-page">
+            {{ currentPageName }}
+          </h5>
+        </div>
+        <div class="d-flex ms-auto">
+          <ul class="navbar-nav flex-grow d-flex flex-row">
             <li>
               <button mat-icon-button>
                 <mat-icon>favorite</mat-icon>
@@ -62,6 +29,14 @@
               </mat-menu>
             </li>
           </ul>
+
+          <button
+            class="navbar-toggler ms-auto"
+            type="button"
+            (click)="toggle()"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
         </div>
       </div>
     </nav>
@@ -78,7 +53,14 @@
       </div>
       <div class="w-100 pe-none">
         <div class="bottom-navbar-shadow-holder box-shadow"></div>
-        <div class="pe-none position-relative nav-button-outer-container">
+        <div class="d-sm-none pe-auto w-100 d-flex justify-content-center">
+          <div class="bottom-current-page">
+            <h3 class="mb-0">{{ currentPageName }}</h3>
+          </div>
+        </div>
+        <div
+          class="pe-none position-relative nav-button-outer-container d-none d-sm-block"
+        >
           <button
             *ngIf="showLeftScrollButton$ | async"
             class="left-scroll-button"
@@ -137,5 +119,18 @@
         <app-message-manager class="w-100"></app-message-manager>
       </div>
     </div>
+  </div>
+  <div class="full-screen-menu" *ngIf="showFullScreenMenu">
+    <button mat-fab (click)="toggle()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <ul>
+      <li *ngFor="let page of pages; last as last" (click)="toggle()">
+        <h3>
+          <a class="d-block p-1" routerLink="{{ page.url }}">{{ page.name }}</a>
+        </h3>
+        <mat-divider *ngIf="!last"></mat-divider>
+      </li>
+    </ul>
   </div>
 </header>

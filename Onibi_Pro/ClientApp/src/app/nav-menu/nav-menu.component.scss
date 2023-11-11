@@ -15,6 +15,10 @@ html {
   }
 }
 
+.navbar-toggler {
+  transform: scale(0.75);
+}
+
 .box-shadow {
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   clip-path: inset(-20px -68px -47px 0px);
@@ -136,7 +140,7 @@ $attached-bottom-nav-height: 2.8rem;
 
 .messages-panel {
   display: flex;
-  min-width: 40vw;
+  min-width: 615px;
   max-width: 40vw;
   background: white;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
@@ -152,4 +156,64 @@ nav > .container {
   background: url("/assets/logos/onibi.svg") no-repeat;
   background-position: 0 center;
   background-size: contain;
+}
+
+@media (max-width: 768px) {
+  .messages-panel {
+    min-width: 100vw;
+    max-width: 100vw;
+    left: 0;
+    position: absolute;
+  }
+}
+
+.current-page {
+  transform: translateX(-50%);
+  margin-left: 50%;
+  white-space: nowrap;
+}
+
+.full-screen-menu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1000;
+  text-align: center;
+  display: flex;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: url("/assets/logos/onibi_plain_s.svg") white;
+  background-position: 95% bottom;
+  background-size: 50%;
+  background-repeat: no-repeat;
+
+  button {
+    right: 0;
+    position: absolute;
+    margin: 0.5rem;
+    background-color: white;
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: auto;
+    width: 100%;
+    margin-bottom: auto;
+
+    a {
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      color: black;
+    }
+  }
+}
+
+.bottom-current-page {
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  border-radius: 4px;
 }

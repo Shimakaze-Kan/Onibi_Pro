@@ -48,6 +48,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   isExpanded = false;
   currentPageId = 1;
   currentPageUrl = '/';
+  showFullScreenMenu = false;
   showLeftScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   showRightScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
@@ -137,7 +138,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   toggle() {
-    this.isExpanded = !this.isExpanded;
+    this.showFullScreenMenu = !this.showFullScreenMenu;
   }
 
   goBack() {
