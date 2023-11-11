@@ -190,10 +190,42 @@ nav > .container {
   background-repeat: no-repeat;
 
   button {
-    right: 0;
+    border-radius: 0 !important;
     position: absolute;
-    margin: 0.5rem;
     background-color: white;
+    width: 100%;
+    height: 10%;
+
+    $mat-icon-down-scale: scale(2.5);
+
+    &:hover {
+      mat-icon {
+        animation: horizontal-shaking 1s infinite;
+      }
+    }
+
+    mat-icon {
+      transform: $mat-icon-down-scale;
+      animation: horizontal-shaking 1s;
+    }
+
+    @keyframes horizontal-shaking {
+      0% {
+        transform: $mat-icon-down-scale translateX(0);
+      }
+      25% {
+        transform: $mat-icon-down-scale translateX(5px);
+      }
+      50% {
+        transform: $mat-icon-down-scale translateX(-5px);
+      }
+      75% {
+        transform: $mat-icon-down-scale translateX(5px);
+      }
+      100% {
+        transform: $mat-icon-down-scale translateX(0);
+      }
+    }
   }
 
   ul {
@@ -204,9 +236,13 @@ nav > .container {
     margin-bottom: auto;
 
     a {
-      text-decoration: underline;
-      text-decoration-thickness: 1.5px;
+      text-decoration: none;
       color: black;
+
+      &:hover {
+        text-decoration: underline;
+        text-decoration-thickness: 1.5px;
+      }
     }
   }
 }
@@ -216,4 +252,20 @@ nav > .container {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(5px);
   border-radius: 4px;
+}
+
+@media (max-width: 445px) {
+  .bottom-current-page {
+    h3 {
+      font-size: 16px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-current-page {
+    h3 {
+      font-size: 13px;
+    }
+  }
 }

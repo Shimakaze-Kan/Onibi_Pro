@@ -50,6 +50,7 @@ import { UtilsModule } from './utils/utils.module';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { DeliveryModule } from './delivery/delivery.module';
 import { DeliveryComponent } from './delivery/delivery/delivery.component';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -113,6 +114,7 @@ const ROUTES: Array<Route> = [
     UtilsModule,
     NgxSkeletonLoaderModule,
     DeliveryModule,
+    OverlayModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

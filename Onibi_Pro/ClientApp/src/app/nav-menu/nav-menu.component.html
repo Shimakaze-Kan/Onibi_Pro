@@ -34,6 +34,8 @@
             class="navbar-toggler ms-auto"
             type="button"
             (click)="toggle()"
+            cdkOverlayOrigin
+            #trigger="cdkOverlayOrigin"
           >
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -54,7 +56,7 @@
       <div class="w-100 pe-none">
         <div class="bottom-navbar-shadow-holder box-shadow"></div>
         <div class="d-sm-none pe-auto w-100 d-flex justify-content-center">
-          <div class="bottom-current-page">
+          <div class="bottom-current-page text-nowrap">
             <h3 class="mb-0">{{ currentPageName }}</h3>
           </div>
         </div>
@@ -120,17 +122,25 @@
       </div>
     </div>
   </div>
-  <div class="full-screen-menu" *ngIf="showFullScreenMenu">
-    <button mat-fab (click)="toggle()">
-      <mat-icon>close</mat-icon>
+</header>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="showFullScreenMenu"
+  [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
+>
+  <div class="full-screen-menu" [@slideInOutFromBottom]>
+    <button mat-button (click)="toggle()">
+      <mat-icon>keyboard_arrow_down</mat-icon>
     </button>
     <ul>
       <li *ngFor="let page of pages; last as last" (click)="toggle()">
-        <h3>
-          <a class="d-block p-1" routerLink="{{ page.url }}">{{ page.name }}</a>
+        <h3 class="m-0">
+          <a class="d-block p-2" routerLink="{{ page.url }}">{{ page.name }}</a>
         </h3>
         <mat-divider *ngIf="!last"></mat-divider>
       </li>
     </ul>
   </div>
-</header>
+</ng-template>

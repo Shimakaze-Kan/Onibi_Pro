@@ -1,4 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
+import { ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -34,6 +35,15 @@ import {
         animate('150ms ease-in', style({ transform: 'translateY(-100%)' })),
       ]),
     ]),
+    trigger('slideInOutFromBottom', [
+      transition(':enter', [
+        style({ transform: 'translateY(100%)' }),
+        animate('150ms ease-in', style({ transform: 'translateY(0%)' })),
+      ]),
+      transition(':leave', [
+        animate('150ms ease-in', style({ transform: 'translateY(100%)' })),
+      ]),
+    ]),
   ],
 })
 export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -45,10 +55,10 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   private _observer!: IntersectionObserver;
   private _title = (name: string) => `${name} :: Onibi Pro`;
   showMessages = false;
-  isExpanded = false;
   currentPageId = 1;
   currentPageUrl = '/';
   showFullScreenMenu = false;
+  scrollStrategy: ScrollStrategy;
   showLeftScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   showRightScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
@@ -82,8 +92,11 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private readonly router: Router,
     private readonly changeDetectorRef: ChangeDetectorRef,
-    private readonly titleService: Title
-  ) {}
+    private readonly titleService: Title,
+    private readonly scrollStrategyOptions: ScrollStrategyOptions
+  ) {
+    this.scrollStrategy = this.scrollStrategyOptions.block();
+  }
 
   ngAfterViewInit(): void {
     const navContainerHeight =
@@ -131,10 +144,6 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     this._destroy$.next();
     this._destroy$.complete();
     this._observer.disconnect();
-  }
-
-  collapse() {
-    this.isExpanded = false;
   }
 
   toggle() {

@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ReplaySubject, Subject, takeUntil } from 'rxjs';
+import { ReplaySubject, Subject, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-request-supplies',
@@ -51,6 +51,21 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.filterProducts();
       });
+
+    this.newSupplyForm.controls.isUrgent.valueChanges
+      .pipe(
+        takeUntil(this._onDestroy$),
+        tap((state: boolean | null) => {
+          const untilControl = this.newSupplyForm.controls.until;
+          if (!!state) {
+            untilControl.disable();
+            untilControl.setValue(new Date());
+          } else {
+            untilControl.enable();
+          }
+        })
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
