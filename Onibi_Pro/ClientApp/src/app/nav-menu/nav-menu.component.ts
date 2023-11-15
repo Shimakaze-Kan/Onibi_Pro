@@ -50,11 +50,21 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('placeholder') private placeholder!: ElementRef;
   @ViewChild('navContainer') private navContainer!: ElementRef;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
-  @ViewChild('messagesPanel', { static: false }) messagesPanel!: ElementRef;
+  @ViewChild('communicationPanel', { static: false })
+  communicationPanel!: ElementRef;
   private readonly _destroy$ = new Subject<void>();
   private _observer!: IntersectionObserver;
   private _title = (name: string) => `${name} :: Onibi Pro`;
-  showMessages = false;
+  private _communicationPanelApperance: {
+    [key in CommunicationPanelContentType]: { show: boolean; elements: number };
+  } = {
+    [CommunicationPanelContentType.Messages]: { show: false, elements: 0 },
+    [CommunicationPanelContentType.Notifications]: {
+      show: false,
+      elements: 15,
+    },
+  };
+  communicationPanelContentType = CommunicationPanelContentType;
   currentPageId = 1;
   currentPageUrl = '/';
   showFullScreenMenu = false;
@@ -87,6 +97,47 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return;
+  }
+
+  get showCommunicationPanel(): boolean {
+    for (const key in this._communicationPanelApperance) {
+      if (this._communicationPanelApperance.hasOwnProperty(key)) {
+        if (
+          this._communicationPanelApperance[
+            key as CommunicationPanelContentType
+          ].show
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  get communicationPanelType(): CommunicationPanelContentType {
+    for (const key in this._communicationPanelApperance) {
+      if (this._communicationPanelApperance.hasOwnProperty(key)) {
+        if (
+          this._communicationPanelApperance[
+            key as CommunicationPanelContentType
+          ].show
+        ) {
+          return key as CommunicationPanelContentType;
+        }
+      }
+    }
+
+    throw new Error('Unsupported communication panel type.');
+  }
+
+  get numberOfNotifications(): number {
+    return this.numberOfPanelElements(
+      CommunicationPanelContentType.Notifications
+    );
+  }
+
+  get numberOfMessages(): number {
+    return this.numberOfPanelElements(CommunicationPanelContentType.Messages);
   }
 
   constructor(
@@ -134,7 +185,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     fromEvent(window, 'resize')
       .pipe(
         takeUntil(this._destroy$),
-        filter(() => !!this.messagesPanel),
+        filter(() => !!this.communicationPanel),
         tap(() => this.resizeMessagePanel())
       )
       .subscribe();
@@ -167,17 +218,42 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   toggleMessages() {
-    this.showMessages = !this.showMessages;
+    this.togglePanel(CommunicationPanelContentType.Messages);
+  }
 
-    if (this.showMessages) {
+  toggleNotifications() {
+    this.togglePanel(CommunicationPanelContentType.Notifications);
+  }
+
+  private togglePanel(type: CommunicationPanelContentType) {
+    const panelApperance = this._communicationPanelApperance[type];
+    const currentState = panelApperance.show;
+    this.resetCommunicationPanelShow();
+    panelApperance.show = !currentState;
+
+    if (panelApperance.show) {
       this.changeDetectorRef.detectChanges();
       this.resizeMessagePanel();
     }
   }
 
+  private numberOfPanelElements(type: CommunicationPanelContentType): number {
+    return this._communicationPanelApperance[type].elements;
+  }
+
+  private resetCommunicationPanelShow(): void {
+    for (const key in this._communicationPanelApperance) {
+      if (this._communicationPanelApperance.hasOwnProperty(key)) {
+        this._communicationPanelApperance[
+          key as CommunicationPanelContentType
+        ].show = false;
+      }
+    }
+  }
+
   private resizeMessagePanel(): void {
-    const top = this.messagesPanel.nativeElement.offsetTop;
-    this.messagesPanel.nativeElement.style.height = `${
+    const top = this.communicationPanel.nativeElement.offsetTop;
+    this.communicationPanel.nativeElement.style.height = `${
       window.innerHeight - top
     }px`;
   }
@@ -223,4 +299,9 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
 interface IHistoryRouteRecord {
   url: string;
   name: string;
+}
+
+enum CommunicationPanelContentType {
+  Messages = 'messages',
+  Notifications = 'notifications',
 }

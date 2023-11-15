@@ -11,13 +11,23 @@
         <div class="d-flex ms-auto">
           <ul class="navbar-nav flex-grow d-flex flex-row">
             <li>
-              <button mat-icon-button>
-                <mat-icon>favorite</mat-icon>
+              <button mat-icon-button (click)="toggleNotifications()">
+                <mat-icon
+                  matBadge="{{ numberOfNotifications }}"
+                  matBadgeColor="warn"
+                  [matBadgeHidden]="!numberOfNotifications"
+                  >notifications</mat-icon
+                >
               </button>
             </li>
             <li>
               <button mat-icon-button (click)="toggleMessages()">
-                <mat-icon>local_post_office</mat-icon>
+                <mat-icon
+                  matBadge="{{ numberOfMessages }}"
+                  matBadgeColor="warn"
+                  [matBadgeHidden]="!numberOfMessages"
+                  >local_post_office</mat-icon
+                >
               </button>
             </li>
             <li>
@@ -114,11 +124,20 @@
       </div>
       <div
         [@slideInOut]
-        *ngIf="showMessages"
-        class="messages-panel p-3 pt-0 pe-auto"
-        #messagesPanel
+        *ngIf="showCommunicationPanel"
+        class="communication-panel p-3 pt-0 pe-auto"
+        #communicationPanel
       >
-        <app-message-manager class="w-100"></app-message-manager>
+        <ng-container [ngSwitch]="communicationPanelType">
+          <app-message-manager
+            *ngSwitchCase="communicationPanelContentType.Messages"
+            class="w-100"
+          ></app-message-manager>
+          <app-notification-manager
+            *ngSwitchCase="communicationPanelContentType.Notifications"
+            class="w-100"
+          ></app-notification-manager>
+        </ng-container>
       </div>
     </div>
   </div>

@@ -15,12 +15,14 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatSelectModule } from '@angular/material/select';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatTabsModule } from '@angular/material/tabs';
+import { NotificationManagerComponent } from './notification-manager/notification-manager.component';
 
 @NgModule({
   declarations: [
     MessageManagerComponent,
     MessageViewComponent,
     NewMessageComponent,
+    NotificationManagerComponent,
   ],
   imports: [
     CommonModule,
@@ -39,7 +41,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     NgxSkeletonLoaderModule,
     MatTabsModule,
   ],
-  exports: [MessageManagerComponent],
+  exports: [MessageManagerComponent, NotificationManagerComponent],
   providers: [DatePipe],
 })
 export class CommunicationModule {}

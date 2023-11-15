@@ -1,6 +1,7 @@
 @import "/src/colors.scss";
 
-.message-list-element {
+.message-list-element,
+.notification-list-element {
   padding: 0.5rem;
   border: solid 1px transparent;
   border-radius: 5px;
@@ -8,9 +9,17 @@
   &.viewed {
     font-weight: bold;
   }
+}
 
+.message-list-element {
   &:hover {
     border-color: $logo-color;
+  }
+}
+
+.notification-list-element {
+  &:hover {
+    border-color: $notification-color;
   }
 }
 

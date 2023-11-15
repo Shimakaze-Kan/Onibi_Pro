@@ -4,7 +4,7 @@ import { IReplyMessage } from '../message-view/message-view.component';
 @Component({
   selector: 'app-message-manager',
   templateUrl: './message-manager.component.html',
-  styleUrls: ['./message-manager.component.scss'],
+  styleUrls: ['../communication.scss'],
 })
 export class MessageManagerComponent implements OnInit {
   viewMessageId: number | undefined;

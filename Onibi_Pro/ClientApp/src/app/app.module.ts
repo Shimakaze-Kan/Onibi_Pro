@@ -51,6 +51,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { DeliveryModule } from './delivery/delivery.module';
 import { DeliveryComponent } from './delivery/delivery/delivery.component';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { MatBadgeModule } from '@angular/material/badge';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -68,6 +69,7 @@ const MATERIAL_MODULES = [
   MatPaginatorModule,
   NgxMatSelectSearchModule,
   MatDialogModule,
+  MatBadgeModule,
 ];
 
 const ROUTES: Array<Route> = [

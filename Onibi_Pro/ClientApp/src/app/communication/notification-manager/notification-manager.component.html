@@ -1,0 +1,85 @@
+<div class="w-100">
+  <div class="d-flex flex-row justify-content-between">
+    <h3>Notifications</h3>
+    <div>
+      <button mat-flat-button color="primary">Clear</button>
+    </div>
+  </div>
+
+  <ul>
+    <ng-container
+      *ngTemplateOutlet="
+        notificationList;
+        context: { notifications: notifications }
+      "
+    ></ng-container>
+  </ul>
+</div>
+
+<ng-template #notificationListElementPlaceholder>
+  <div class="mt-4">
+    <div class="wrapper">
+      <ngx-skeleton-loader
+        [theme]="{
+          width: '80%',
+          'border-radius': '0',
+          height: '15px',
+          'margin-bottom': '10px'
+        }"
+      ></ngx-skeleton-loader>
+    </div>
+    <div class="wrapper">
+      <ngx-skeleton-loader
+        [theme]="{
+          width: '90%',
+          'border-radius': '0',
+          height: '15px',
+          'margin-bottom': '10px'
+        }"
+      ></ngx-skeleton-loader>
+    </div>
+    <div class="wrapper">
+      <ngx-skeleton-loader
+        [theme]="{
+          width: '60%',
+          'border-radius': '0',
+          height: '15px',
+          'margin-bottom': '10px'
+        }"
+      ></ngx-skeleton-loader>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #notificationElement let-notification="notification">
+  <div class="notification-list-element" [class.viewed]="notification.isViewed">
+    <div class="d-flex">
+      <span class="ms-auto">{{
+        notification.date | date : "MMM dd, yyyy 'at' hh:mm a"
+      }}</span>
+    </div>
+    <span class="mt-2">{{ notification.title }}</span>
+  </div>
+</ng-template>
+
+<ng-template #notificationList let-notifications="notifications">
+  <ng-container [ngSwitch]="isLoadingList">
+    <ng-container *ngSwitchCase="true">
+      <li *ngFor="let _ of [].constructor(3)">
+        <ng-container *ngTemplateOutlet="notificationListElementPlaceholder">
+        </ng-container>
+      </li>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      <li *ngFor="let notification of notifications; last as last">
+        <ng-container
+          *ngTemplateOutlet="
+            notificationElement;
+            context: { notification: notification }
+          "
+        ></ng-container>
+        <mat-divider *ngIf="!last"></mat-divider>
+      </li>
+    </ng-container>
+  </ng-container>
+</ng-template>
