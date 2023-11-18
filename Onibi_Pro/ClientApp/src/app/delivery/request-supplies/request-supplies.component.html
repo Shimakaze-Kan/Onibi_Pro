@@ -94,6 +94,7 @@
     color="primary"
     [disabled]="newSupplyForm.invalid || supplies.controls.length === 0"
     cdkFocusInitial
+    (click)="onAccept()"
   >
     I Accept
   </button>

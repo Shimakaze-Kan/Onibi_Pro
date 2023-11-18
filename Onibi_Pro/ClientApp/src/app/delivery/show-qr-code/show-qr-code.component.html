@@ -1,0 +1,33 @@
+<div mat-dialog-content class="dialog-content">
+  <div class="d-flex" #qrCodeElement>
+    <qrcode
+      (qrCodeURL)="qrCodeReady($event)"
+      [qrdata]="qrCode"
+      [allowEmptyString]="true"
+      [ariaLabel]="'QR Code image with the following content...'"
+      [cssClass]="'center'"
+      [colorDark]="'#000000ff'"
+      [colorLight]="'#ffffffff'"
+      [elementType]="'canvas'"
+      [errorCorrectionLevel]="'M'"
+      [imageSrc]="'./assets/logos/onibi_ico.svg'"
+      [imageHeight]="75"
+      [imageWidth]="75"
+      [margin]="4"
+      [scale]="1"
+      [title]="'A custom title attribute'"
+      [width]="300"
+    ></qrcode>
+    <div class="d-flex flex-column justify-content-around">
+      <button (click)="download()" mat-flat-button color="primary">
+        Download
+      </button>
+      <button (click)="print()" mat-flat-button color="primary">Print</button>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button class="ms-auto" mat-button (click)="onClose()" cdkFocusInitial>
+    Close
+  </button>
+</div>

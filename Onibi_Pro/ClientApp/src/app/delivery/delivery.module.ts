@@ -17,16 +17,25 @@ import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ConfirmDeliveryComponent } from './confirm-delivery/confirm-delivery.component';
-import { MatDialogModule } from '@angular/material/dialog';
+import {
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogModule,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { RequestSuppliesComponent } from './request-supplies/request-supplies.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { QRCodeModule } from 'angularx-qrcode';
+import { ShowQrCodeComponent } from './show-qr-code/show-qr-code.component';
 
 @NgModule({
   declarations: [
     DeliveryComponent,
     ConfirmDeliveryComponent,
     RequestSuppliesComponent,
+    ShowQrCodeComponent,
   ],
   imports: [
     CommonModule,
@@ -50,6 +59,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    QRCodeModule,
   ],
   exports: [DeliveryComponent],
 })

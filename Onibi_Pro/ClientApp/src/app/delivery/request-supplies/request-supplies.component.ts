@@ -7,8 +7,9 @@ import {
   NgForm,
   Validators,
 } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ReplaySubject, Subject, takeUntil, tap } from 'rxjs';
+import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
 
 @Component({
   selector: 'app-request-supplies',
@@ -41,7 +42,8 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly dialogRef: MatDialogRef<RequestSuppliesComponent>,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -119,6 +121,14 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
     } else {
       this.addSupplyForm();
     }
+  }
+
+  onAccept(): void {
+    this.onClose();
+
+    this.dialog.open(ShowQrCodeComponent, {
+      data: { code: '0a2b90e2-4f29-4a7d-ac71-a64f8e292b56' },
+    });
   }
 
   private filterProducts() {
