@@ -8,6 +8,7 @@ import * as printJS from 'print-js';
   styleUrls: ['./show-qr-code.component.scss'],
 })
 export class ShowQrCodeComponent {
+  readonly qrCodeWidth = 300;
   @ViewChild('qrCodeElement') qrCodeElement!: ElementRef;
   qrCode: string;
 
@@ -33,7 +34,8 @@ export class ShowQrCodeComponent {
       header: `Code: ${this.qrCode}`,
       showModal: true,
       modalMessage: 'Printing Qr Code...',
-      documentTitle: `onibi_code_${+new Date()}`,
+      documentTitle:
+        'This QR code is intended for use exclusively within the Onibi Pro application',
     });
   }
 
@@ -59,10 +61,16 @@ export class ShowQrCodeComponent {
   }
 
   qrCodeReady(_: unknown) {
+    const fontSize = 14;
+    const code = `Code: ${this.qrCode}`;
     const canvas = this.getCanvas();
     const ctx = canvas.getContext('2d')!;
 
-    ctx.font = '14px serif';
-    ctx.fillText(`Code: ${this.qrCode}`, 0, 290);
+    ctx.font = `${fontSize}px serif`;
+    const textWidth = ctx.measureText(code).width;
+    const x = (this.qrCodeWidth - textWidth) / 2;
+    const y = this.qrCodeWidth - fontSize;
+
+    ctx.fillText(code, x, y);
   }
 }
