@@ -4,6 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDeliveryComponent } from '../confirm-delivery/confirm-delivery.component';
 import { RequestSuppliesComponent } from '../request-supplies/request-supplies.component';
+import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
 
 @Component({
   selector: 'app-delivery',
@@ -77,7 +78,7 @@ export class DeliveryComponent implements AfterViewInit {
   dataSource = new MatTableDataSource<IDeliveryItem>(this.delivery);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  displayedColumns = ['code', 'from', 'to', 'status'];
+  displayedColumns = ['code', 'from', 'to', 'status', 'action'];
 
   constructor(private readonly dialog: MatDialog) {}
 
@@ -86,24 +87,22 @@ export class DeliveryComponent implements AfterViewInit {
   }
 
   openConfirmDeliveryDialog() {
-    const dialogRef = this.dialog.open(ConfirmDeliveryComponent, {
+    this.dialog.open(ConfirmDeliveryComponent, {
       maxWidth: '750px',
       width: '600px',
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
     });
   }
 
   openRequestSuppliesDialog() {
-    const dialogRef = this.dialog.open(RequestSuppliesComponent, {
+    this.dialog.open(RequestSuppliesComponent, {
       maxWidth: '750px',
       width: '600px',
     });
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
+  openShowQrCodeDialog(code: string) {
+    this.dialog.open(ShowQrCodeComponent, {
+      data: { code: code },
     });
   }
 }

@@ -1,17 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
-import { ReplaySubject, Subject, takeUntil } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit, Inject } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Subject, ReplaySubject, takeUntil } from 'rxjs';
+import { EmployeeRecord } from '../personel-management.component';
 
 @Component({
-  selector: 'app-add-employee',
-  templateUrl: './add-employee.component.html',
-  styleUrls: ['./add-employee.component.scss'],
+  selector: 'app-edit-employee',
+  templateUrl: './edit-employee.component.html',
+  styleUrls: ['./edit-employee.component.scss'],
 })
-export class AddEmployeeComponent implements OnInit, OnDestroy {
+export class EditEmployeeComponent implements OnInit, OnDestroy {
   private readonly _onDestroy$ = new Subject<void>();
 
-  newEmployeeForm = new FormGroup({
+  editEmployeeForm = new FormGroup({
     email: new FormControl<string>('', [Validators.required, Validators.email]),
     firstName: new FormControl<string>('', Validators.required),
     lastName: new FormControl<string>('', Validators.required),
@@ -29,7 +30,11 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
   filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
-  constructor(private readonly dialogRef: MatDialogRef<AddEmployeeComponent>) {}
+  constructor(
+    private readonly dialogRef: MatDialogRef<EditEmployeeComponent>,
+    // @ts-ignore
+    @Inject(MAT_DIALOG_DATA) private employeeData: EmployeeRecord
+  ) {}
 
   ngOnInit(): void {
     this.filteredSupervisors.next(this.supervisors.slice());
@@ -55,6 +60,8 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.filterPositions();
       });
+
+    this.editEmployeeForm.setValue(this.employeeData);
   }
 
   ngOnDestroy(): void {
@@ -126,6 +133,6 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
 
   // dummy data
   supervisors = ['Jane Smith', 'Bob Johnson'];
-  cities = ['New York', 'Sosnowiec'];
-  positions = ['Cashier', 'Restaurant Manager', 'Regional Manager'];
+  cities = ['New York', 'Sosnowiec', 'Chicago'];
+  positions = ['Cashier', 'Restaurant Manager', 'Regional Manager', 'chef'];
 }

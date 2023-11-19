@@ -11,6 +11,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ReplaySubject, Subject, takeUntil } from 'rxjs';
 import { AddEmployeeComponent } from './add-employee/add-employee.component';
+import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
 
 @Component({
   selector: 'app-personel-management',
@@ -28,6 +29,8 @@ export class PersonelManagementComponent
     'supervisor',
     'city',
     'restaurantId',
+    'position',
+    'action',
   ];
 
   dataSource = new MatTableDataSource<EmployeeRecord>(employees);
@@ -98,6 +101,19 @@ export class PersonelManagementComponent
       minHeight: '80%',
       maxHeight: '100%',
       maxWidth: '750px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The dialog was closed');
+    });
+  }
+
+  openEditEmployeeDialog(data: EmployeeRecord) {
+    const dialogRef = this.dialog.open(EditEmployeeComponent, {
+      minHeight: '80%',
+      maxHeight: '100%',
+      maxWidth: '750px',
+      data: data,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -196,13 +212,33 @@ export class PersonelManagementComponent
 
 type ObjectKey = keyof (typeof employees)[0];
 
-interface EmployeeRecord {
+export interface IEmployeeRecord {
   email: string;
   firstName: string;
   lastName: string;
   supervisor: string;
   city: string;
   restaurantId: string;
+  position: string;
+}
+
+export class EmployeeRecord {
+  constructor(data: IEmployeeRecord) {
+    this.email = data.email;
+    this.firstName = data.firstName;
+    this.lastName = data.lastName;
+    this.supervisor = data.supervisor;
+    this.city = data.supervisor;
+    this.restaurantId = data.restaurantId;
+    this.position = data.position;
+  }
+  email: string;
+  firstName: string;
+  lastName: string;
+  supervisor: string;
+  city: string;
+  restaurantId: string;
+  position: string;
 }
 
 let employees: Array<EmployeeRecord> = [
@@ -213,6 +249,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Jane Smith',
     city: 'New York',
     restaurantId: '12345',
+    position: 'chef',
   },
   {
     email: 'jane.smith@example.com',
@@ -221,6 +258,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Bob Johnson',
     city: 'Los Angeles',
     restaurantId: '67890',
+    position: 'chef',
   },
   {
     email: 'mike.jones@example.com',
@@ -229,6 +267,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Sarah Brown',
     city: 'Chicago',
     restaurantId: '45678',
+    position: 'chef',
   },
   {
     email: 'lisa.wilson@example.com',
@@ -237,6 +276,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'David Lee',
     city: 'Houston',
     restaurantId: '54321',
+    position: 'chef',
   },
   {
     email: 'chris.white@example.com',
@@ -245,6 +285,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Emily Davis',
     city: 'San Francisco',
     restaurantId: '98765',
+    position: 'chef',
   },
   {
     email: 'susan.jackson@example.com',
@@ -253,6 +294,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Michael Turner',
     city: 'Boston',
     restaurantId: '11223',
+    position: 'chef',
   },
   {
     email: 'robert.anderson@example.com',
@@ -261,6 +303,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Laura Martinez',
     city: 'Miami',
     restaurantId: '55555',
+    position: 'chef',
   },
   {
     email: 'karen.harris@example.com',
@@ -269,6 +312,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'William Clark',
     city: 'Seattle',
     restaurantId: '98712',
+    position: 'chef',
   },
   {
     email: 'steven.wilson@example.com',
@@ -277,6 +321,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Melissa Turner',
     city: 'Dallas',
     restaurantId: '66554',
+    position: 'chef',
   },
   {
     email: 'linda.martin@example.com',
@@ -285,6 +330,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Richard Garcia',
     city: 'Denver',
     restaurantId: '23145',
+    position: 'chef',
   },
   {
     email: 'daniel.brown@example.com',
@@ -293,6 +339,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Patricia Smith',
     city: 'Phoenix',
     restaurantId: '78901',
+    position: 'chef',
   },
   {
     email: 'pamela.taylor@example.com',
@@ -301,6 +348,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'John Adams',
     city: 'Atlanta',
     restaurantId: '12312',
+    position: 'chef',
   },
   {
     email: 'james.green@example.com',
@@ -309,6 +357,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Susan Moore',
     city: 'San Diego',
     restaurantId: '45698',
+    position: 'chef',
   },
   {
     email: 'natalie.johnson@example.com',
@@ -317,6 +366,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Robert Wilson',
     city: 'Philadelphia',
     restaurantId: '55566',
+    position: 'chef',
   },
   {
     email: 'andrew.wilson@example.com',
@@ -325,6 +375,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Maria Lopez',
     city: 'Las Vegas',
     restaurantId: '87654',
+    position: 'chef',
   },
   {
     email: 'emily.hall@example.com',
@@ -333,6 +384,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Chris Evans',
     city: 'Detroit',
     restaurantId: '32100',
+    position: 'chef',
   },
   {
     email: 'mark.thompson@example.com',
@@ -341,6 +393,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Lisa Taylor',
     city: 'Portland',
     restaurantId: '11234',
+    position: 'chef',
   },
   {
     email: 'sarah.wright@example.com',
@@ -349,6 +402,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'James Harris',
     city: 'Minneapolis',
     restaurantId: '87632',
+    position: 'chef',
   },
   {
     email: 'matthew.jones@example.com',
@@ -357,6 +411,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Jessica Adams',
     city: 'Charlotte',
     restaurantId: '45321',
+    position: 'chef',
   },
   {
     email: 'olivia.miller@example.com',
@@ -365,6 +420,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Daniel White',
     city: 'Raleigh',
     restaurantId: '98765',
+    position: 'chef',
   },
   {
     email: 'michael.morris@example.com',
@@ -373,6 +429,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Catherine Moore',
     city: 'Tampa',
     restaurantId: '23111',
+    position: 'chef',
   },
   {
     email: 'jessica.king@example.com',
@@ -381,6 +438,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Matthew Davis',
     city: 'Nashville',
     restaurantId: '78987',
+    position: 'chef',
   },
   {
     email: 'jason.murphy@example.com',
@@ -389,6 +447,7 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Jennifer Wilson',
     city: 'San Antonio',
     restaurantId: '11222',
+    position: 'chef',
   },
   {
     email: 'amanda.hall@example.com',
@@ -397,5 +456,6 @@ let employees: Array<EmployeeRecord> = [
     supervisor: 'Steven Brown',
     city: 'Kansas City',
     restaurantId: '54678',
+    position: 'chef',
   },
 ];

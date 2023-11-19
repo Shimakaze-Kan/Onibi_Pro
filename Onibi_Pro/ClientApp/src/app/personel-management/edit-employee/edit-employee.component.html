@@ -1,6 +1,7 @@
-<div class="container">
-  <form [formGroup]="employeeSearchForm" class="row mt-3" autocomplete="off">
-    <div class="col-12 col-md-6 col-lg-4">
+<h1 mat-dialog-title>Edit Employee</h1>
+<div mat-dialog-content class="dialog-content">
+  <form [formGroup]="editEmployeeForm" class="row mt-3" autocomplete="off">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="emailInput">Email</label>
         <mat-form-field appearance="outline">
@@ -13,7 +14,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="firstNameInput">First Name</label>
         <mat-form-field appearance="outline">
@@ -26,7 +27,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="lastNameInput">Last Name</label>
         <mat-form-field appearance="outline">
@@ -39,7 +40,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="supervisorSelect">Supervisor</label>
         <mat-form-field appearance="outline">
@@ -65,7 +66,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="citySelect">City</label>
         <mat-form-field appearance="outline">
@@ -87,7 +88,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="restaurantIdInput">Restaurant Id</label>
         <mat-form-field appearance="outline">
@@ -101,7 +102,7 @@
         </mat-form-field>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4 mx-auto">
+    <div class="col-12 col-md-6">
       <div class="row">
         <label class="mb-1" for="positionSelect">Position</label>
         <mat-form-field appearance="outline">
@@ -126,94 +127,18 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div class="d-flex justify-content-around mt-3">
-        <button type="button" mat-flat-button color="accent" (click)="reset()">
-          Clear
-        </button>
-        <button
-          type="submit"
-          mat-flat-button
-          color="primary"
-          (click)="filterCollection()"
-        >
-          Search
-        </button>
-      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <p>
+        Please note that certain form controls may come pre-filled with data or
+        be restricted from modification, depending on your assigned role within
+        system. Your access and editing permissions will be tailored to your
+        role to ensure proper data management and security
+      </p>
     </div>
   </form>
 </div>
-
-<div class="content-top-shadow-container mt-5">
-  <div class="content-container-header d-flex">
-    <button
-      type="button"
-      class="ms-auto"
-      mat-flat-button
-      color="primary"
-      (click)="openAddEmployeeDialog()"
-    >
-      Add Employee
-    </button>
-  </div>
-  <div class="mat-elevation-z8 container table-responsive">
-    <table mat-table [dataSource]="dataSource">
-      <!-- Position Column -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>Email</th>
-        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
-      </ng-container>
-
-      <!-- Name Column -->
-      <ng-container matColumnDef="firstName">
-        <th mat-header-cell *matHeaderCellDef>First Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
-      </ng-container>
-
-      <!-- Weight Column -->
-      <ng-container matColumnDef="lastName">
-        <th mat-header-cell *matHeaderCellDef>Last Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
-      </ng-container>
-
-      <!-- Symbol Column -->
-      <ng-container matColumnDef="supervisor">
-        <th mat-header-cell *matHeaderCellDef>Supervisor</th>
-        <td mat-cell *matCellDef="let element">{{ element.supervisor }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="city">
-        <th mat-header-cell *matHeaderCellDef>City</th>
-        <td mat-cell *matCellDef="let element">{{ element.city }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="restaurantId">
-        <th mat-header-cell *matHeaderCellDef>Restaurant Id</th>
-        <td mat-cell *matCellDef="let element">{{ element.restaurantId }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef>Position</th>
-        <td mat-cell *matCellDef="let element">{{ element.position }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-icon-button (click)="openEditEmployeeDialog(element)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-
-    <mat-paginator
-      [pageSizeOptions]="[5, 10, 20]"
-      showFirstLastButtons
-      aria-label="Select page of periodic elements"
-    >
-    </mat-paginator>
-  </div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button mat-button color="primary" cdkFocusInitial>I Accept</button>
 </div>

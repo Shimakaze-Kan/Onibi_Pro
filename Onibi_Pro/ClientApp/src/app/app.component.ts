@@ -8,7 +8,7 @@ import { Subject, filter, takeUntil, tap } from 'rxjs';
 })
 export class AppComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  private readonly _assetImages = [
+  readonly assetImages = [
     'assets/imgs/blueprint.jpg',
     'assets/imgs/delivery.jpg',
     'assets/imgs/manager.jpg',
@@ -17,6 +17,10 @@ export class AppComponent implements OnDestroy {
     'assets/logos/onibi_plain_s.svg',
   ];
   title = 'app';
+
+  get currentYear(): number {
+    return new Date().getFullYear();
+  }
 
   constructor(private readonly router: Router) {
     router.events
@@ -28,9 +32,6 @@ export class AppComponent implements OnDestroy {
         })
       )
       .subscribe();
-
-    // all assets images are needed immediately
-    this._assetImages.forEach((x) => (new Image().src = x));
   }
 
   ngOnDestroy(): void {

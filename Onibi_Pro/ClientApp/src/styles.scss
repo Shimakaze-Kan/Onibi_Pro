@@ -75,3 +75,41 @@ mat-option.none {
   }
   color: gray;
 }
+
+footer {
+  border-top: 2px solid $logo-color;
+  margin-top: 6rem;
+  padding: 1.5rem;
+  background-color: white;
+
+  a {
+    text-decoration: none;
+    color: black;
+    &:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      color: black;
+    }
+  }
+
+  img {
+    width: 40px;
+  }
+
+  ul {
+    list-style-type: none;
+    margin-bottom: 0;
+
+    li {
+      display: flex;
+
+      &:not(:last-child) {
+        margin-bottom: 10px;
+      }
+
+      mat-icon {
+        margin-right: 5px;
+      }
+    }
+  }
+}

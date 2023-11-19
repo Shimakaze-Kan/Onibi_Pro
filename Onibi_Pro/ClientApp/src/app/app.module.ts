@@ -52,6 +52,8 @@ import { DeliveryModule } from './delivery/delivery.module';
 import { DeliveryComponent } from './delivery/delivery/delivery.component';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatBadgeModule } from '@angular/material/badge';
+import { EditEmployeeComponent } from './personel-management/edit-employee/edit-employee.component';
+import { OrdersModule } from './orders/orders.module';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -84,6 +86,7 @@ const ROUTES: Array<Route> = [
   { path: 'personel-management', component: PersonelManagementComponent },
   { path: 'welcome', component: WelcomeComponent },
   { path: 'delivery', component: DeliveryComponent },
+  { path: 'home', component: HomeComponent },
 ];
 
 @NgModule({
@@ -98,6 +101,7 @@ const ROUTES: Array<Route> = [
     TakeSpaceDirective,
     WelcomeComponent,
     AddEmployeeComponent,
+    EditEmployeeComponent,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -117,6 +121,7 @@ const ROUTES: Array<Route> = [
     NgxSkeletonLoaderModule,
     DeliveryModule,
     OverlayModule,
+    OrdersModule,
   ],
   providers: [{ provide: APP_ID, useValue: 'serverApp' }],
   bootstrap: [AppComponent],

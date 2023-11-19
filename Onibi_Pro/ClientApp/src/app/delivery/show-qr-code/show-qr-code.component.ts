@@ -14,6 +14,7 @@ export class ShowQrCodeComponent {
 
   constructor(
     private readonly dialogRef: MatDialogRef<ShowQrCodeComponent>,
+    // @ts-ignore
     @Inject(MAT_DIALOG_DATA) private data: { code: string }
   ) {
     this.qrCode = data.code;

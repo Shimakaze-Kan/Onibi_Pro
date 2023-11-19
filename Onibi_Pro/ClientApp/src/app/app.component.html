@@ -2,5 +2,36 @@
   <app-nav-menu></app-nav-menu>
   <main class="pt-3">
     <router-outlet></router-outlet>
+    <footer>
+      <div class="container d-flex justify-content-between flex-row">
+        <div class="d-flex flex-row me-auto mb-auto">
+          <img src="assets/logos/onibi_ico.svg" />
+          <span class="ps-2 my-auto text-muted"
+            >© {{ currentYear }} Onibi Pro, Inc. All rights reserved.</span
+          >
+        </div>
+        <div class="d-flex flex-column ms-auto">
+          <ul>
+            <li>
+              <mat-icon>location_city</mat-icon>
+              Houston, TX - 1234 Main Street, Suite 567
+            </li>
+            <li>
+              <mat-icon> call</mat-icon>
+              <a href="tel:+17135551234">+1 (713) 555-1234</a>
+            </li>
+            <li>
+              <mat-icon>alternate_email</mat-icon>
+              <a href="mailto:support@onibipro.com">support@onibipro.com</a>
+            </li>
+            <li>
+              <mat-icon>access_time</mat-icon>
+              Mon-Fri: 9:00 AM - 5:00 PM (CST)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
   </main>
 </body>
+<img class="d-none" *ngFor="let img of assetImages" src="{{ img }}" />
