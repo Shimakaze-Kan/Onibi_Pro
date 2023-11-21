@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro", "Onibi_Pro\Onibi_Pro.csproj", "{E0639172-9277-4CB5-812E-5CAD1D1ACA7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro", "Onibi_Pro\Onibi_Pro.csproj", "{E0639172-9277-4CB5-812E-5CAD1D1ACA7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Domain", "Onibi_Pro.Domain\Onibi_Pro.Domain.csproj", "{170FD688-190E-4C08-A226-9741153BB529}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Application", "Onibi_Pro.Application\Onibi_Pro.Application.csproj", "{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Infrastructure", "Onibi_Pro.Infrastructure\Onibi_Pro.Infrastructure.csproj", "{2F8E0071-E6D4-49D3-9889-20A934F6B695}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Contracts", "Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj", "{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +23,22 @@ Global
 		{E0639172-9277-4CB5-812E-5CAD1D1ACA7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0639172-9277-4CB5-812E-5CAD1D1ACA7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0639172-9277-4CB5-812E-5CAD1D1ACA7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{170FD688-190E-4C08-A226-9741153BB529}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{170FD688-190E-4C08-A226-9741153BB529}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{170FD688-190E-4C08-A226-9741153BB529}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{170FD688-190E-4C08-A226-9741153BB529}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F8E0071-E6D4-49D3-9889-20A934F6B695}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F8E0071-E6D4-49D3-9889-20A934F6B695}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F8E0071-E6D4-49D3-9889-20A934F6B695}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F8E0071-E6D4-49D3-9889-20A934F6B695}.Release|Any CPU.Build.0 = Release|Any CPU
+		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

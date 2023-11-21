@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ErrorOr" Version="1.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11" />
   </ItemGroup>
 
@@ -19,6 +20,12 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Onibi_Pro.Application\Onibi_Pro.Application.csproj" />
+    <ProjectReference Include="..\Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj" />
+    <ProjectReference Include="..\Onibi_Pro.Infrastructure\Onibi_Pro.Infrastructure.csproj" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
