@@ -10,10 +10,7 @@
 <div class="container">
     @if (ViewData.ModelState.ContainsKey("alertError") && ViewData.ModelState["alertError"]?.Errors.Count > 0)
     {
-        <div id="alert-toast" class="alert alert-danger position-fixed" style="left: 50%;
-            transform: translateX(-50%);
-            top: 1rem;
-            z-index: 10000;">
+        <div id="alert-toast" class="alert alert-danger position-fixed alert-toast">
             @ViewData.ModelState["alertError"]?.Errors[0].ErrorMessage
         </div>
     }

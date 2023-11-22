@@ -34,6 +34,13 @@
     --border-control-invalid: #f44336;
     --border-control-focused: var(--primary-color);
     --control-bottom-padding: 20px;
+    --scrollbar-backcolor: rgb(210, 210, 210);
+    --scrollbar-frontcolor: var(--primary-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: $scrollbar-frontcolor;
+}
 }
 
 .accent {
@@ -91,3 +98,29 @@ label {
 .error-border {
     border-color: var(--border-control-invalid) !important;
 }
+
+.alert-toast {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 1rem;
+    z-index: 10000;
+}
+
+:root {
+    scrollbar-face-color: var(--scrollbar-frontcolor);
+    scrollbar-track-color: var(--scrollbar-backcolor);
+    scrollbar-color: var(--scrollbar-frontcolor) var(--scrollbar-backcolor);
+    scrollbar-width: thin;
+}
+
+    :root::-webkit-scrollbar {
+        width: 9px;
+    }
+
+    :root::-webkit-scrollbar-track {
+        background: var(--scrollbar-backcolor);
+    }
+
+    :root::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-frontcolor);
+    }
