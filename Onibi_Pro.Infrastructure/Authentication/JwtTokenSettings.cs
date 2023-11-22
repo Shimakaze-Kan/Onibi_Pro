@@ -1,5 +1,5 @@
 ﻿namespace Onibi_Pro.Infrastructure.Authentication;
-internal class JwtTokenSettings
+public class JwtTokenSettings
 {
     public const string SectionName = "JwtSettings";
 

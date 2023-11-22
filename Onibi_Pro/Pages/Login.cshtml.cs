@@ -1,13 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Onibi_Pro.Application.Services.Authentication;
+using Onibi_Pro.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace Onibi_Pro.Pages;
 
+[AllowAnonymous]
 public class LoginModel : PageModel
 {
-    private const string CookieName = "OnibiAuth";
     private const string AngularLandingPage = "/welcome";
     private readonly IAuthenticationService _authenticationService;
 
@@ -26,7 +28,7 @@ public class LoginModel : PageModel
 
     public IActionResult OnGet()
     {
-        if(HttpContext.Request.Cookies.ContainsKey(CookieName))
+        if(HttpContext.Request.Cookies.ContainsKey(AuthenticationKeys.CookieName))
         {
             return Redirect(AngularLandingPage);
         }
@@ -54,7 +56,7 @@ public class LoginModel : PageModel
                 SameSite = SameSiteMode.Strict
             };
 
-            HttpContext.Response.Cookies.Append(CookieName, resutl.Token, options);
+            HttpContext.Response.Cookies.Append(AuthenticationKeys.CookieName, resutl.Token, options);
             return Redirect(AngularLandingPage);
         }, errors =>
         {

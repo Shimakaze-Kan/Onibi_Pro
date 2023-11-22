@@ -1,6 +1,7 @@
 using Onibi_Pro;
 using Onibi_Pro.Application;
 using Onibi_Pro.Infrastructure;
+using System.Net;
 
 internal class Program
 {
@@ -8,7 +9,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         {
-            builder.Services.AddPresentation()
+            builder.Services.AddPresentation(builder.Configuration)
                             .AddApplication()
                             .AddInfrastructure(builder.Configuration);
         }
@@ -25,7 +26,20 @@ internal class Program
                 => options.WithOrigins("https://localhost:44406").AllowAnyMethod());
 
             app.UseExceptionHandler();
-            app.UseStatusCodePages();
+
+            app.UseStatusCodePages(async context =>
+            {
+                var response = context.HttpContext.Response;
+                var request = context.HttpContext.Request;
+
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized
+                    && !request.Path.StartsWithSegments("/api"))
+                {
+                    response.Redirect("/");
+                }
+
+                await Task.CompletedTask;
+            });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
@@ -37,6 +51,8 @@ internal class Program
                 pattern: "{controller}/{action=Index}/{id?}");
 
             app.UseSpaYarp();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapFallbackToFile("index.html");
 

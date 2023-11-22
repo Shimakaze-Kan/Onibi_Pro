@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
@@ -7,6 +8,7 @@ using Onibi_Pro.Contracts.Authentication;
 using Onibi_Pro.Domain.Common.Errors;
 
 namespace Onibi_Pro.Controllers;
+[AllowAnonymous]
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController : ApiBaseController
