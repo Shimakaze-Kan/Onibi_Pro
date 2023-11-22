@@ -2,7 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
+using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Infrastructure.Authentication;
+using Onibi_Pro.Infrastructure.Persistence;
 using Onibi_Pro.Infrastructure.Services;
 
 namespace Onibi_Pro.Infrastructure;
@@ -13,6 +15,8 @@ public static class DependencyInjection
         services.Configure<JwtTokenSettings>(configurationManager.GetSection(JwtTokenSettings.SectionName));
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
