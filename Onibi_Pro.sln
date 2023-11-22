@@ -5,13 +5,13 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro", "Onibi_Pro\Onibi_Pro.csproj", "{E0639172-9277-4CB5-812E-5CAD1D1ACA7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Domain", "Onibi_Pro.Domain\Onibi_Pro.Domain.csproj", "{170FD688-190E-4C08-A226-9741153BB529}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Domain", "Onibi_Pro.Domain\Onibi_Pro.Domain.csproj", "{170FD688-190E-4C08-A226-9741153BB529}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Application", "Onibi_Pro.Application\Onibi_Pro.Application.csproj", "{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Application", "Onibi_Pro.Application\Onibi_Pro.Application.csproj", "{5C068EE8-D617-43BE-90F9-A94F7C6F2DE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Infrastructure", "Onibi_Pro.Infrastructure\Onibi_Pro.Infrastructure.csproj", "{2F8E0071-E6D4-49D3-9889-20A934F6B695}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Infrastructure", "Onibi_Pro.Infrastructure\Onibi_Pro.Infrastructure.csproj", "{2F8E0071-E6D4-49D3-9889-20A934F6B695}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Contracts", "Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj", "{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Contracts", "Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj", "{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

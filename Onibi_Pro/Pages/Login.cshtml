@@ -1,0 +1,80 @@
+﻿@page
+@model Onibi_Pro.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login :: Onibi Pro";
+}
+
+<link href="@Url.Content("~/css/login.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/css/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+
+<div class="container">
+    <div class="d-flex justify-content-center col mt-5">
+        <div class="col-12 col-md-9 col-lg-5 d-flex flex-column">
+            <form id="loginForm" method="post" class="col">
+                <img class="w-100 mb-5" src="@Url.Content("~/onibi.svg")" alt="Onibi Logo" />
+                <div class="row">
+                    <label asp-for="Login" class="mb-1"></label>
+                    <input asp-for="Login" id="loginInput" class="form-control shadow-none" oninput="validateControl(this)" onblur="validateControl(this)" placeholder="Login" />
+                </div>
+                <div class="row">
+                    <label asp-for="Password" class="mb-1"></label>
+                    <div class="password-container p-0">
+                        <input asp-for="Password" id="passwordInput" placeholder="Password" class="form-control shadow-none" oninput="validateControl(this)" onblur="validateControl(this)" type="password" />
+                        <img id="eyeIcon" class="password-eye-ico" src="@Url.Content("~/eye-10.svg")" onclick="togglePasswordVisibility()" alt="Change visibility" />
+                    </div>
+                </div>
+                <div class="col d-flex justify-content-around mt-3">
+                    <button class="onibi-button accent" type="button" onclick="clearForm()">
+                        Clear
+                    </button>
+                    <button class="onibi-button primary" type="submit">Login</button>
+                </div>
+            </form>
+            <span class="disclaimer">
+                Unauthorized access is strictly prohibited. All activities on this
+                website are tracked and monitored. Any unauthorized access will result
+                in consequences, including legal action. By logging in, you agree to
+                these terms.
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('passwordInput');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.src = '/eye-9.svg'
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.src = '/eye-10.svg'
+        }
+    }
+
+    function clearForm() {
+        document.getElementById('loginForm').reset();
+    }
+
+    function validateControl(control) {
+        const errorBorderClass = 'error-border';
+
+        if (!control.value.trim()) {
+            control.classList.add(errorBorderClass);
+        } else {
+            control.classList.remove(errorBorderClass);
+        }
+    }
+
+    window.onload = function() {
+        if ('@ViewData["MarkInvalidOnLoad"]') {
+            const loginInput = document.getElementById('loginInput');
+            const passwordInput = document.getElementById('passwordInput');
+
+            validateControl(loginInput);
+            validateControl(passwordInput);
+        }
+    }
+</script>

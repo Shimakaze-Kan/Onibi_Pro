@@ -225,6 +225,10 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     this.togglePanel(CommunicationPanelContentType.Notifications);
   }
 
+  logout(): void {
+    window.location.href = window.location.origin + '/login';
+  }
+
   private togglePanel(type: CommunicationPanelContentType) {
     const panelApperance = this._communicationPanelApperance[type];
     const currentState = panelApperance.show;

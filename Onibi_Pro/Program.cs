@@ -11,12 +11,14 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         {
+            builder.Services.AddCors();
             builder.Services.AddControllersWithViews();
             builder.Services.AddApplication()
                             .AddInfrastructure(builder.Configuration);
 
-            builder.Services.AddProblemDetails(options 
+            builder.Services.AddProblemDetails(options
                 => options.CustomizeProblemDetails = CustomizeProblemDetails);
+            builder.Services.AddRazorPages();
         }
 
         var app = builder.Build();
@@ -27,11 +29,16 @@ internal class Program
                 app.UseHsts();
             }
 
+            app.UseCors(options 
+                => options.WithOrigins("https://localhost:44406").AllowAnyMethod());
+
             app.UseExceptionHandler();
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+
+            app.MapRazorPages();
 
             app.MapControllerRoute(
                 name: "default",
