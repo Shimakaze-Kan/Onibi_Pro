@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 import {
   BehaviorSubject,
   Subject,
@@ -75,12 +76,10 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   historyRoutes: IHistoryRouteRecord[] = [];
 
   pages = [
-    { name: 'Main Page', id: 1, url: '/' },
+    { name: 'Main Page', id: 1, url: '/welcome' },
     { name: 'Delivery', id: 2, url: '/delivery' },
     { name: 'Schedule', id: 3, url: '/schedule' },
-    { name: 'Welcome', id: 4, url: '/welcome' },
-    { name: 'Home', id: 5, url: '/home' },
-    { name: 'Personel Management', id: 5, url: '/personel-management' },
+    { name: 'Personel Management', id: 4, url: '/personel-management' },
   ];
 
   get currentPageName(): string {
@@ -144,7 +143,8 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     private readonly router: Router,
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly titleService: Title,
-    private readonly scrollStrategyOptions: ScrollStrategyOptions
+    private readonly scrollStrategyOptions: ScrollStrategyOptions,
+    private readonly cookieService: CookieService
   ) {
     this.scrollStrategy = this.scrollStrategyOptions.block();
   }
@@ -226,7 +226,8 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   logout(): void {
-    window.location.href = window.location.origin + '/login';
+    this.cookieService.delete('OnibiAuth');
+    window.location.href = '/';
   }
 
   private togglePanel(type: CommunicationPanelContentType) {

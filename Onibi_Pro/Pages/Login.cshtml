@@ -1,13 +1,22 @@
-﻿@page
+﻿@page "/"
 @model Onibi_Pro.Pages.LoginModel
 @{
-    ViewData["Title"] = "Login :: Onibi Pro";
 }
 
 <link href="@Url.Content("~/css/login.css")" rel="stylesheet" type="text/css" />
 <link href="@Url.Content("~/css/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+<link rel="icon" type="image/x-icon" href="@Url.Content("~/onibi_ico.svg")" />
 
 <div class="container">
+    @if (ViewData.ModelState.ContainsKey("alertError") && ViewData.ModelState["alertError"]?.Errors.Count > 0)
+    {
+        <div id="alert-toast" class="alert alert-danger position-fixed" style="left: 50%;
+            transform: translateX(-50%);
+            top: 1rem;
+            z-index: 10000;">
+            @ViewData.ModelState["alertError"]?.Errors[0].ErrorMessage
+        </div>
+    }
     <div class="d-flex justify-content-center col mt-5">
         <div class="col-12 col-md-9 col-lg-5 d-flex flex-column">
             <form id="loginForm" method="post" class="col">
@@ -68,13 +77,34 @@
         }
     }
 
-    window.onload = function() {
+    window.onload = function () {
         if ('@ViewData["MarkInvalidOnLoad"]') {
             const loginInput = document.getElementById('loginInput');
             const passwordInput = document.getElementById('passwordInput');
 
             validateControl(loginInput);
             validateControl(passwordInput);
+        }
+
+        document.title = 'Login :: Onibi Pro';
+
+        showToast();
+    }
+
+    function showToast() {
+        const alertToast = document.getElementById("alert-toast");
+
+        if (alertToast && alertToast.innerText.trim() !== "") {
+            alertToast.style.opacity = 1;
+            alertToast.style.transition = "opacity 1s";
+            alertToast.style.display = "block";
+
+            setTimeout(function () {
+                alertToast.style.opacity = 0;
+                setTimeout(function () {
+                    alertToast.style.display = "none";
+                }, 1000);
+            }, 5000);
         }
     }
 </script>

@@ -1,11 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Onibi_Pro.Application.Services.Authentication;
 using System.ComponentModel.DataAnnotations;
 
 namespace Onibi_Pro.Pages;
 
 public class LoginModel : PageModel
 {
+    private const string CookieName = "OnibiAuth";
+    private const string AngularLandingPage = "/welcome";
+    private readonly IAuthenticationService _authenticationService;
+
     [Required]
     [BindProperty]
     public string? Login { get; set; }
@@ -14,9 +19,19 @@ public class LoginModel : PageModel
     [BindProperty]
     public string? Password { get; set; }
 
-    public void OnGet()
+    public LoginModel(IAuthenticationService authenticationService)
     {
-        // Optional: Add logic for handling GET requests
+        _authenticationService = authenticationService;
+    }
+
+    public IActionResult OnGet()
+    {
+        if(HttpContext.Request.Cookies.ContainsKey(CookieName))
+        {
+            return Redirect(AngularLandingPage);
+        }
+
+        return Page();
     }
 
     public IActionResult OnPost()
@@ -27,14 +42,24 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        if (Login == "demo" && Password == "password")
+        var authResult = _authenticationService.Login(Login!, Password!);
+
+        return authResult.Match<IActionResult>(resutl =>
         {
-            return Redirect("https://localhost:44406");
-        }
-        else
+            var options = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(1),
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+
+            HttpContext.Response.Cookies.Append(CookieName, resutl.Token, options);
+            return Redirect(AngularLandingPage);
+        }, errors =>
         {
-            ModelState.AddModelError("", "Invalid username or password");
-            return Page(); // Stay on the login page with error message
-        }
+            ModelState.AddModelError("alertError", errors[0].Description);
+            return Page();
+        });
     }
 }

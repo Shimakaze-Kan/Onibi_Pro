@@ -79,8 +79,7 @@
               "browserTarget": "Onibi_Pro:build:production"
             },
             "development": {
-              "browserTarget": "Onibi_Pro:build:development",
-              "proxyConfig": "proxy.conf.js"
+              "browserTarget": "Onibi_Pro:build:development"
             }
           },
           "defaultConfiguration": "development"

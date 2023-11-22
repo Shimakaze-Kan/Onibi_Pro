@@ -35,7 +35,13 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #logOutMenu="matMenu">
-                <button mat-menu-item (click)="logout()">Log Out</button>
+                <button
+                  (click)="logout()"
+                  style="border-radius: 5px !important"
+                  mat-menu-item
+                >
+                  Log Out
+                </button>
               </mat-menu>
             </li>
           </ul>

@@ -1,26 +1,23 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_ID, NgModule } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { APP_ID, NgModule, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { Route, RouterModule } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateChildFn,
+  Route,
+  RouterModule,
+  RouterStateSnapshot,
+} from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './home/home.component';
 import { CounterComponent } from './counter/counter.component';
 import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import {
-  FloatLabelType,
-  MatFormFieldModule,
-} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
@@ -39,12 +36,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TakeSpaceDirective } from './directives/take-space.directive';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { AddEmployeeComponent } from './personel-management/add-employee/add-employee.component';
-import {
-  MatDialog,
-  MAT_DIALOG_DATA,
-  MatDialogRef,
-  MatDialogModule,
-} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { CommunicationModule } from './communication/communication.module';
 import { UtilsModule } from './utils/utils.module';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
@@ -54,6 +46,8 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EditEmployeeComponent } from './personel-management/edit-employee/edit-employee.component';
 import { OrdersModule } from './orders/orders.module';
+import { CookieService } from 'ngx-cookie-service';
+import { PermissionChecker } from './auth/permission-checker.service';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -74,26 +68,34 @@ const MATERIAL_MODULES = [
   MatBadgeModule,
 ];
 
+const canActivateAnything: CanActivateChildFn = (
+  _route: ActivatedRouteSnapshot,
+  _state: RouterStateSnapshot
+) => {
+  return inject(PermissionChecker).canActivateAnything();
+};
+
 const ROUTES: Array<Route> = [
   {
     path: '',
-    component: WelcomeComponent /*HomeComponent*/,
-    pathMatch: 'full',
+    canActivateChild: [canActivateAnything],
+    children: [
+      { path: '', redirectTo: 'welcome', pathMatch: 'full' },
+      { path: 'welcome', component: WelcomeComponent },
+      // { path: 'counter', component: CounterComponent },
+      // { path: 'fetch-data', component: FetchDataComponent },
+      { path: 'schedule', component: ScheduleComponent },
+      { path: 'personel-management', component: PersonelManagementComponent },
+      { path: 'delivery', component: DeliveryComponent },
+    ],
   },
-  { path: 'counter', component: CounterComponent },
-  { path: 'fetch-data', component: FetchDataComponent },
-  { path: 'schedule', component: ScheduleComponent },
-  { path: 'personel-management', component: PersonelManagementComponent },
-  { path: 'welcome', component: WelcomeComponent },
-  { path: 'delivery', component: DeliveryComponent },
-  { path: 'home', component: HomeComponent },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
     NavMenuComponent,
-    HomeComponent,
     CounterComponent,
     FetchDataComponent,
     ScheduleComponent,
@@ -123,7 +125,7 @@ const ROUTES: Array<Route> = [
     OverlayModule,
     OrdersModule,
   ],
-  providers: [{ provide: APP_ID, useValue: 'serverApp' }],
+  providers: [{ provide: APP_ID, useValue: 'serverApp' }, CookieService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

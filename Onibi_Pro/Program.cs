@@ -1,9 +1,7 @@
 using ErrorOr;
-using Microsoft.AspNetCore.Diagnostics;
 using Onibi_Pro.Application;
 using Onibi_Pro.Http;
 using Onibi_Pro.Infrastructure;
-using System.Net;
 
 internal class Program
 {
@@ -18,7 +16,9 @@ internal class Program
 
             builder.Services.AddProblemDetails(options
                 => options.CustomizeProblemDetails = CustomizeProblemDetails);
+
             builder.Services.AddRazorPages();
+            builder.Services.AddSpaYarp();
         }
 
         var app = builder.Build();
@@ -29,7 +29,7 @@ internal class Program
                 app.UseHsts();
             }
 
-            app.UseCors(options 
+            app.UseCors(options
                 => options.WithOrigins("https://localhost:44406").AllowAnyMethod());
 
             app.UseExceptionHandler();
@@ -43,6 +43,8 @@ internal class Program
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller}/{action=Index}/{id?}");
+
+            app.UseSpaYarp();
 
             app.MapFallbackToFile("index.html");
 
