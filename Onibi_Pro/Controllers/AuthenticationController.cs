@@ -1,8 +1,8 @@
-﻿using MediatR;
+﻿using MapsterMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
-using Onibi_Pro.Application.Services.Authentication;
 using Onibi_Pro.Contracts.Authentication;
 using Onibi_Pro.Domain.Common.Errors;
 
@@ -12,30 +12,30 @@ namespace Onibi_Pro.Controllers;
 public class AuthenticationController : ApiBaseController
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public AuthenticationController(IMediator mediator)
+    public AuthenticationController(IMediator mediator,
+        IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(request.FirstName,
-                                          request.LastName,
-                                          request.Email,
-                                          request.Password);
+        var command = _mapper.Map<RegisterCommand>(request);
 
         var authResult = await _mediator.Send(command);
 
         return authResult.Match(
-            authResult => Ok(MapAuthResult(authResult)), Problem);
+            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)), Problem);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var query = new LoginQuery(request.Email, request.Password);
+        var query = _mapper.Map<LoginQuery>(request);
 
         var authResult = await _mediator.Send(query);
 
@@ -46,12 +46,6 @@ public class AuthenticationController : ApiBaseController
         }
 
         return authResult.Match(
-            authResult => Ok(MapAuthResult(authResult)), Problem);
-    }
-
-    private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
-    {
-        return new AuthenticationResponse(
-            authResult.Id, authResult.FirstName, authResult.LastName, authResult.Email, authResult.Token);
+            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)), Problem);
     }
 }

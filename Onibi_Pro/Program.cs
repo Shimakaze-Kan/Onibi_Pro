@@ -1,6 +1,5 @@
-using ErrorOr;
+using Onibi_Pro;
 using Onibi_Pro.Application;
-using Onibi_Pro.Http;
 using Onibi_Pro.Infrastructure;
 
 internal class Program
@@ -9,16 +8,9 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         {
-            builder.Services.AddCors();
-            builder.Services.AddControllersWithViews();
-            builder.Services.AddApplication()
+            builder.Services.AddPresentation()
+                            .AddApplication()
                             .AddInfrastructure(builder.Configuration);
-
-            builder.Services.AddProblemDetails(options
-                => options.CustomizeProblemDetails = CustomizeProblemDetails);
-
-            builder.Services.AddRazorPages();
-            builder.Services.AddSpaYarp();
         }
 
         var app = builder.Build();
@@ -49,14 +41,6 @@ internal class Program
             app.MapFallbackToFile("index.html");
 
             app.Run();
-        }
-    }
-
-    private static void CustomizeProblemDetails(ProblemDetailsContext context)
-    {
-        if (context.HttpContext.Items[HttpContextItemKeys.Errors] is List<Error> errors)
-        {
-            context.ProblemDetails.Extensions.Add("ErrorCodes", errors.Select(x => x.Code));
         }
     }
 }

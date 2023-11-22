@@ -33,7 +33,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName);
 
-        return new AuthenticationResult(user.Id, user.FirstName, user.LastName, user.Email, token);
+        return new AuthenticationResult(user, token);
     }
 
     public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
@@ -57,6 +57,6 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName);
 
-        return new AuthenticationResult(user.Id, user.FirstName, user.LastName, user.Email, token);
+        return new AuthenticationResult(user, token);
     }
 }
