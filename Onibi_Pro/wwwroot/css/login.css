@@ -38,26 +38,21 @@
     --scrollbar-frontcolor: var(--primary-color);
 }
 
-::-webkit-scrollbar-thumb {
-    background-color: $scrollbar-frontcolor;
-}
-}
-
 .accent {
-    background-color: var(--accent-background-color);
+    background-color: var(--accent-background-color) !important;
 }
 
     .accent:hover {
-        background-color: var(--accent-background-hover-color);
+        background-color: var(--accent-background-hover-color) !important;
     }
 
 .primary {
-    background-color: var(--primary-button-color);
+    background-color: var(--primary-button-color) !important;
     color: white;
 }
 
     .primary:hover {
-        background-color: var(--primary-button-hover-color);
+        background-color: var(--primary-button-hover-color) !important;
     }
 
 .form-control {
