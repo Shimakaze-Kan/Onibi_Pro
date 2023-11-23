@@ -30,6 +30,7 @@
 		<ProjectReference Include="..\Onibi_Pro.Application\Onibi_Pro.Application.csproj" />
 		<ProjectReference Include="..\Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj" />
 		<ProjectReference Include="..\Onibi_Pro.Infrastructure\Onibi_Pro.Infrastructure.csproj" />
+		<ProjectReference Include="..\Onibi_Pro.Shared\Onibi_Pro.Shared.csproj" />
 	</ItemGroup>
 
 	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Infrastructure", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Contracts", "Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj", "{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Shared", "Onibi_Pro.Shared\Onibi_Pro.Shared.csproj", "{0080B1AB-4843-4BE8-985B-99001FF38D49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0080B1AB-4843-4BE8-985B-99001FF38D49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0080B1AB-4843-4BE8-985B-99001FF38D49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0080B1AB-4843-4BE8-985B-99001FF38D49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0080B1AB-4843-4BE8-985B-99001FF38D49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

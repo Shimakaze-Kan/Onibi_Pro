@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="1.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.14" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
@@ -15,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Onibi_Pro.Application\Onibi_Pro.Application.csproj" />
+    <ProjectReference Include="..\Onibi_Pro.Shared\Onibi_Pro.Shared.csproj" />
   </ItemGroup>
 
 </Project>

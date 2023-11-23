@@ -83,7 +83,7 @@ const ROUTES: Array<Route> = [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
       // { path: 'counter', component: CounterComponent },
-      // { path: 'fetch-data', component: FetchDataComponent },
+      { path: 'fetch-data', component: FetchDataComponent },
       { path: 'schedule', component: ScheduleComponent },
       { path: 'personel-management', component: PersonelManagementComponent },
       { path: 'delivery', component: DeliveryComponent },

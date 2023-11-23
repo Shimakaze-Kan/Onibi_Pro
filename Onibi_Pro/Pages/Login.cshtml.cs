@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Onibi_Pro.Application.Services.Authentication;
 using Onibi_Pro.Http;
+using Onibi_Pro.Shared;
 using System.ComponentModel.DataAnnotations;
 
 namespace Onibi_Pro.Pages;

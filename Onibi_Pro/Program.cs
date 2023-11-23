@@ -9,7 +9,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         {
-            builder.Services.AddPresentation(builder.Configuration)
+            builder.Services.AddPresentation()
                             .AddApplication()
                             .AddInfrastructure(builder.Configuration);
         }
