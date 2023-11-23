@@ -61,8 +61,8 @@
     margin-bottom: var(--control-bottom-padding);
 }
 
-    .form-control:hover {
-        border-color: var(--border-control-unfocused-hover);
+    .form-control:not(:focus):not(:is(.error-border)):hover {
+        border-color: var(--border-control-unfocused-hover) !important;
     }
 
     .form-control:focus {
