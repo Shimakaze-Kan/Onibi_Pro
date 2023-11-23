@@ -148,6 +148,7 @@ $attached-bottom-nav-height: 2.8rem;
   overflow: auto;
   z-index: 1000;
   scrollbar-gutter: stable;
+  overscroll-behavior-block: contain;
 
   @include scrollbar-width;
 }
