@@ -38,3 +38,7 @@ POST {{baseUrl}}/WeatherForecast/set/dupa/1234
 
 ###
 GET {{baseUrl}}/WeatherForecast/get/dupa
+
+###
+POST {{baseUrl}}/authentication/logout
+Authorization: Bearer {{token}}

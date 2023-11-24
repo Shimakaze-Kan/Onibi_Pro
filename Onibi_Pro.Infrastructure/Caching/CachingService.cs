@@ -13,9 +13,9 @@ internal sealed class CachingService : ICachingService
         _distributedCache = distributedCache;
     }
 
-    public async Task<T?> GetCachedDataAsync<T>(string key)
+    public async Task<T?> GetCachedDataAsync<T>(string key, CancellationToken cancellationToken)
     {
-        var jsonData = await _distributedCache.GetStringAsync(key);
+        var jsonData = await _distributedCache.GetStringAsync(key, cancellationToken);
 
         if (jsonData == null)
             return default;
@@ -23,7 +23,8 @@ internal sealed class CachingService : ICachingService
         return JsonSerializer.Deserialize<T>(jsonData);
     }
 
-    public async Task SetCachedDataAsync<T>(string key, T data, TimeSpan cacheDuration)
+    public async Task SetCachedDataAsync<T>(string key, T data,
+        TimeSpan cacheDuration, CancellationToken cancellationToken)
     {
         var options = new DistributedCacheEntryOptions
         {
@@ -31,11 +32,11 @@ internal sealed class CachingService : ICachingService
         };
 
         var jsonData = JsonSerializer.Serialize(data);
-        await _distributedCache.SetStringAsync(key, jsonData, options);
+        await _distributedCache.SetStringAsync(key, jsonData, options, cancellationToken);
     }
 
-    public async Task RemoveCachedDataAsync(string key)
+    public async Task RemoveCachedDataAsync(string key, CancellationToken cancellationToken)
     {
-        await _distributedCache.RemoveAsync(key);
+        await _distributedCache.RemoveAsync(key, cancellationToken);
     }
 }

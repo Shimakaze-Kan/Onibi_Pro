@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import {
   BehaviorSubject,
   Subject,
@@ -20,6 +19,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -145,7 +145,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly titleService: Title,
     private readonly scrollStrategyOptions: ScrollStrategyOptions,
-    private readonly cookieService: CookieService
+    private readonly authService: AuthService
   ) {
     this.scrollStrategy = this.scrollStrategyOptions.block();
   }
@@ -227,8 +227,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   logout(): void {
-    //this.cookieService.delete('OnibiAuth');
-    window.location.href = '/';
+    this.authService.logoutCurrentUser();
   }
 
   private togglePanel(type: CommunicationPanelContentType) {

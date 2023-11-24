@@ -1,6 +1,8 @@
 ﻿using ErrorOr;
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Http;
 using Onibi_Pro.Mapping;
+using Onibi_Pro.Services;
 
 namespace Onibi_Pro;
 
@@ -17,6 +19,8 @@ public static class DependencyInjection
 
         services.AddRazorPages();
         services.AddSpaYarp();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }

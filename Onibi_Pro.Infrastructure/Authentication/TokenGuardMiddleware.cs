@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Shared;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 
 namespace Onibi_Pro.Infrastructure.Authentication;
@@ -14,27 +14,18 @@ internal sealed class TokenGuardMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, ITokenGuard tokenGuard)
+    public async Task InvokeAsync(HttpContext context, ITokenGuard tokenGuard, ICurrentUserService currentUserService)
     {
-        string? token = GetToken(context);
-
-        var handler = new JwtSecurityTokenHandler();
-
-        if (!handler.CanReadToken(token))
+        if (!currentUserService.CanGetCurrentUser)
         {
             await _next(context);
             return;
         }
 
-        if (handler.ReadToken(token) is not JwtSecurityToken tokenObject)
-        {
-            await _next(context);
-            return;
-        }
+        var userId = currentUserService.UserId;
+        var token = context.GetToken();
 
-        var userId = Guid.Parse(tokenObject.Subject);
-
-        var isTokenAllowed = await tokenGuard.IsTokenAllowedAsync(userId, token!);
+        var isTokenAllowed = await tokenGuard.IsTokenAllowedAsync(userId, token!, context.RequestAborted);
 
         if (isTokenAllowed)
         {
@@ -43,17 +34,5 @@ internal sealed class TokenGuardMiddleware
         }
 
         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-    }
-
-    private static string? GetToken(HttpContext context)
-    {
-        string? token = context.Request.Headers["Authorization"];
-
-        if (string.IsNullOrEmpty(token))
-        {
-            token = context.Request.Cookies[AuthenticationKeys.CookieName];
-        }
-
-        return token;
     }
 }

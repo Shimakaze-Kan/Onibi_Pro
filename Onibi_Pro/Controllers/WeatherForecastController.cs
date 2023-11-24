@@ -35,18 +35,18 @@ public class WeatherForecastController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("get/{key}")]
-    public async Task<string?> GetCache([FromRoute] string key)
+    public async Task<string?> GetCache([FromRoute] string key, CancellationToken cancellationToken)
     {
-        return await _cachingService.GetCachedDataAsync<string>(key);
+        return await _cachingService.GetCachedDataAsync<string>(key, cancellationToken);
 
     }
 
     [AllowAnonymous]
     [HttpPost("set/{key}/{val}")]
-    public async Task SetCache([FromRoute] string key, [FromRoute]string val)
+    public async Task SetCache([FromRoute] string key, [FromRoute]string val, CancellationToken cancellationToken)
     {
 
-        await _cachingService.SetCachedDataAsync(key, val, TimeSpan.FromSeconds(60));
+        await _cachingService.SetCachedDataAsync(key, val, TimeSpan.FromSeconds(60), cancellationToken);
 
     }
 }

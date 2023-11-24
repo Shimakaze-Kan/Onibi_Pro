@@ -20,15 +20,15 @@ internal sealed class TokenGuard : ITokenGuard
         _tokenSettings = options.Value;
     }
 
-    public async Task AllowTokenAsync(Guid userId, string token)
+    public async Task AllowTokenAsync(Guid userId, string token, CancellationToken cancellationToken)
     {
         await _cachingService.SetCachedDataAsync(GetKey(userId), token,
-            TimeSpan.FromMinutes(_tokenSettings.ExpirationTimeInMinutes));
+            TimeSpan.FromMinutes(_tokenSettings.ExpirationTimeInMinutes), cancellationToken);
     }
 
-    public async Task<bool> IsTokenAllowedAsync(Guid userId, string token)
+    public async Task<bool> IsTokenAllowedAsync(Guid userId, string token, CancellationToken cancellationToken)
     {
-        var cachedToken = await _cachingService.GetCachedDataAsync<string>(GetKey(userId));
+        var cachedToken = await _cachingService.GetCachedDataAsync<string>(GetKey(userId), cancellationToken);
 
         if (cachedToken is null)
         {
@@ -43,8 +43,8 @@ internal sealed class TokenGuard : ITokenGuard
         return true;
     }
 
-    public async Task DenyTokenAsync(Guid userId)
+    public async Task DenyTokenAsync(Guid userId, CancellationToken cancellationToken)
     {
-        await _cachingService.RemoveCachedDataAsync(GetKey(userId));
+        await _cachingService.RemoveCachedDataAsync(GetKey(userId), cancellationToken);
     }
 }

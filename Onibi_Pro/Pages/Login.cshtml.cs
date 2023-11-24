@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Services.Authentication;
-using Onibi_Pro.Http;
+using Onibi_Pro.Infrastructure.Authentication;
 using Onibi_Pro.Shared;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,6 +15,8 @@ public class LoginModel : PageModel
 {
     private const string AngularLandingPage = "/welcome";
     private readonly IAuthenticationService _authenticationService;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly JwtTokenSettings _tokenSettings;
 
     [Required]
     [BindProperty]
@@ -22,9 +26,13 @@ public class LoginModel : PageModel
     [BindProperty]
     public string? Password { get; set; }
 
-    public LoginModel(IAuthenticationService authenticationService)
+    public LoginModel(IAuthenticationService authenticationService,
+        IOptions<JwtTokenSettings> options,
+        IDateTimeProvider dateTimeProvider)
     {
         _authenticationService = authenticationService;
+        _dateTimeProvider = dateTimeProvider;
+        _tokenSettings = options.Value;
     }
 
     public IActionResult OnGet()
@@ -49,10 +57,11 @@ public class LoginModel : PageModel
 
         return authResult.Match<IActionResult>(resutl =>
         {
+            var expires = _dateTimeProvider.UtcNow.AddMinutes(_tokenSettings.ExpirationTimeInMinutes);
             var options = new CookieOptions
             {
-                Expires = DateTime.Now.AddDays(1),
-                HttpOnly = false,
+                Expires = expires,
+                HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict
             };

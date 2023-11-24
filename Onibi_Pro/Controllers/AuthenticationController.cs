@@ -6,9 +6,10 @@ using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
 using Onibi_Pro.Contracts.Authentication;
 using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Controllers;
-[AllowAnonymous]
+
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController : ApiBaseController
@@ -23,6 +24,7 @@ public class AuthenticationController : ApiBaseController
         _mapper = mapper;
     }
 
+    [AllowAnonymous] // TODO remove
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
@@ -34,6 +36,7 @@ public class AuthenticationController : ApiBaseController
             authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)), Problem);
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
@@ -49,5 +52,18 @@ public class AuthenticationController : ApiBaseController
 
         return authResult.Match(
             authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)), Problem);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var logoutResult = await _mediator.Send(new LogoutCommand());
+
+        return logoutResult.Match(
+            logoutResult =>
+            {
+                HttpContext.Response.Cookies.Delete(AuthenticationKeys.CookieName);
+                return Ok();
+            }, Problem);
     }
 }

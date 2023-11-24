@@ -34,10 +34,15 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName);
-        _tokenGuard.AllowTokenAsync(user.Id, token).GetAwaiter().GetResult();
+        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName, user.Email);
+        _tokenGuard.AllowTokenAsync(user.Id, token, CancellationToken.None).GetAwaiter().GetResult();
 
         return new AuthenticationResult(user, token);
+    }
+
+    public void Logout(Guid userId)
+    {
+        _tokenGuard.DenyTokenAsync(userId, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
@@ -59,8 +64,8 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         _userRepository.Add(user);
 
-        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName);
-        _tokenGuard.AllowTokenAsync(user.Id, token).GetAwaiter().GetResult();
+        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName, user.Email);
+        _tokenGuard.AllowTokenAsync(user.Id, token, CancellationToken.None).GetAwaiter().GetResult();
 
         return new AuthenticationResult(user, token);
     }

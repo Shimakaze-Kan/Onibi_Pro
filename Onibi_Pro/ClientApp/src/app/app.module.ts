@@ -46,7 +46,6 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatBadgeModule } from '@angular/material/badge';
 import { EditEmployeeComponent } from './personel-management/edit-employee/edit-employee.component';
 import { OrdersModule } from './orders/orders.module';
-import { CookieService } from 'ngx-cookie-service';
 import { PermissionChecker } from './auth/permission-checker.service';
 import { AuthInterceptor } from './auth/auth.interceptor';
 
@@ -128,7 +127,6 @@ const ROUTES: Array<Route> = [
   ],
   providers: [
     { provide: APP_ID, useValue: 'serverApp' },
-    CookieService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
