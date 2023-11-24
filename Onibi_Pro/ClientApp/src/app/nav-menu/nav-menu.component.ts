@@ -80,6 +80,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     { name: 'Delivery', id: 2, url: '/delivery' },
     { name: 'Schedule', id: 3, url: '/schedule' },
     { name: 'Personel Management', id: 4, url: '/personel-management' },
+    { name: 'fetch-data', id: 4, url: '/fetch-data' },
   ];
 
   get currentPageName(): string {
@@ -226,7 +227,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   logout(): void {
-    this.cookieService.delete('OnibiAuth');
+    //this.cookieService.delete('OnibiAuth');
     window.location.href = '/';
   }
 

@@ -9,12 +9,15 @@ internal sealed class AuthenticationService : IAuthenticationService
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUserRepository _userRepository;
+    private readonly ITokenGuard _tokenGuard;
 
     public AuthenticationService(IJwtTokenGenerator jwtTokenGenerator,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        ITokenGuard tokenGuard)
     {
         _jwtTokenGenerator = jwtTokenGenerator;
         _userRepository = userRepository;
+        _tokenGuard = tokenGuard;
     }
 
     public ErrorOr<AuthenticationResult> Login(string email, string password)
@@ -32,6 +35,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         }
 
         var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName);
+        _tokenGuard.AllowTokenAsync(user.Id, token).GetAwaiter().GetResult();
 
         return new AuthenticationResult(user, token);
     }
@@ -56,6 +60,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         _userRepository.Add(user);
 
         var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName);
+        _tokenGuard.AllowTokenAsync(user.Id, token).GetAwaiter().GetResult();
 
         return new AuthenticationResult(user, token);
     }

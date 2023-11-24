@@ -32,3 +32,9 @@ Authorization: Bearer {{token}}
 ### random page
 GET {{baseUrlWithoutApi}}/delivery
 Cookie: OnibiAuth={{token}}
+
+###
+POST {{baseUrl}}/WeatherForecast/set/dupa/1234
+
+###
+GET {{baseUrl}}/WeatherForecast/get/dupa

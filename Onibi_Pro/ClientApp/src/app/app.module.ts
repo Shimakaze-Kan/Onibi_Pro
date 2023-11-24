@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_ID, NgModule, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import {
   ActivatedRouteSnapshot,
   CanActivateChildFn,
@@ -48,6 +48,7 @@ import { EditEmployeeComponent } from './personel-management/edit-employee/edit-
 import { OrdersModule } from './orders/orders.module';
 import { CookieService } from 'ngx-cookie-service';
 import { PermissionChecker } from './auth/permission-checker.service';
+import { AuthInterceptor } from './auth/auth.interceptor';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -125,7 +126,15 @@ const ROUTES: Array<Route> = [
     OverlayModule,
     OrdersModule,
   ],
-  providers: [{ provide: APP_ID, useValue: 'serverApp' }, CookieService],
+  providers: [
+    { provide: APP_ID, useValue: 'serverApp' },
+    CookieService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

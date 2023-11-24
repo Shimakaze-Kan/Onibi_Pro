@@ -7,6 +7,7 @@ using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Infrastructure.Authentication;
+using Onibi_Pro.Infrastructure.Caching;
 using Onibi_Pro.Infrastructure.Persistence;
 using Onibi_Pro.Infrastructure.Services;
 using Onibi_Pro.Shared;
@@ -23,6 +24,8 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSecurity(configurationManager);
+        services.AddCaching(configurationManager);
+        services.AddScoped<ITokenGuard, TokenGuard>();
 
         return services;
     }

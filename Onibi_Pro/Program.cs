@@ -1,6 +1,8 @@
 using Onibi_Pro;
 using Onibi_Pro.Application;
 using Onibi_Pro.Infrastructure;
+using Onibi_Pro.Infrastructure.Authentication;
+using Onibi_Pro.Shared;
 using System.Net;
 
 internal class Program
@@ -32,9 +34,11 @@ internal class Program
                 var response = context.HttpContext.Response;
                 var request = context.HttpContext.Request;
 
-                if (response.StatusCode == (int)HttpStatusCode.Unauthorized
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized 
+                    || response.StatusCode == (int)HttpStatusCode.Forbidden
                     && !request.Path.StartsWithSegments("/api"))
                 {
+                    response.Cookies.Delete(AuthenticationKeys.CookieName);
                     response.Redirect("/");
                 }
 
@@ -53,6 +57,8 @@ internal class Program
             app.UseSpaYarp();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseTokenGuardMiddleware();
 
             app.MapFallbackToFile("index.html");
 
