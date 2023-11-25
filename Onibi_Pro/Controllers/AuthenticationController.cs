@@ -11,7 +11,6 @@ using Onibi_Pro.Shared;
 namespace Onibi_Pro.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
 public class AuthenticationController : ApiBaseController
 {
     private readonly IMediator _mediator;

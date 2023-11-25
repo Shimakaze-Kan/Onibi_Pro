@@ -5,10 +5,11 @@ using Onibi_Pro.Http;
 
 namespace Onibi_Pro.Controllers;
 
-[ApiExplorerSettings(IgnoreApi = true)]
+
 [ApiController]
 public abstract class ApiBaseController : ControllerBase
 {
+    [NonAction]
     public IActionResult Problem(List<Error> errors)
     {
         if (errors.Count == 0)

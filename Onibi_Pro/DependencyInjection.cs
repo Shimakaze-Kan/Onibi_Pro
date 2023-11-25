@@ -1,4 +1,5 @@
 ﻿using ErrorOr;
+using Microsoft.OpenApi.Models;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Http;
 using Onibi_Pro.Mapping;
@@ -21,6 +22,10 @@ public static class DependencyInjection
         services.AddSpaYarp();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Onibi API", Version = "v1" });
+        });
 
         return services;
     }
