@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Onibi_Pro;
 using Onibi_Pro.Application;
 using Onibi_Pro.Infrastructure;
@@ -41,11 +42,13 @@ internal class Program
             app.UseStaticFiles();
             app.UseRouting();
 
-            app.MapRazorPages();
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                    ForwardedHeaders.XForwardedProto
+            });
 
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller}/{action=Index}/{id?}");
+            app.MapRazorPages();
 
             app.UseAuthentication();
             app.UseAuthorization();

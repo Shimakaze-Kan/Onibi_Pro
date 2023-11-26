@@ -1,4 +1,5 @@
 ﻿using ErrorOr;
+using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
@@ -10,14 +11,17 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUserRepository _userRepository;
     private readonly ITokenGuard _tokenGuard;
+    private readonly ILogger<AuthenticationService> _logger;
 
     public AuthenticationService(IJwtTokenGenerator jwtTokenGenerator,
         IUserRepository userRepository,
-        ITokenGuard tokenGuard)
+        ITokenGuard tokenGuard,
+        ILogger<AuthenticationService> logger)
     {
         _jwtTokenGenerator = jwtTokenGenerator;
         _userRepository = userRepository;
         _tokenGuard = tokenGuard;
+        _logger = logger;
     }
 
     public ErrorOr<AuthenticationResult> Login(string email, string password)
@@ -26,11 +30,13 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (user is null)
         {
+            _logger.LogWarning("Wrong credentials for user: {email}", email);
             return Errors.Authentication.InvalidCredentials;
         }
 
         if (user.Password != password)
         {
+            _logger.LogWarning("Wrong credentials for user: {email}", email);
             return Errors.Authentication.InvalidCredentials;
         }
 
@@ -51,6 +57,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (user is not null)
         {
+            _logger.LogWarning("User already exists: {email}", email);
             return Errors.User.DuplicateEmail;
         }
 

@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Services.Authentication;
 
@@ -8,12 +9,15 @@ internal sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand, Erro
 {
     private readonly IAuthenticationService _authenticationService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ILogger<LogoutCommandHandler> _logger;
 
     public LogoutCommandHandler(IAuthenticationService authenticationService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ILogger<LogoutCommandHandler> logger)
     {
         _authenticationService = authenticationService;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     public async Task<ErrorOr<Success>> Handle(LogoutCommand request, CancellationToken cancellationToken)
@@ -22,6 +26,7 @@ internal sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand, Erro
 
         if (!canGetUserInfo)
         {
+            _logger.LogWarning("No user found to log out.");
             return Error.NotFound();
         }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Shared;
@@ -14,7 +15,8 @@ internal sealed class TokenGuardMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, ITokenGuard tokenGuard, ICurrentUserService currentUserService)
+    public async Task InvokeAsync(HttpContext context, ITokenGuard tokenGuard,
+        ICurrentUserService currentUserService, ILogger<TokenGuardMiddleware> logger)
     {
         if (!currentUserService.CanGetCurrentUser)
         {
@@ -32,6 +34,9 @@ internal sealed class TokenGuardMiddleware
             await _next(context);
             return;
         }
+
+        logger.LogWarning("Blocked token for user id: {userId}, IP: {ip}",
+            userId, context.Connection.RemoteIpAddress);
 
         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
     }
