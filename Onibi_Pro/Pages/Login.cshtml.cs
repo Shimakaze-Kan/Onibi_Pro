@@ -13,7 +13,6 @@ namespace Onibi_Pro.Pages;
 [AllowAnonymous]
 public class LoginModel : PageModel
 {
-    private const string AngularLandingPage = "/welcome";
     private readonly IAuthenticationService _authenticationService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly JwtTokenSettings _tokenSettings;
@@ -39,7 +38,7 @@ public class LoginModel : PageModel
     {
         if(HttpContext.Request.Cookies.ContainsKey(AuthenticationKeys.CookieName))
         {
-            return Redirect(AngularLandingPage);
+            return Redirect(RouteConstants.SpaLandingPage);
         }
 
         return Page();
@@ -67,7 +66,7 @@ public class LoginModel : PageModel
             };
 
             HttpContext.Response.Cookies.Append(AuthenticationKeys.CookieName, resutl.Token, options);
-            return Redirect(AngularLandingPage);
+            return Redirect(RouteConstants.SpaLandingPage);
         }, errors =>
         {
             ModelState.AddModelError("alertError", errors[0].Description);

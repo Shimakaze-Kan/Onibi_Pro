@@ -19,7 +19,6 @@ public static class DependencyInjection
                 => options.CustomizeProblemDetails = CustomizeProblemDetails);
 
         services.AddRazorPages();
-        services.AddSpaYarp();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSwaggerGen(c =>
