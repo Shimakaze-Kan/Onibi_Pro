@@ -48,6 +48,7 @@ import { EditEmployeeComponent } from './personel-management/edit-employee/edit-
 import { OrdersModule } from './orders/orders.module';
 import { PermissionChecker } from './auth/permission-checker.service';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { Observable } from 'rxjs';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -71,7 +72,7 @@ const MATERIAL_MODULES = [
 const canActivateAnything: CanActivateChildFn = (
   _route: ActivatedRouteSnapshot,
   _state: RouterStateSnapshot
-) => {
+): Observable<boolean> => {
   return inject(PermissionChecker).canActivateAnything();
 };
 

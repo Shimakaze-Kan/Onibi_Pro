@@ -1,21 +1,20 @@
 import { Injectable } from '@angular/core';
+import { AuthService } from './auth.service';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PermissionChecker {
-  constructor() {}
+  constructor(private readonly auth: AuthService) {}
 
-  canActivateAnything(): boolean {
-    // const cookieExists = this.cookieService.get('OnibiAuth');
-
-    // if (cookieExists) {
-    //   return true;
-    // } else {
-    //   window.location.href = '/';
-    //   return false;
-    // }
-
-    return true;
+  canActivateAnything(): Observable<boolean> {
+    return this.auth.isAuthenticated().pipe(
+      tap((isAuthenticated) => {
+        if (!isAuthenticated) {
+          window.location.href = '/';
+        }
+      })
+    );
   }
 }

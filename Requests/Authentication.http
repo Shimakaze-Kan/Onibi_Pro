@@ -43,3 +43,6 @@ GET {{baseUrl}}/WeatherForecast/get/dupa
 ###
 POST {{baseUrl}}/authentication/logout
 Authorization: Bearer {{token}}
+
+###
+GET https://localhost:7002/api/Authentication/isAuthenticated?3242432

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Contracts.Authentication;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Shared;
@@ -15,12 +16,15 @@ public class AuthenticationController : ApiBaseController
 {
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
     public AuthenticationController(IMediator mediator,
-        IMapper mapper)
+        IMapper mapper,
+        ICurrentUserService currentUserService)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
     [AllowAnonymous] // TODO remove
@@ -64,5 +68,12 @@ public class AuthenticationController : ApiBaseController
                 HttpContext.Response.Cookies.Delete(AuthenticationKeys.CookieName);
                 return Ok();
             }, Problem);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("isAuthenticated")]
+    public ActionResult<bool> IsAuthenticated()
+    {
+        return Ok(_currentUserService.CanGetCurrentUser);
     }
 }
