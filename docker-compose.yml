@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  onibi-redis-container:
+    image: redis:latest
+    container_name: onibi-redis-container
+    ports:
+      - "6379:6379"
+    networks:
+      - onibi-network
+
+  onibi-app:
+    image: onibi-pro:lastest
+    container_name: onibi-app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    ports:
+      - "8080:80"
+    networks:
+      - onibi-network
+
+  onibi-client:
+    image: onibi-client-app:latest
+    container_name: onibi-client
+    ports:
+      - "8081:80"
+    networks:
+      - onibi-network
+
+networks:
+  onibi-network:
+    driver: bridge

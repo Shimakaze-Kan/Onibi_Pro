@@ -1,0 +1,1 @@
+docker build -t onibi-pro:lastest -f .\Onibi_Pro\Dockerfile .

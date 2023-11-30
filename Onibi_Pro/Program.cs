@@ -50,6 +50,10 @@ internal class Program
 
             app.MapRazorPages();
 
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller}/{action=Index}/{id?}");
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapReverseProxy();
