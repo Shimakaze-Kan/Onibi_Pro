@@ -1,5 +1,5 @@
-#@baseUrl =  https://localhost:7002/api
-@baseUrl =  http://localhost:8080/api
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
 @baseUrlWithoutApi = https://localhost:7002
 
 ### register

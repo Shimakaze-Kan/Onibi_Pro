@@ -1,0 +1,57 @@
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4ZjdmN2Y2ZS03MGRkLTRkNjUtOGQyYi02YWFlYjRhMDY4NWYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6ImJhOTQxNTVlLWJkNmItNGJkYS1hNDM5LWJmMWQyNGYyNjRmMiIsImV4cCI6MTcwMTczODI1NCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.hLk9gaqaR43UwbtrACBW29Ggp4EPtGJynVJfzs6daYE
+
+### create
+POST {{baseUrl}}/menus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "Name": "Special Menu",
+  "MenuItems": [
+    {
+      "Name": "Burger",
+      "Price": 5.99,
+      "Ingredients": [
+        {
+          "Name": "Beef Patty",
+          "Unit": "Grams",
+          "Quantity": 150
+        },
+        {
+          "Name": "Cheese",
+          "Unit": "Pieces",
+          "Quantity": 1
+        },
+        {
+          "Name": "Lettuce",
+          "Unit": "Pieces",
+          "Quantity": 2
+        },
+        {
+          "Name": "Tomato",
+          "Unit": "Pieces",
+          "Quantity": 1
+        }
+      ]
+    },
+    {
+      "Name": "Fries",
+      "Price": 2.49,
+      "Ingredients": [
+        {
+          "Name": "Potatoes",
+          "Unit": "Grams",
+          "Quantity": 200
+        },
+        {
+          "Name": "Salt",
+          "Unit": "Grams",
+          "Quantity": 1
+        }
+      ]
+    }
+  ]
+}
