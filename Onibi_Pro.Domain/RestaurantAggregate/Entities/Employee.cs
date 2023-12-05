@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.RestaurantAggregate.Entities;
@@ -23,4 +23,8 @@ public sealed class Employee : Entity<EmployeeId>
     {
         return new(EmployeeId.CreateUnique(), firstName, lastName, email);
     }
+
+#pragma warning disable CS8618
+    private Employee() { }
+#pragma warning restore CS8618
 }

@@ -1,4 +1,4 @@
-﻿namespace Onibi_Pro.Domain.Models;
+﻿namespace Onibi_Pro.Domain.Common.Models;
 public abstract class Entity<TId> : IEquatable<Entity<TId>>
     where TId : notnull
 {
@@ -33,4 +33,9 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     {
         return Id.GetHashCode();
     }
+
+    // ef core
+#pragma warning disable CS8618
+    protected Entity() { }
+#pragma warning restore CS8618
 }

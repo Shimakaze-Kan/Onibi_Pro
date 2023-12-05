@@ -1,11 +1,11 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Domain.Common.ValueObjects;
 public sealed class Ingredient : ValueObject
 {
-    public string Name { get; }
-    public UnitType Unit { get; }
-    public decimal Quantity { get; }
+    public string Name { get; private set; }
+    public UnitType Unit { get; private set; }
+    public decimal Quantity { get; private set; }
 
     private Ingredient(string name, UnitType unitType, decimal quantity)
     {
@@ -26,6 +26,10 @@ public sealed class Ingredient : ValueObject
         yield return Unit;
         yield return Quantity;
     }
+
+#pragma warning disable CS8618
+    private Ingredient() { }
+#pragma warning restore CS8618
 }
 
 public enum UnitType

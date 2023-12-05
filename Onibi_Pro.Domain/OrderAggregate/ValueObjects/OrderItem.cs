@@ -1,5 +1,5 @@
-﻿using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
-using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
+using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 public sealed class OrderItem : ValueObject
@@ -23,4 +23,8 @@ public sealed class OrderItem : ValueObject
         yield return MenuItemId;
         yield return Quantity;
     }
+
+#pragma warning disable CS8618
+    private OrderItem() { }
+#pragma warning restore CS8618
 }

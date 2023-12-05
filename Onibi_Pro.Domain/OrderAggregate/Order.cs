@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.OrderAggregate;

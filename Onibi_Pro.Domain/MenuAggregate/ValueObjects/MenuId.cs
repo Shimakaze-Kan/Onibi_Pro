@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Domain.MenuAggregate.ValueObjects;
 public sealed class MenuId : ValueObject
@@ -13,6 +13,11 @@ public sealed class MenuId : ValueObject
     public static MenuId CreateUnique()
     {
         return new(Guid.NewGuid());
+    }
+
+    public static MenuId Create(Guid id)
+    {
+        return new(id);
     }
 
     protected override IEnumerable<object> GetEqualityComponents()

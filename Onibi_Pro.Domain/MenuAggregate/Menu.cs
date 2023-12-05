@@ -1,13 +1,13 @@
-﻿using Onibi_Pro.Domain.MenuAggregate.Entities;
+﻿using Onibi_Pro.Domain.Common.Models;
+using Onibi_Pro.Domain.MenuAggregate.Entities;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
-using Onibi_Pro.Domain.Models;
 
 namespace Onibi_Pro.Domain.MenuAggregate;
 public sealed class Menu : AggregateRoot<MenuId>
 {
     private readonly List<MenuItem> _menuItems;
 
-    public string Name { get; }
+    public string Name { get; private set; }
     public IReadOnlyList<MenuItem> MenuItems => _menuItems.ToList();
 
     private Menu(MenuId id, string name, List<MenuItem>? menuItems)
@@ -31,4 +31,8 @@ public sealed class Menu : AggregateRoot<MenuId>
     {
         _menuItems.Remove(item);
     }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    private Menu() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

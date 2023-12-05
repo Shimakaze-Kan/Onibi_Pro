@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
@@ -35,4 +35,8 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         // logic
         _employees.Remove(employee);
     }
+
+#pragma warning disable CS8618
+    private Restaurant() { }
+#pragma warning restore CS8618
 }

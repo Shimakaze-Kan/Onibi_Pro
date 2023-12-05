@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 public sealed class Address : ValueObject
@@ -30,4 +30,8 @@ public sealed class Address : ValueObject
         yield return PostalCode;
         yield return Country;
     }
+
+#pragma warning disable CS8618
+    private Address() { }
+#pragma warning restore CS8618
 }

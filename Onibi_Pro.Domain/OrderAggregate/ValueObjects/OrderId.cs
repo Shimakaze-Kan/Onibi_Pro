@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 public sealed class OrderId : ValueObject

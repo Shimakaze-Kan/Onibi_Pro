@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="1.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
@@ -20,6 +22,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Onibi_Pro.Application\Onibi_Pro.Application.csproj" />
     <ProjectReference Include="..\Onibi_Pro.Shared\Onibi_Pro.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

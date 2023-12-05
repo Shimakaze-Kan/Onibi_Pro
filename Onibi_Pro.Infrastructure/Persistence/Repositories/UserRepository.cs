@@ -1,7 +1,7 @@
 ﻿using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Entities;
 
-namespace Onibi_Pro.Infrastructure.Persistence;
+namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
 internal sealed class UserRepository : IUserRepository
 {
     private static readonly List<User> _users = new();

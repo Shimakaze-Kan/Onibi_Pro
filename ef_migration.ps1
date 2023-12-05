@@ -1,0 +1,2 @@
+dotnet ef migrations add InitialCreate -p .\Onibi_Pro.Infrastructure\ -s .\Onibi_Pro
+dotnet ef database update -p .\Onibi_Pro.Infrastructure -s .\Onibi_Pro --connection "Server=localhost\MSSQLSERVER02;Database=Onibi_Pro;TrustServerCertificate=True;Integrated Security=true;"

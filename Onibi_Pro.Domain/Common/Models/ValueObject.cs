@@ -1,4 +1,6 @@
-﻿namespace Onibi_Pro.Domain.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Onibi_Pro.Domain.Common.Models;
 public abstract class ValueObject : IEquatable<ValueObject>
 {
     protected abstract IEnumerable<object> GetEqualityComponents();

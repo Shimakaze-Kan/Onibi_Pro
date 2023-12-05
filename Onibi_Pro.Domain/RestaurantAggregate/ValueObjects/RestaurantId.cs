@@ -1,4 +1,4 @@
-﻿using Onibi_Pro.Domain.Models;
+﻿using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 public sealed class RestaurantId : ValueObject

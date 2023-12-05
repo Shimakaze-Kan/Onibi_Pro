@@ -17,7 +17,7 @@ public static class DependencyInjection
         services.AddCaching(configurationManager);
         services.AddAuthentication(configurationManager);
         services.AddReverseProxy(configurationManager);
-        services.AddPersistance();
+        services.AddPersistance(configurationManager);
 
         return services;
     }

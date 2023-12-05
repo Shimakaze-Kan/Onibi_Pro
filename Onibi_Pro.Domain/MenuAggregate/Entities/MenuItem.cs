@@ -1,14 +1,14 @@
-﻿using Onibi_Pro.Domain.Common.ValueObjects;
+﻿using Onibi_Pro.Domain.Common.Models;
+using Onibi_Pro.Domain.Common.ValueObjects;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
-using Onibi_Pro.Domain.Models;
 
 namespace Onibi_Pro.Domain.MenuAggregate.Entities;
 public sealed class MenuItem : Entity<MenuItemId>
 {
     private readonly List<Ingredient> _ingredients;
 
-    public string Name { get; }
-    public decimal Price { get; }
+    public string Name { get; private set; }
+    public decimal Price { get; private set; }
     public IReadOnlyList<Ingredient> Ingredients => _ingredients;
 
     private MenuItem(MenuItemId id, string name, decimal price, List<Ingredient>? ingredients)
@@ -33,4 +33,8 @@ public sealed class MenuItem : Entity<MenuItemId>
     {
         _ingredients.Remove(ingredient);
     }
+
+#pragma warning disable CS8618
+    private MenuItem() { }
+#pragma warning restore CS8618
 }
