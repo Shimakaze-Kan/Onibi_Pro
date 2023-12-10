@@ -4,7 +4,8 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Onibi_Pro.Application.Orders.Queries;
+using Onibi_Pro.Application.Orders.Commands.CreateOrder;
+using Onibi_Pro.Application.Orders.Queries.GetOrderById;
 using Onibi_Pro.Contracts.Orders;
 
 namespace Onibi_Pro.Controllers;
@@ -32,5 +33,17 @@ public class OrdersController : ApiBaseController
 
         return result.Match(result
             => Ok(_mapper.Map<IReadOnlyCollection<GetOrderByIdResponse>>(result)), Problem);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(CreateOrderResponse), 200)]
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+    {
+        var command = _mapper.Map<CreateOrderCommand>(request);
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(result
+            => Ok(_mapper.Map<CreateOrderResponse>(result)), Problem);
     }
 }

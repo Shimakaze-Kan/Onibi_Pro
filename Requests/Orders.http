@@ -1,6 +1,6 @@
 @baseUrl =  https://localhost:7002/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZjczOTg4MC03MzMyLTRkMmUtYjExYi00MmZjY2I0YjNkMzEiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjdkZDcxMzFmLThkNzYtNGIxZi1iZmQ4LTEyOGE5NTllNTgwYSIsImV4cCI6MTcwMjIzNjY0MSwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.21F-ok8Iqmo01NIVKjwmE0cHQCxt14Tcf4rlD77Cvc0
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MDY1YzgzMS01NWMzLTRmNWEtOGQ3OC04MTMzYWY1ZjcwMDkiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjBiOTUwMzcyLWIzN2EtNGY4My1iOGI0LTEzYWFhZjg5YmNlZCIsImV4cCI6MTcwMjI0MTQwOCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.fae0ieOjp_0H-4ghUj_fUHSrWNUjlwU9tczT6KPTnig
 
 ### order by id
 GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC31
@@ -9,3 +9,39 @@ Authorization: Bearer {{token}}
 ### order by id wrong id
 GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC32
 Authorization: Bearer {{token}}
+
+### create
+POST {{baseUrl}}/Orders
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "OrderItems": [
+        {
+            "Quantity": 12,
+            "MenuItemId": "918BF590-D97E-418C-9460-8331C6AC8727"
+        },
+        {
+            "Quantity": 1,
+            "MenuItemId": "27456114-A8DA-4922-86B2-A6559EAE20EF"
+        }
+    ]
+}
+
+### create invalid numbers
+POST {{baseUrl}}/Orders
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "OrderItems": [
+        {
+            "Quantity": 12,
+            "MenuItemId": "938BF590-D97E-418C-9460-8331C6AC8727"
+        },
+        {
+            "Quantity": 1,
+            "MenuItemId": "27466114-A8DA-4922-86B2-A6559EAE20EF"
+        }
+    ]
+}

@@ -1,4 +1,7 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.OrderAggregate;
@@ -10,16 +13,22 @@ public sealed class Order : AggregateRoot<OrderId>
     public bool IsCancelled { get; private set; }
     public IReadOnlyList<OrderItem> OrderItems => _orderItems.ToList();
 
-    private Order(OrderId id, DateTime orderTime, bool isCancelled)
+    private Order(OrderId id, DateTime orderTime, bool isCancelled, List<OrderItem> orderItems)
         : base(id)
     {
         OrderTime = orderTime;
         IsCancelled = isCancelled;
+        _orderItems = orderItems;
     }
 
-    public static Order Create(DateTime orderTime)
+    public static ErrorOr<Order> Create(DateTime orderTime, List<OrderItem> orderItems)
     {
-        return new(OrderId.CreateUnique(), orderTime, false);
+        if (!orderItems.Any())
+        {
+            return Errors.Order.InvalidOrderItemAmount;
+        }
+
+        return new Order(OrderId.CreateUnique(), orderTime, false, orderItems);
     }
 
     public void AddItem(OrderItem item)

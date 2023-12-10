@@ -1,7 +1,7 @@
 @baseUrl =  https://localhost:7002/api
 #@baseUrl =  http://localhost:8080/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxZjI3ZmQ1YS1mNDQyLTQwNDQtODBiYS04MWVlNjdkN2FiZjYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjhmZTFhNjQwLThhNDUtNDVhOC05OTgzLWQ5MjFkYzFlYzA0MyIsImV4cCI6MTcwMjIyNDUwMSwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.L1k5FbOZxn0T4KHY5L0hvAAGTKZDAVAWOOU53LXKpV4
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ODE2NzJiNi1mZjMyLTRjZWYtYjM1OC03NzY3ODhkNzUyZjYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6ImE4MGU1YWJlLWVlMzItNDQ2ZC04OTVlLTlmMGE0NzJjYzYxMSIsImV4cCI6MTcwMjI1MzE2NiwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.F-2vty7A6O3RrAk4UtazWLjveyEGwGZbHH34vKB2iY8
 
 ### create
 POST {{baseUrl}}/menus
@@ -9,49 +9,127 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "Name": "Special Menu",
+  "Name": "Deluxe Menu",
   "MenuItems": [
     {
-      "Name": "Burger",
-      "Price": 5.99,
+      "Name": "Grilled Chicken Salad",
+      "Price": 8.99,
       "Ingredients": [
         {
-          "Name": "Beef Patty",
-          "Unit": "Grams",
-          "Quantity": 150
-        },
-        {
-          "Name": "Cheese",
-          "Unit": "Pieces",
-          "Quantity": 1
-        },
-        {
-          "Name": "Lettuce",
-          "Unit": "Pieces",
-          "Quantity": 2
-        },
-        {
-          "Name": "Tomato",
-          "Unit": "Pieces",
-          "Quantity": 1
-        }
-      ]
-    },
-    {
-      "Name": "Fries",
-      "Price": 2.49,
-      "Ingredients": [
-        {
-          "Name": "Potatoes",
+          "Name": "Grilled Chicken",
           "Unit": "Grams",
           "Quantity": 200
         },
         {
-          "Name": "Salt",
+          "Name": "Mixed Greens",
           "Unit": "Grams",
+          "Quantity": 150
+        },
+        {
+          "Name": "Cherry Tomatoes",
+          "Unit": "Pieces",
+          "Quantity": 5
+        },
+        {
+          "Name": "Avocado",
+          "Unit": "Pieces",
           "Quantity": 1
+        },
+        {
+          "Name": "Balsamic Vinaigrette",
+          "Unit": "Milliliters",
+          "Quantity": 40
+        }
+      ]
+    },
+    {
+      "Name": "Seafood Pasta",
+      "Price": 12.99,
+      "Ingredients": [
+        {
+          "Name": "Shrimp",
+          "Unit": "Grams",
+          "Quantity": 150
+        },
+        {
+          "Name": "Scallops",
+          "Unit": "Grams",
+          "Quantity": 100
+        },
+        {
+          "Name": "Linguine Pasta",
+          "Unit": "Grams",
+          "Quantity": 200
+        },
+        {
+          "Name": "Tomato Sauce",
+          "Unit": "Milliliters",
+          "Quantity": 100
+        },
+        {
+          "Name": "Parmesan Cheese",
+          "Unit": "Grams",
+          "Quantity": 30
+        }
+      ]
+    },
+    {
+      "Name": "Fruit Smoothie",
+      "Price": 4.49,
+      "Ingredients": [
+        {
+          "Name": "Banana",
+          "Unit": "Pieces",
+          "Quantity": 1
+        },
+        {
+          "Name": "Strawberries",
+          "Unit": "Grams",
+          "Quantity": 100
+        },
+        {
+          "Name": "Mango",
+          "Unit": "Pieces",
+          "Quantity": 1
+        },
+        {
+          "Name": "Orange Juice",
+          "Unit": "Milliliters",
+          "Quantity": 150
+        }
+      ]
+    },
+    {
+      "Name": "Classic Margherita Pizza",
+      "Price": 10.99,
+      "Ingredients": [
+        {
+          "Name": "Pizza Dough",
+          "Unit": "Grams",
+          "Quantity": 200
+        },
+        {
+          "Name": "Tomato Sauce",
+          "Unit": "Milliliters",
+          "Quantity": 80
+        },
+        {
+          "Name": "Fresh Mozzarella",
+          "Unit": "Grams",
+          "Quantity": 150
+        },
+        {
+          "Name": "Basil",
+          "Unit": "Grams",
+          "Quantity": 10
         }
       ]
     }
   ]
 }
+
+
+
+### get
+GET {{baseUrl}}/Menus
+Authorization: Bearer {{token}}

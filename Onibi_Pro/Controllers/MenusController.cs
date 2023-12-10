@@ -1,8 +1,11 @@
 ﻿using MapsterMapper;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Menus.Commands.CreateMenu;
+using Onibi_Pro.Application.Menus.Queries.GetMenus;
 using Onibi_Pro.Contracts.Menus;
 
 namespace Onibi_Pro.Controllers;
@@ -20,6 +23,7 @@ public class MenusController : ApiBaseController
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(CreateMenuResponse), 200)]
     public async Task<IActionResult> CreateMenu(CreateMenuRequest request)
     {
         var command = _mapper.Map<CreateMenuCommand>(request);
@@ -27,5 +31,14 @@ public class MenusController : ApiBaseController
         var result = await _mediator.Send(command);
 
         return result.Match(result => Ok(_mapper.Map<CreateMenuResponse>(result)), Problem);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetMenusResponse>), 200)]
+    public async Task<IActionResult> GetMenus()
+    {
+        var result = await _mediator.Send(new GetMenusQuery());
+
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetMenusResponse>>(result)), Problem);
     }
 }

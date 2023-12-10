@@ -1,4 +1,7 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.MenuAggregate.Entities;
 using Onibi_Pro.Domain.MenuAggregate.Events;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
@@ -11,15 +14,25 @@ public sealed class Menu : AggregateRoot<MenuId>
     public string Name { get; private set; }
     public IReadOnlyList<MenuItem> MenuItems => _menuItems.ToList();
 
-    private Menu(MenuId id, string name, List<MenuItem>? menuItems)
+    private Menu(MenuId id, string name, List<MenuItem> menuItems)
         : base(id)
     {
         Name = name;
         _menuItems = menuItems ?? new();
     }
 
-    public static Menu Create(string name, List<MenuItem>? menuItems = null)
+    public static ErrorOr<Menu> Create(string name, List<MenuItem> menuItems)
     {
+        if (name.Length is 0 or > 100)
+        {
+            return Errors.Menu.InvalidName;
+        }
+
+        if (menuItems?.Any() != true)
+        {
+            return Errors.Menu.InvalidAmountOfMenuItems;
+        }
+
         Menu menu = new(MenuId.CreateUnique(), name, menuItems);
         menu.AddDomainEvent(new MenuCreated(menu));
 

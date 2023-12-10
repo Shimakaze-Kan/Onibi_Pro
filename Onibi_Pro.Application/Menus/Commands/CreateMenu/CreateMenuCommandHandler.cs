@@ -30,7 +30,12 @@ internal sealed class CreateMenuCommandHandler : IRequestHandler<CreateMenuComma
                     unitType: Enum.Parse<UnitType>(ingredient.Unit),
                     quantity: ingredient.Quantity)))));
 
-        await _unitOfWork.MenuRepository.AddAsync(menu, cancellationToken);
+        if (menu.IsError)
+        {
+            return menu.Errors;
+        }
+
+        await _unitOfWork.MenuRepository.AddAsync(menu.Value, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);
 
         return menu;

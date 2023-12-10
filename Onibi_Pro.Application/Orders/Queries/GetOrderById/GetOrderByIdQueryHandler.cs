@@ -10,7 +10,7 @@ using Onibi_Pro.Domain.MenuAggregate.Entities;
 using Onibi_Pro.Domain.OrderAggregate;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 
-namespace Onibi_Pro.Application.Orders.Queries;
+namespace Onibi_Pro.Application.Orders.Queries.GetOrderById;
 internal sealed class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, ErrorOr<IReadOnlyCollection<OrderDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
