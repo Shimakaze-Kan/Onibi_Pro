@@ -17,9 +17,9 @@ public sealed class Order : AggregateRoot<OrderId>
         IsCancelled = isCancelled;
     }
 
-    public static Order Create()
+    public static Order Create(DateTime orderTime)
     {
-        return new(OrderId.CreateUnique(), DateTime.UtcNow, false);
+        return new(OrderId.CreateUnique(), orderTime, false);
     }
 
     public void AddItem(OrderItem item)

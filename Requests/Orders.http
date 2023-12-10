@@ -1,0 +1,11 @@
+@baseUrl =  https://localhost:7002/api
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZjczOTg4MC03MzMyLTRkMmUtYjExYi00MmZjY2I0YjNkMzEiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjdkZDcxMzFmLThkNzYtNGIxZi1iZmQ4LTEyOGE5NTllNTgwYSIsImV4cCI6MTcwMjIzNjY0MSwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.21F-ok8Iqmo01NIVKjwmE0cHQCxt14Tcf4rlD77Cvc0
+
+### order by id
+GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC31
+Authorization: Bearer {{token}}
+
+### order by id wrong id
+GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC32
+Authorization: Bearer {{token}}

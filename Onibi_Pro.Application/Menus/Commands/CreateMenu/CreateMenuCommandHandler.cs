@@ -9,11 +9,11 @@ using Onibi_Pro.Domain.MenuAggregate.Entities;
 namespace Onibi_Pro.Application.Menus.Commands.CreateMenu;
 internal sealed class CreateMenuCommandHandler : IRequestHandler<CreateMenuCommand, ErrorOr<Menu>>
 {
-    private readonly IMenuRepository _menuRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateMenuCommandHandler(IMenuRepository menuRepository)
+    public CreateMenuCommandHandler(IUnitOfWork unitOfWork)
     {
-        _menuRepository = menuRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Menu>> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
@@ -30,7 +30,8 @@ internal sealed class CreateMenuCommandHandler : IRequestHandler<CreateMenuComma
                     unitType: Enum.Parse<UnitType>(ingredient.Unit),
                     quantity: ingredient.Quantity)))));
 
-        _menuRepository.Add(menu);
+        await _unitOfWork.MenuRepository.AddAsync(menu, cancellationToken);
+        await _unitOfWork.CompleteAsync(cancellationToken);
 
         return menu;
     }

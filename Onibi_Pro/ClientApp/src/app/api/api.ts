@@ -253,6 +253,162 @@ export class AuthenticationClient implements IAuthenticationClient {
     }
 }
 
+export interface IMenusClient {
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    menus(body: CreateMenuRequest | undefined): Observable<void>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class MenusClient implements IMenusClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    menus(body: CreateMenuRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Menus";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMenus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMenus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMenus(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface IOrdersClient {
+    /**
+     * @return Success
+     */
+    orders(orderId: string): Observable<GetOrderByIdResponse[]>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class OrdersClient implements IOrdersClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    /**
+     * @return Success
+     */
+    orders(orderId: string): Observable<GetOrderByIdResponse[]> {
+        let url_ = this.baseUrl + "/api/Orders/{orderId}";
+        if (orderId === undefined || orderId === null)
+            throw new Error("The parameter 'orderId' must be defined.");
+        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrders(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrders(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetOrderByIdResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetOrderByIdResponse[]>;
+        }));
+    }
+
+    protected processOrders(response: HttpResponseBase): Observable<GetOrderByIdResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetOrderByIdResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IWeatherForecastClient {
     /**
      * @return Success
@@ -448,6 +604,146 @@ export class WeatherForecastClient implements IWeatherForecastClient {
     }
 }
 
+export class CreateMenuRequest implements ICreateMenuRequest {
+    name?: string | undefined;
+    menuItems?: MenuItemRequest[] | undefined;
+
+    constructor(data?: ICreateMenuRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            if (Array.isArray(_data["menuItems"])) {
+                this.menuItems = [] as any;
+                for (let item of _data["menuItems"])
+                    this.menuItems!.push(MenuItemRequest.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateMenuRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMenuRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        if (Array.isArray(this.menuItems)) {
+            data["menuItems"] = [];
+            for (let item of this.menuItems)
+                data["menuItems"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICreateMenuRequest {
+    name?: string | undefined;
+    menuItems?: MenuItemRequest[] | undefined;
+}
+
+export class GetOrderByIdResponse implements IGetOrderByIdResponse {
+    name?: string | undefined;
+    quantity?: number;
+    orderTime?: Date;
+    isCancelled?: boolean;
+
+    constructor(data?: IGetOrderByIdResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.quantity = _data["quantity"];
+            this.orderTime = _data["orderTime"] ? new Date(_data["orderTime"].toString()) : <any>undefined;
+            this.isCancelled = _data["isCancelled"];
+        }
+    }
+
+    static fromJS(data: any): GetOrderByIdResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetOrderByIdResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["quantity"] = this.quantity;
+        data["orderTime"] = this.orderTime ? this.orderTime.toISOString() : <any>undefined;
+        data["isCancelled"] = this.isCancelled;
+        return data;
+    }
+}
+
+export interface IGetOrderByIdResponse {
+    name?: string | undefined;
+    quantity?: number;
+    orderTime?: Date;
+    isCancelled?: boolean;
+}
+
+export class IngredientRequest implements IIngredientRequest {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+
+    constructor(data?: IIngredientRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.unit = _data["unit"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): IngredientRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new IngredientRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["unit"] = this.unit;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface IIngredientRequest {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+}
+
 export class LoginRequest implements ILoginRequest {
     email?: string | undefined;
     password?: string | undefined;
@@ -486,6 +782,58 @@ export class LoginRequest implements ILoginRequest {
 export interface ILoginRequest {
     email?: string | undefined;
     password?: string | undefined;
+}
+
+export class MenuItemRequest implements IMenuItemRequest {
+    name?: string | undefined;
+    price?: number;
+    ingredients?: IngredientRequest[] | undefined;
+
+    constructor(data?: IMenuItemRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.price = _data["price"];
+            if (Array.isArray(_data["ingredients"])) {
+                this.ingredients = [] as any;
+                for (let item of _data["ingredients"])
+                    this.ingredients!.push(IngredientRequest.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MenuItemRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new MenuItemRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["price"] = this.price;
+        if (Array.isArray(this.ingredients)) {
+            data["ingredients"] = [];
+            for (let item of this.ingredients)
+                data["ingredients"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IMenuItemRequest {
+    name?: string | undefined;
+    price?: number;
+    ingredients?: IngredientRequest[] | undefined;
 }
 
 export class RegisterRequest implements IRegisterRequest {

@@ -10,6 +10,11 @@ public sealed class OrderId : ValueObject
         Value = id;
     }
 
+    public static OrderId Create(Guid id)
+    {
+        return new(id);
+    }
+
     public static OrderId CreateUnique()
     {
         return new(Guid.NewGuid());

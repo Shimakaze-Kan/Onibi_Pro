@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Onibi_Pro.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Onibi_Pro.Infrastructure.Persistence;
 namespace Onibi_Pro.Infrastructure.Migrations
 {
     [DbContext(typeof(OnibiProDbContext))]
-    partial class OnibiProDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231210163934_InitialCreate3")]
+    partial class InitialCreate3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,22 +106,18 @@ namespace Onibi_Pro.Infrastructure.Migrations
                 {
                     b.OwnsMany("Onibi_Pro.Domain.OrderAggregate.ValueObjects.OrderItem", "OrderItems", b1 =>
                         {
-                            b1.Property<Guid>("OrderId")
+                            b1.Property<Guid>("MenuItemId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
-
-                            b1.Property<Guid>("MenuItemId")
+                            b1.Property<Guid>("OrderId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<int>("Quantity")
                                 .HasColumnType("int");
 
-                            b1.HasKey("OrderId", "Id");
+                            b1.HasKey("MenuItemId");
+
+                            b1.HasIndex("OrderId");
 
                             b1.ToTable("OrderItem");
 
