@@ -6,7 +6,7 @@ public sealed class Order : AggregateRoot<OrderId>
 {
     private readonly List<OrderItem> _orderItems = new();
 
-    public DateTime OrderTime { get; }
+    public DateTime OrderTime { get; private set; }
     public bool IsCancelled { get; private set; }
     public IReadOnlyList<OrderItem> OrderItems => _orderItems.ToList();
 
@@ -31,4 +31,6 @@ public sealed class Order : AggregateRoot<OrderId>
     {
         IsCancelled = true;
     }
+
+    private Order() { }
 }

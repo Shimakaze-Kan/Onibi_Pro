@@ -1,6 +1,6 @@
 ﻿using Onibi_Pro.Domain.Common.Models;
 
-namespace Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+namespace Onibi_Pro.Domain.Common.ValueObjects;
 public sealed class Address : ValueObject
 {
     public string Street { get; }

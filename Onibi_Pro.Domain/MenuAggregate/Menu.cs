@@ -1,5 +1,6 @@
 ﻿using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.MenuAggregate.Entities;
+using Onibi_Pro.Domain.MenuAggregate.Events;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.MenuAggregate;
@@ -19,7 +20,10 @@ public sealed class Menu : AggregateRoot<MenuId>
 
     public static Menu Create(string name, List<MenuItem>? menuItems = null)
     {
-        return new(MenuId.CreateUnique(), name, menuItems);
+        Menu menu = new(MenuId.CreateUnique(), name, menuItems);
+        menu.AddDomainEvent(new MenuCreated(menu));
+
+        return menu;
     }
 
     public void AddItem(MenuItem item)
