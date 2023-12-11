@@ -45,7 +45,7 @@
         <mat-form-field appearance="outline">
           <mat-select
             id="supervisorSelect"
-            formControlName="supervisor"
+            formControlName="supervisors"
             placeholder="Supervisor"
           >
             <mat-option>
@@ -107,7 +107,7 @@
         <mat-form-field appearance="outline">
           <mat-select
             id="positionSelect"
-            formControlName="position"
+            formControlName="positions"
             placeholder="Position"
           >
             <mat-option>
@@ -176,9 +176,9 @@
       </ng-container>
 
       <!-- Symbol Column -->
-      <ng-container matColumnDef="supervisor">
-        <th mat-header-cell *matHeaderCellDef>Supervisor</th>
-        <td mat-cell *matCellDef="let element">{{ element.supervisor }}</td>
+      <ng-container matColumnDef="supervisors">
+        <th mat-header-cell *matHeaderCellDef>Supervisors</th>
+        <td mat-cell *matCellDef="let element">{{ element.supervisors }}</td>
       </ng-container>
 
       <ng-container matColumnDef="city">
@@ -191,9 +191,9 @@
         <td mat-cell *matCellDef="let element">{{ element.restaurantId }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef>Position</th>
-        <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+      <ng-container matColumnDef="positions">
+        <th mat-header-cell *matHeaderCellDef>Positions</th>
+        <td mat-cell *matCellDef="let element">{{ element.positions }}</td>
       </ng-container>
 
       <ng-container matColumnDef="action">

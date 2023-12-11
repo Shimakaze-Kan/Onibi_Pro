@@ -24,4 +24,6 @@ public sealed class OrderId : ValueObject
     {
         yield return Value;
     }
+
+    private OrderId() { }
 }

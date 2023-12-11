@@ -18,8 +18,8 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
     lastName: new FormControl<string>('', Validators.required),
     city: new FormControl<string>('', Validators.required),
     restaurantId: new FormControl<string>('', Validators.required),
-    position: new FormControl<string>('', Validators.required),
-    supervisor: new FormControl<string>('', Validators.required),
+    positions: new FormControl<string>('', Validators.required),
+    supervisors: new FormControl<string>('', Validators.required),
   });
 
   supervisorFilterCtrl = new FormControl<string>('');
@@ -61,7 +61,7 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
         this.filterPositions();
       });
 
-    this.editEmployeeForm.setValue(this.employeeData);
+    //this.editEmployeeForm.setValue(this.employeeData);
   }
 
   ngOnDestroy(): void {

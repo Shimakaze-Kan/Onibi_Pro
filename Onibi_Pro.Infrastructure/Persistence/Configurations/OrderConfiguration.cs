@@ -39,7 +39,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         {
             oib.Property(x => x.Quantity);
             oib.WithOwner().HasForeignKey("OrderId");
-            oib.Property("MenuItemId");
 
             oib.Property(x => x.MenuItemId)
                 .HasConversion(

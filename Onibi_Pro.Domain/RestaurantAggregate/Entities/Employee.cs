@@ -9,19 +9,24 @@ public sealed class Employee : Entity<EmployeeId>
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public string Email { get; private set; }
+    public string City { get; private set; }
     public IReadOnlyList<EmployeePosition> Positions => _positions.ToList();
 
-    private Employee(EmployeeId id, string firstName, string lastName, string email)
+    private Employee(EmployeeId id, string firstName, string lastName, string email,
+        string city, List<EmployeePosition> employeePositions)
         : base(id)
     {
         FirstName = firstName;
         LastName = lastName;
         Email = email;
+        City = city;
+        _positions = employeePositions;
     }
 
-    public static Employee Create(string firstName, string lastName, string email)
+    public static Employee Create(string firstName, string lastName, string email,
+        string city, List<EmployeePosition> employeePositions)
     {
-        return new(EmployeeId.CreateUnique(), firstName, lastName, email);
+        return new(EmployeeId.CreateUnique(), firstName, lastName, email, city, employeePositions);
     }
 
 #pragma warning disable CS8618

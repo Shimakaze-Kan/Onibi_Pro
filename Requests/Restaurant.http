@@ -1,0 +1,55 @@
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3N2EzNGZkMi02ZDJhLTQ0NTQtOThiNS0wYjdiNGY4N2I3ZjciLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjNkMTJjNGE5LWNiOTQtNDQ5ZS04YWQxLTM4YzllZWMxNDI4MSIsImV4cCI6MTcwMjMxMjk0NywiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.2DO2AFijoi-ocwbWVCU9HyHNnSoh_eqSCHC4vj1GWGs
+
+### create
+POST {{baseUrl}}/restaurants
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "Address": {
+    "Street": "123 Main Street",
+    "City": "Anytown",
+    "PostalCode": "12345",
+    "Country": "USA"
+  },
+  "OrderIds": ["2B750804-E65E-43D7-BAC1-B43B6757DC31"],
+  "Employees": [
+    {
+      "FirstName": "John",
+      "LastName": "Doe",
+      "Email": "john.doe@example.com",
+      "EmployeePositions": [
+        { "Position": "Cashier" },
+        { "Position": "Cook" }
+      ]
+    },
+    {
+      "FirstName": "Jane",
+      "LastName": "Smith",
+      "Email": "jane.smith@example.com",
+      "EmployeePositions": [
+        { "Position": "Server" },
+        { "Position": "Cleaner" }
+      ]
+    }
+  ],
+  "Managers": [
+    {
+      "FirstName": "Manager",
+      "LastName": "One",
+      "Email": "manager.one@example.com"
+    },
+    {
+      "FirstName": "Manager",
+      "LastName": "Two",
+      "Email": "manager.two@example.com"
+    }
+  ]
+}
+
+### employees
+GET {{baseUrl}}/restaurants/E2E115CF-4A20-40E4-ADD5-67CF34788A0A/employees
+Authorization: Bearer {{token}}

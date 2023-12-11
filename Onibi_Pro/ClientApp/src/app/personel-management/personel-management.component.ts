@@ -9,9 +9,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { ReplaySubject, Subject, takeUntil } from 'rxjs';
+import { ReplaySubject, Subject, take, takeUntil, tap } from 'rxjs';
 import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
+import { GetEmployeesResponse, RestaurantsClient } from '../api/api';
 
 @Component({
   selector: 'app-personel-management',
@@ -21,19 +22,21 @@ import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
 export class PersonelManagementComponent
   implements AfterViewInit, OnDestroy, OnInit
 {
+  private readonly _restaurantId = 'E2E115CF-4A20-40E4-ADD5-67CF34788A0A';
+  private _employees: Array<EmployeeRecord> = [];
   private _onDestroy$ = new Subject<void>();
   displayedColumns = [
     'email',
     'firstName',
     'lastName',
-    'supervisor',
+    'supervisors',
     'city',
     'restaurantId',
-    'position',
+    'positions',
     'action',
   ];
 
-  dataSource = new MatTableDataSource<EmployeeRecord>(employees);
+  dataSource = new MatTableDataSource<EmployeeRecord>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -41,10 +44,10 @@ export class PersonelManagementComponent
     email: new FormControl<string>(''),
     firstName: new FormControl<string>(''),
     lastName: new FormControl<string>(''),
-    restaurantId: new FormControl<number | undefined>(undefined),
-    supervisor: new FormControl<string>(''),
+    restaurantId: new FormControl<string>(''),
+    supervisors: new FormControl<string>(''),
     city: new FormControl<string>(''),
-    position: new FormControl<string>(''),
+    positions: new FormControl<string>(''),
   });
 
   supervisorFilterCtrl = new FormControl<string>('');
@@ -55,7 +58,10 @@ export class PersonelManagementComponent
   filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
-  constructor(private readonly dialog: MatDialog) {}
+  constructor(
+    private readonly dialog: MatDialog,
+    private readonly client: RestaurantsClient
+  ) {}
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
@@ -90,6 +96,19 @@ export class PersonelManagementComponent
       .subscribe(() => {
         this.filterPositions();
       });
+
+    this.client
+      .employees(this._restaurantId)
+      .pipe(
+        take(1),
+        tap((result) => {
+          this._employees = result.map(
+            (x) => new EmployeeRecord(x, this._restaurantId)
+          );
+          this.dataSource.data = this._employees;
+        })
+      )
+      .subscribe();
   }
 
   reset() {
@@ -180,28 +199,19 @@ export class PersonelManagementComponent
   }
 
   filterCollection() {
-    const props = Object.keys(this.employeeSearchForm.controls).map((key) => ({
-      key: key,
-      value: this.employeeSearchForm.get(key),
-    }));
+    this.dataSource.data = this._employees.filter((employee) => {
+      return Object.keys(this.employeeSearchForm.value).every((key) => {
+        // @ts-ignore
+        const searchValue = this.employeeSearchForm.value[key]?.toLowerCase();
+        // @ts-ignore
+        const employeeValue = String(employee[key]).toLowerCase();
 
-    this.dataSource.data = employees.filter((x) => {
-      let state = true;
-      props.forEach((pair) => {
-        const key = pair.key as ObjectKey;
-
-        if (
-          pair.key !== 'position' &&
-          !x[key]
-            .toString()
-            .toLocaleLowerCase()
-            .includes((pair.value?.value || '').toString().toLowerCase())
-        ) {
-          state = false;
+        if (!searchValue) {
+          return true;
         }
-      });
 
-      return state;
+        return employeeValue.includes(searchValue);
+      });
     });
   }
 
@@ -210,252 +220,21 @@ export class PersonelManagementComponent
   positions = ['Cashier', 'Restaurant Manager', 'Regional Manager'];
 }
 
-type ObjectKey = keyof (typeof employees)[0];
-
-export interface IEmployeeRecord {
-  email: string;
-  firstName: string;
-  lastName: string;
-  supervisor: string;
-  city: string;
-  restaurantId: string;
-  position: string;
-}
-
 export class EmployeeRecord {
-  constructor(data: IEmployeeRecord) {
+  constructor(data: GetEmployeesResponse, restaurantId: string) {
     this.email = data.email;
     this.firstName = data.firstName;
     this.lastName = data.lastName;
-    this.supervisor = data.supervisor;
-    this.city = data.supervisor;
-    this.restaurantId = data.restaurantId;
-    this.position = data.position;
+    this.supervisors = data.supervisors;
+    this.city = data.city;
+    this.restaurantId = restaurantId;
+    this.positions = data.positions?.join(', ');
   }
-  email: string;
-  firstName: string;
-  lastName: string;
-  supervisor: string;
-  city: string;
+  email: string | undefined;
+  firstName: string | undefined;
+  lastName: string | undefined;
+  supervisors: string | undefined;
+  city: string | undefined;
   restaurantId: string;
-  position: string;
+  positions: string | undefined;
 }
-
-let employees: Array<EmployeeRecord> = [
-  {
-    email: 'john.doe@example.com',
-    firstName: 'John',
-    lastName: 'Doe',
-    supervisor: 'Jane Smith',
-    city: 'New York',
-    restaurantId: '12345',
-    position: 'chef',
-  },
-  {
-    email: 'jane.smith@example.com',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    supervisor: 'Bob Johnson',
-    city: 'Los Angeles',
-    restaurantId: '67890',
-    position: 'chef',
-  },
-  {
-    email: 'mike.jones@example.com',
-    firstName: 'Mike',
-    lastName: 'Jones',
-    supervisor: 'Sarah Brown',
-    city: 'Chicago',
-    restaurantId: '45678',
-    position: 'chef',
-  },
-  {
-    email: 'lisa.wilson@example.com',
-    firstName: 'Lisa',
-    lastName: 'Wilson',
-    supervisor: 'David Lee',
-    city: 'Houston',
-    restaurantId: '54321',
-    position: 'chef',
-  },
-  {
-    email: 'chris.white@example.com',
-    firstName: 'Chris',
-    lastName: 'White',
-    supervisor: 'Emily Davis',
-    city: 'San Francisco',
-    restaurantId: '98765',
-    position: 'chef',
-  },
-  {
-    email: 'susan.jackson@example.com',
-    firstName: 'Susan',
-    lastName: 'Jackson',
-    supervisor: 'Michael Turner',
-    city: 'Boston',
-    restaurantId: '11223',
-    position: 'chef',
-  },
-  {
-    email: 'robert.anderson@example.com',
-    firstName: 'Robert',
-    lastName: 'Anderson',
-    supervisor: 'Laura Martinez',
-    city: 'Miami',
-    restaurantId: '55555',
-    position: 'chef',
-  },
-  {
-    email: 'karen.harris@example.com',
-    firstName: 'Karen',
-    lastName: 'Harris',
-    supervisor: 'William Clark',
-    city: 'Seattle',
-    restaurantId: '98712',
-    position: 'chef',
-  },
-  {
-    email: 'steven.wilson@example.com',
-    firstName: 'Steven',
-    lastName: 'Wilson',
-    supervisor: 'Melissa Turner',
-    city: 'Dallas',
-    restaurantId: '66554',
-    position: 'chef',
-  },
-  {
-    email: 'linda.martin@example.com',
-    firstName: 'Linda',
-    lastName: 'Martin',
-    supervisor: 'Richard Garcia',
-    city: 'Denver',
-    restaurantId: '23145',
-    position: 'chef',
-  },
-  {
-    email: 'daniel.brown@example.com',
-    firstName: 'Daniel',
-    lastName: 'Brown',
-    supervisor: 'Patricia Smith',
-    city: 'Phoenix',
-    restaurantId: '78901',
-    position: 'chef',
-  },
-  {
-    email: 'pamela.taylor@example.com',
-    firstName: 'Pamela',
-    lastName: 'Taylor',
-    supervisor: 'John Adams',
-    city: 'Atlanta',
-    restaurantId: '12312',
-    position: 'chef',
-  },
-  {
-    email: 'james.green@example.com',
-    firstName: 'James',
-    lastName: 'Green',
-    supervisor: 'Susan Moore',
-    city: 'San Diego',
-    restaurantId: '45698',
-    position: 'chef',
-  },
-  {
-    email: 'natalie.johnson@example.com',
-    firstName: 'Natalie',
-    lastName: 'Johnson',
-    supervisor: 'Robert Wilson',
-    city: 'Philadelphia',
-    restaurantId: '55566',
-    position: 'chef',
-  },
-  {
-    email: 'andrew.wilson@example.com',
-    firstName: 'Andrew',
-    lastName: 'Wilson',
-    supervisor: 'Maria Lopez',
-    city: 'Las Vegas',
-    restaurantId: '87654',
-    position: 'chef',
-  },
-  {
-    email: 'emily.hall@example.com',
-    firstName: 'Emily',
-    lastName: 'Hall',
-    supervisor: 'Chris Evans',
-    city: 'Detroit',
-    restaurantId: '32100',
-    position: 'chef',
-  },
-  {
-    email: 'mark.thompson@example.com',
-    firstName: 'Mark',
-    lastName: 'Thompson',
-    supervisor: 'Lisa Taylor',
-    city: 'Portland',
-    restaurantId: '11234',
-    position: 'chef',
-  },
-  {
-    email: 'sarah.wright@example.com',
-    firstName: 'Sarah',
-    lastName: 'Wright',
-    supervisor: 'James Harris',
-    city: 'Minneapolis',
-    restaurantId: '87632',
-    position: 'chef',
-  },
-  {
-    email: 'matthew.jones@example.com',
-    firstName: 'Matthew',
-    lastName: 'Jones',
-    supervisor: 'Jessica Adams',
-    city: 'Charlotte',
-    restaurantId: '45321',
-    position: 'chef',
-  },
-  {
-    email: 'olivia.miller@example.com',
-    firstName: 'Olivia',
-    lastName: 'Miller',
-    supervisor: 'Daniel White',
-    city: 'Raleigh',
-    restaurantId: '98765',
-    position: 'chef',
-  },
-  {
-    email: 'michael.morris@example.com',
-    firstName: 'Michael',
-    lastName: 'Morris',
-    supervisor: 'Catherine Moore',
-    city: 'Tampa',
-    restaurantId: '23111',
-    position: 'chef',
-  },
-  {
-    email: 'jessica.king@example.com',
-    firstName: 'Jessica',
-    lastName: 'King',
-    supervisor: 'Matthew Davis',
-    city: 'Nashville',
-    restaurantId: '78987',
-    position: 'chef',
-  },
-  {
-    email: 'jason.murphy@example.com',
-    firstName: 'Jason',
-    lastName: 'Murphy',
-    supervisor: 'Jennifer Wilson',
-    city: 'San Antonio',
-    restaurantId: '11222',
-    position: 'chef',
-  },
-  {
-    email: 'amanda.hall@example.com',
-    firstName: 'Amanda',
-    lastName: 'Hall',
-    supervisor: 'Steven Brown',
-    city: 'Kansas City',
-    restaurantId: '54678',
-    position: 'chef',
-  },
-];

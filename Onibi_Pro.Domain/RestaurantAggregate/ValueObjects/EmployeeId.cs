@@ -19,4 +19,9 @@ public sealed class EmployeeId : ValueObject
     {
         yield return Value;
     }
+
+    public static EmployeeId Create(Guid value)
+    {
+        return new(value);
+    }
 }
