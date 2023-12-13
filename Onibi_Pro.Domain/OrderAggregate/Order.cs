@@ -2,7 +2,9 @@
 
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.Common.Models;
+using Onibi_Pro.Domain.OrderAggregate.Events;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
+using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.OrderAggregate;
 public sealed class Order : AggregateRoot<OrderId>
@@ -21,14 +23,17 @@ public sealed class Order : AggregateRoot<OrderId>
         _orderItems = orderItems;
     }
 
-    public static ErrorOr<Order> Create(DateTime orderTime, List<OrderItem> orderItems)
+    public static ErrorOr<Order> Create(DateTime orderTime, List<OrderItem> orderItems, RestaurantId restaurantId)
     {
         if (!orderItems.Any())
         {
             return Errors.Order.InvalidOrderItemAmount;
         }
 
-        return new Order(OrderId.CreateUnique(), orderTime, false, orderItems);
+        var order = new Order(OrderId.CreateUnique(), orderTime, false, orderItems);
+        order.AddDomainEvent(new OrderCreated(order.Id, restaurantId));
+
+        return order;
     }
 
     public void AddItem(OrderItem item)

@@ -4,6 +4,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
@@ -36,11 +37,25 @@ public class RestaurantsController : ApiBaseController
 
     [HttpGet("{restaurantId}/employees")]
     [ProducesResponseType(typeof(IReadOnlyCollection<GetEmployeesResponse>), 200)]
-    public async Task<IActionResult> GetEmployees([FromRoute] Guid restaurantId)
+    public async Task<IActionResult> GetEmployees([FromRoute] Guid restaurantId, [FromQuery] GetEmployeeRequest request)
     {
-        var result = await _mediator.Send(new GetEmployeesQuery(restaurantId));
+        var query = _mapper.Map<GetEmployeesQuery>((restaurantId, request));
+
+        var result = await _mediator.Send(query);
 
         return result.Match(result
             => Ok(_mapper.Map<IReadOnlyCollection<GetEmployeesResponse>>(result)), Problem);
+    }
+
+    [HttpPost("{restaurantId}/employee")]
+    [ProducesResponseType(typeof(CreateEmployeeResponse), 200)]
+    public async Task<IActionResult> CreateEmployee([FromRoute] Guid restaurantId, [FromBody] CreateEmployeeRequest request)
+    {
+        var command = _mapper.Map<CreateEmployeeCommand>((restaurantId, request));
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(result
+            => Ok(_mapper.Map<CreateEmployeeResponse>(result)), Problem);
     }
 }

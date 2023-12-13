@@ -35,11 +35,11 @@ public class OrdersController : ApiBaseController
             => Ok(_mapper.Map<IReadOnlyCollection<GetOrderByIdResponse>>(result)), Problem);
     }
 
-    [HttpPost]
+    [HttpPost("{restaurantId}")]
     [ProducesResponseType(typeof(CreateOrderResponse), 200)]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request, [FromRoute] Guid restaurantId)
     {
-        var command = _mapper.Map<CreateOrderCommand>(request);
+        var command = _mapper.Map<CreateOrderCommand>((request, restaurantId));
 
         var result = await _mediator.Send(command);
 

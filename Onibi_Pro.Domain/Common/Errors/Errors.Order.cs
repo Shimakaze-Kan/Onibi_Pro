@@ -16,5 +16,8 @@ public static partial class Errors
 
         public static Error InvalidOrderItemAmount => Error.Validation(
             code: "Order.InvalidOrderItemAmount", description: "Order must contain at least one position.");
+
+        public static Error RestaurantNotFound => Error.Validation(
+            code: "Order.RestaurantNotFound", description: "Restaurant not found.");
     }
 }

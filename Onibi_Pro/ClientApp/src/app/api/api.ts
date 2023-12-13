@@ -402,7 +402,7 @@ export interface IOrdersClient {
      * @param body (optional) 
      * @return Success
      */
-    ordersPost(body: CreateOrderRequest | undefined): Observable<CreateOrderResponse>;
+    ordersPost(restaurantId: string, body: CreateOrderRequest | undefined): Observable<CreateOrderResponse>;
 }
 
 @Injectable({
@@ -483,8 +483,11 @@ export class OrdersClient implements IOrdersClient {
      * @param body (optional) 
      * @return Success
      */
-    ordersPost(body: CreateOrderRequest | undefined): Observable<CreateOrderResponse> {
-        let url_ = this.baseUrl + "/api/Orders";
+    ordersPost(restaurantId: string, body: CreateOrderRequest | undefined): Observable<CreateOrderResponse> {
+        let url_ = this.baseUrl + "/api/Orders/{restaurantId}";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -543,9 +546,19 @@ export interface IRestaurantsClient {
      */
     restaurants(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse>;
     /**
+     * @param firstNameFilter (optional) 
+     * @param lastNameFilter (optional) 
+     * @param emailFilter (optional) 
+     * @param cityFilter (optional) 
+     * @param positionFilterList (optional) 
      * @return Success
      */
-    employees(restaurantId: string): Observable<GetEmployeesResponse[]>;
+    employees(restaurantId: string, firstNameFilter: string | undefined, lastNameFilter: string | undefined, emailFilter: string | undefined, cityFilter: string | undefined, positionFilterList: string | undefined): Observable<GetEmployeesResponse[]>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    employee(restaurantId: string, body: CreateEmployeeRequest | undefined): Observable<CreateEmployeeResponse>;
 }
 
 @Injectable({
@@ -618,13 +631,38 @@ export class RestaurantsClient implements IRestaurantsClient {
     }
 
     /**
+     * @param firstNameFilter (optional) 
+     * @param lastNameFilter (optional) 
+     * @param emailFilter (optional) 
+     * @param cityFilter (optional) 
+     * @param positionFilterList (optional) 
      * @return Success
      */
-    employees(restaurantId: string): Observable<GetEmployeesResponse[]> {
-        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/employees";
+    employees(restaurantId: string, firstNameFilter: string | undefined, lastNameFilter: string | undefined, emailFilter: string | undefined, cityFilter: string | undefined, positionFilterList: string | undefined): Observable<GetEmployeesResponse[]> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/employees?";
         if (restaurantId === undefined || restaurantId === null)
             throw new Error("The parameter 'restaurantId' must be defined.");
         url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        if (firstNameFilter === null)
+            throw new Error("The parameter 'firstNameFilter' cannot be null.");
+        else if (firstNameFilter !== undefined)
+            url_ += "FirstNameFilter=" + encodeURIComponent("" + firstNameFilter) + "&";
+        if (lastNameFilter === null)
+            throw new Error("The parameter 'lastNameFilter' cannot be null.");
+        else if (lastNameFilter !== undefined)
+            url_ += "LastNameFilter=" + encodeURIComponent("" + lastNameFilter) + "&";
+        if (emailFilter === null)
+            throw new Error("The parameter 'emailFilter' cannot be null.");
+        else if (emailFilter !== undefined)
+            url_ += "EmailFilter=" + encodeURIComponent("" + emailFilter) + "&";
+        if (cityFilter === null)
+            throw new Error("The parameter 'cityFilter' cannot be null.");
+        else if (cityFilter !== undefined)
+            url_ += "CityFilter=" + encodeURIComponent("" + cityFilter) + "&";
+        if (positionFilterList === null)
+            throw new Error("The parameter 'positionFilterList' cannot be null.");
+        else if (positionFilterList !== undefined)
+            url_ += "PositionFilterList=" + encodeURIComponent("" + positionFilterList) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -668,6 +706,65 @@ export class RestaurantsClient implements IRestaurantsClient {
             else {
                 result200 = <any>null;
             }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    employee(restaurantId: string, body: CreateEmployeeRequest | undefined): Observable<CreateEmployeeResponse> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/employee";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmployee(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmployee(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CreateEmployeeResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CreateEmployeeResponse>;
+        }));
+    }
+
+    protected processEmployee(response: HttpResponseBase): Observable<CreateEmployeeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreateEmployeeResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -920,6 +1017,130 @@ export interface IAddress {
     city?: string | undefined;
     postalCode?: string | undefined;
     country?: string | undefined;
+}
+
+export class CreateEmployeeRequest implements ICreateEmployeeRequest {
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    city?: string | undefined;
+    employeePositions?: string[] | undefined;
+
+    constructor(data?: ICreateEmployeeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+            this.city = _data["city"];
+            if (Array.isArray(_data["employeePositions"])) {
+                this.employeePositions = [] as any;
+                for (let item of _data["employeePositions"])
+                    this.employeePositions!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateEmployeeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateEmployeeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        data["city"] = this.city;
+        if (Array.isArray(this.employeePositions)) {
+            data["employeePositions"] = [];
+            for (let item of this.employeePositions)
+                data["employeePositions"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICreateEmployeeRequest {
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    city?: string | undefined;
+    employeePositions?: string[] | undefined;
+}
+
+export class CreateEmployeeResponse implements ICreateEmployeeResponse {
+    id?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    city?: string | undefined;
+    employeePositions?: string[] | undefined;
+
+    constructor(data?: ICreateEmployeeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+            this.city = _data["city"];
+            if (Array.isArray(_data["employeePositions"])) {
+                this.employeePositions = [] as any;
+                for (let item of _data["employeePositions"])
+                    this.employeePositions!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateEmployeeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateEmployeeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        data["city"] = this.city;
+        if (Array.isArray(this.employeePositions)) {
+            data["employeePositions"] = [];
+            for (let item of this.employeePositions)
+                data["employeePositions"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICreateEmployeeResponse {
+    id?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    city?: string | undefined;
+    employeePositions?: string[] | undefined;
 }
 
 export class CreateMenuRequest implements ICreateMenuRequest {

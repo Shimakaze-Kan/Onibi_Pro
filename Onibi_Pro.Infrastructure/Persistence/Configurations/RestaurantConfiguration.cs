@@ -18,6 +18,11 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
             .SetPropertyAccessMode(PropertyAccessMode.Field);
         builder.Metadata.FindNavigation(nameof(Restaurant.Employees))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Metadata.FindNavigation(nameof(Restaurant.OrderIds))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+        builder.Metadata.FindNavigation(nameof(Restaurant.OrderIds))!
+            .SetField("_orders");
     }
 
     private static void ConfigureRestaurantTable(EntityTypeBuilder<Restaurant> builder)

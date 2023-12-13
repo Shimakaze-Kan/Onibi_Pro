@@ -1,3 +1,7 @@
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
 <h1 mat-dialog-title>New Employee</h1>
 <div mat-dialog-content class="dialog-content">
   <form [formGroup]="newEmployeeForm" class="row mt-3" autocomplete="off">
@@ -68,23 +72,14 @@
     </div>
     <div class="col-12 col-md-6">
       <div class="row">
-        <label class="mb-1" for="citySelect">City</label>
+        <label class="mb-1" for="cityInput">City</label>
         <mat-form-field appearance="outline">
-          <mat-select id="citySelect" formControlName="city" placeholder="City">
-            <mat-option>
-              <ngx-mat-select-search
-                [formControl]="cityFilterCtrl"
-                placeholderLabel="Type to search"
-              ></ngx-mat-select-search>
-            </mat-option>
-            <mat-option class="none">-- None --</mat-option>
-            <mat-option
-              *ngFor="let city of filteredCities | async"
-              [value]="city"
-            >
-              {{ city }}
-            </mat-option>
-          </mat-select>
+          <input
+            id="cityInput"
+            matInput
+            placeholder="City"
+            formControlName="city"
+          />
         </mat-form-field>
       </div>
     </div>
@@ -108,6 +103,7 @@
         <mat-form-field appearance="outline">
           <mat-select
             id="positionSelect"
+            multiple
             formControlName="position"
             placeholder="Position"
           >
@@ -140,5 +136,13 @@
 </div>
 <div mat-dialog-actions class="justify-content-end">
   <button mat-button (click)="onClose()">Close</button>
-  <button mat-button color="primary" cdkFocusInitial>I Accept</button>
+  <button
+    mat-button
+    [disabled]="newEmployeeForm.invalid"
+    (click)="createEmployee()"
+    color="primary"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
 </div>

@@ -50,6 +50,7 @@ export class PersonelManagementComponent
     positions: new FormControl<string>(''),
   });
 
+  loading = false;
   supervisorFilterCtrl = new FormControl<string>('');
   cityFilterCtrl = new FormControl<string>('');
   positionFilterCtrl = new FormControl<string>('');
@@ -97,18 +98,7 @@ export class PersonelManagementComponent
         this.filterPositions();
       });
 
-    this.client
-      .employees(this._restaurantId)
-      .pipe(
-        take(1),
-        tap((result) => {
-          this._employees = result.map(
-            (x) => new EmployeeRecord(x, this._restaurantId)
-          );
-          this.dataSource.data = this._employees;
-        })
-      )
-      .subscribe();
+    this.getEmploees().subscribe();
   }
 
   reset() {
@@ -122,8 +112,10 @@ export class PersonelManagementComponent
       maxWidth: '750px',
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
+    dialogRef.afterClosed().subscribe((result: { reload: boolean }) => {
+      if (result.reload) {
+        this.getEmploees().subscribe();
+      }
     });
   }
 
@@ -138,6 +130,31 @@ export class PersonelManagementComponent
     dialogRef.afterClosed().subscribe((result) => {
       console.log('The dialog was closed');
     });
+  }
+
+  private getEmploees() {
+    this.loading = true;
+
+    const formValues = this.employeeSearchForm.getRawValue();
+    return this.client
+      .employees(
+        this._restaurantId,
+        formValues.firstName || undefined,
+        formValues.lastName || undefined,
+        formValues.email || undefined,
+        formValues.city || undefined,
+        formValues.positions || undefined
+      )
+      .pipe(
+        take(1),
+        tap((result) => {
+          this._employees = result.map(
+            (x) => new EmployeeRecord(x, this._restaurantId)
+          );
+          this.dataSource.data = this._employees;
+          this.loading = false;
+        })
+      );
   }
 
   private filterSupervisors() {
@@ -198,21 +215,8 @@ export class PersonelManagementComponent
     );
   }
 
-  filterCollection() {
-    this.dataSource.data = this._employees.filter((employee) => {
-      return Object.keys(this.employeeSearchForm.value).every((key) => {
-        // @ts-ignore
-        const searchValue = this.employeeSearchForm.value[key]?.toLowerCase();
-        // @ts-ignore
-        const employeeValue = String(employee[key]).toLowerCase();
-
-        if (!searchValue) {
-          return true;
-        }
-
-        return employeeValue.includes(searchValue);
-      });
-    });
+  searchEmployees(): void {
+    this.getEmploees().subscribe();
   }
 
   supervisors = ['Jane Smith', 'Bob Johnson'];

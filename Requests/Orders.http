@@ -1,6 +1,6 @@
 @baseUrl =  https://localhost:7002/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MDY1YzgzMS01NWMzLTRmNWEtOGQ3OC04MTMzYWY1ZjcwMDkiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjBiOTUwMzcyLWIzN2EtNGY4My1iOGI0LTEzYWFhZjg5YmNlZCIsImV4cCI6MTcwMjI0MTQwOCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.fae0ieOjp_0H-4ghUj_fUHSrWNUjlwU9tczT6KPTnig
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMzBkYTgxNy01NzllLTQ1NzMtYmIxNy02ZTRiNjA2MGFlOWIiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6ImJiYmRiYWU1LTk5YTItNDdiYy1hNzk1LTA0MmFiODRmZWNmNyIsImV4cCI6MTcwMjMzNTYyNCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.2uwwMVfcqoTnPkn3rJIsK4I9yTTK-ppqG7f0R16ZPF4
 
 ### order by id
 GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC31
@@ -11,7 +11,7 @@ GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC32
 Authorization: Bearer {{token}}
 
 ### create
-POST {{baseUrl}}/Orders
+POST {{baseUrl}}/Orders/E2E115CF-4A20-40E4-ADD5-67CF34788A0A
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

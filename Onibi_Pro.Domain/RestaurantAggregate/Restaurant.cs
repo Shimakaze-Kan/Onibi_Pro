@@ -1,4 +1,7 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.Common.ValueObjects;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
@@ -7,9 +10,9 @@ using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 namespace Onibi_Pro.Domain.RestaurantAggregate;
 public sealed class Restaurant : AggregateRoot<RestaurantId>
 {
-    private readonly List<OrderId> _orders;
-    private readonly List<Employee> _employees;
-    private readonly List<Manager> _managers;
+    private readonly List<OrderId> _orders = new();
+    private readonly List<Employee> _employees = new();
+    private readonly List<Manager> _managers = new();
 
     public Address Address { get; private set; }
     public IReadOnlyList<Employee> Employees => _employees.ToList();
@@ -37,12 +40,20 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         return new(RestaurantId.CreateUnique(), address, employees, orders, managers);
     }
 
-    public void RegisterEmployee(Manager manager, Employee employee)
+    public ErrorOr<Success> RegisterEmployee(ManagerId manager, Employee employee)
     {
-        if (_managers.Contains(manager))
+        if (!_managers.Any(m => m.Id == manager))
         {
-            _employees.Add(employee);
+            return Errors.Restaurant.InvalidManager;
         }
+
+        if (_employees.Any(e => e.Email == employee.Email))
+        {
+            return Errors.Restaurant.DuplicatedEmail;
+        }
+        _employees.Add(employee);
+
+        return new Success();
     }
 
     public void UnregisterEmployee(Manager manager, Employee employee)

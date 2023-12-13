@@ -49,6 +49,9 @@ import { OrdersModule } from './orders/orders.module';
 import { PermissionChecker } from './auth/permission-checker.service';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { Observable } from 'rxjs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -67,6 +70,9 @@ const MATERIAL_MODULES = [
   NgxMatSelectSearchModule,
   MatDialogModule,
   MatBadgeModule,
+  MatProgressBarModule,
+  MatSnackBarModule,
+  MatProgressSpinnerModule,
 ];
 
 const canActivateAnything: CanActivateChildFn = (

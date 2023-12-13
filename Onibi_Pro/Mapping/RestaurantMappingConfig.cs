@@ -1,5 +1,6 @@
 ﻿using Mapster;
 
+using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
@@ -30,5 +31,23 @@ public class RestaurantMappingConfig : IRegister
 
         config.NewConfig<Manager, CreateRestaurantManagerResponse>()
             .Map(dest => dest.Id, src => src.Id.Value);
+
+        config.NewConfig<(Guid RestaurantId, GetEmployeeRequest Request), GetEmployeesQuery>()
+            .Map(dest => dest, src => src.Request)
+            .Map(dest => dest.RestaurantId, src => src.RestaurantId)
+            .Map(dest => dest.PositionFilter, src =>
+                src.Request.PositionFilterList
+                .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .ToList());
+
+        config.NewConfig<(Guid RestaurantId, CreateEmployeeRequest Request), CreateEmployeeCommand>()
+            .Map(dest => dest, src => src.Request)
+            .Map(dest => dest.RestaurantId, src => src.RestaurantId);
+
+        config.NewConfig<Employee, CreateEmployeeResponse>()
+            .Map(dest => dest.Id, src => src.Id.Value)
+            .Map(dest => dest.EmployeePositions, src =>
+                src.Positions.Select(position =>
+                    Enum.GetName(position.Position)!).ToList());
     }
 }

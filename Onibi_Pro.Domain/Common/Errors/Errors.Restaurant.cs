@@ -10,5 +10,11 @@ public static partial class Errors
         
         public static Error RestaurantNotFound => Error.Validation(
             code: "Restaurant.NotFound", description: "Restaurant not found.");
+
+        public static Error InvalidManager => Error.Validation(
+            code: "Restaurant.InvalidManager", description: "This manager cannot perform this operation.");
+
+        public static Error DuplicatedEmail => Error.Conflict(
+            code: "Employee.DuplicatedEmail", description: "Duplicated email.");
     }
 }

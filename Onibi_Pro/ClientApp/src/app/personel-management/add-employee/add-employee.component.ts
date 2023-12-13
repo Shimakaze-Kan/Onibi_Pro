@@ -1,7 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ReplaySubject, Subject, takeUntil } from 'rxjs';
+import {
+  ReplaySubject,
+  Subject,
+  catchError,
+  of,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs';
+import { CreateEmployeeRequest, RestaurantsClient } from '../../api/api';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-employee',
@@ -9,27 +19,37 @@ import { ReplaySubject, Subject, takeUntil } from 'rxjs';
   styleUrls: ['./add-employee.component.scss'],
 })
 export class AddEmployeeComponent implements OnInit, OnDestroy {
+  private readonly _restaurantId = 'E2E115CF-4A20-40E4-ADD5-67CF34788A0A';
   private readonly _onDestroy$ = new Subject<void>();
+  loading = false;
 
   newEmployeeForm = new FormGroup({
     email: new FormControl<string>('', [Validators.required, Validators.email]),
     firstName: new FormControl<string>('', Validators.required),
     lastName: new FormControl<string>('', Validators.required),
     city: new FormControl<string>('', Validators.required),
-    restaurantId: new FormControl<string>('', Validators.required),
-    position: new FormControl<string>('', Validators.required),
-    supervisor: new FormControl<string>('', Validators.required),
+    restaurantId: new FormControl<string>(
+      { value: this._restaurantId, disabled: true },
+      Validators.required
+    ),
+    position: new FormControl<Array<string>>([], Validators.required),
+    supervisor: new FormControl<string>({ value: '', disabled: true }),
   });
 
   supervisorFilterCtrl = new FormControl<string>('');
-  cityFilterCtrl = new FormControl<string>('');
   positionFilterCtrl = new FormControl<string>('');
 
-  filteredCities = new ReplaySubject<string[]>(1);
   filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
-  constructor(private readonly dialogRef: MatDialogRef<AddEmployeeComponent>) {}
+  constructor(
+    private readonly dialogRef: MatDialogRef<
+      AddEmployeeComponent,
+      { reload: boolean }
+    >,
+    private readonly client: RestaurantsClient,
+    private readonly snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.filteredSupervisors.next(this.supervisors.slice());
@@ -38,14 +58,6 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._onDestroy$))
       .subscribe(() => {
         this.filterSupervisors();
-      });
-
-    this.filteredCities.next(this.cities.slice());
-
-    this.cityFilterCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy$))
-      .subscribe(() => {
-        this.filterCities();
       });
 
     this.filteredPositions.next(this.positions.slice());
@@ -62,8 +74,34 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
     this._onDestroy$.complete();
   }
 
-  onClose() {
-    this.dialogRef.close();
+  onClose(): void {
+    this.dialogRef.close({ reload: false });
+  }
+
+  createEmployee(): void {
+    this.loading = true;
+    const formValues = this.newEmployeeForm.getRawValue();
+    const request = new CreateEmployeeRequest({
+      firstName: formValues.firstName || undefined,
+      city: formValues.city || undefined,
+      email: formValues.email || undefined,
+      lastName: formValues.lastName || undefined,
+      employeePositions: formValues.position || undefined,
+    });
+    this.client
+      .employee(this._restaurantId, request)
+      .pipe(
+        take(1),
+        tap(() => this.dialogRef.close({ reload: true })),
+        catchError((error) => {
+          const description = JSON.parse(error.response).title;
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
   }
 
   private filterSupervisors() {
@@ -83,24 +121,6 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       this.supervisors.filter((supervisor) =>
         supervisor.toLowerCase().includes(search!)
       )
-    );
-  }
-
-  private filterCities() {
-    if (!this.cities) {
-      return;
-    }
-
-    let search = this.cityFilterCtrl.value;
-    if (!search) {
-      this.filteredCities.next(this.cities.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-
-    this.filteredCities.next(
-      this.cities.filter((city) => city.toLowerCase().includes(search!))
     );
   }
 
@@ -127,5 +147,5 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
   // dummy data
   supervisors = ['Jane Smith', 'Bob Johnson'];
   cities = ['New York', 'Sosnowiec'];
-  positions = ['Cashier', 'Restaurant Manager', 'Regional Manager'];
+  positions = ['Cashier', 'Cook', 'Server', 'Cleaner'];
 }

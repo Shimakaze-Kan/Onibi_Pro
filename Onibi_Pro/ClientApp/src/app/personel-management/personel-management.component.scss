@@ -8,3 +8,9 @@
     padding: 1.8rem;
   }
 }
+
+mat-spinner {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
