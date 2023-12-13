@@ -1,7 +1,7 @@
 @baseUrl =  https://localhost:7002/api
 #@baseUrl =  http://localhost:8080/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4MjNjMGE5MC1lNWJjLTQyNDMtYmJjYy0wYTI2YmUwZWJhYTYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6IjNmYTc1YzU3LWIzZTEtNDcxOC04NjI4LTU2YTlmZjRjMTMzMyIsImV4cCI6MTcwMjQyOTU0MCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.umC6L-mq0xWldzDS7aL6rsjrG5DoYdZVC1mniOcomsw
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODVmODJiNy1hZmI3LTQ4MzEtYjhhMi00MzY1YWRkNDdiY2MiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6ImU3MDIxMWY3LTI3YTYtNGIzMS05ZGRlLTNhMWZkNGNjYjk3ZSIsImV4cCI6MTcwMjQ5MjY4NywiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.E2zuzpfTxvgi3uGixg2uKAZMEGzGtaWw-i8i_JfRXS0
 
 ### create
 POST {{baseUrl}}/restaurants
@@ -51,7 +51,7 @@ Authorization: Bearer {{token}}
 }
 
 ### employees
-GET {{baseUrl}}/restaurants/E2E115CF-4A20-40E4-ADD5-67CF34788A0A/employees?
+GET {{baseUrl}}/restaurants/E2E115CF-4A20-40E4-ADD5-67CF34788A0A/employees?FirstNameFilter=Donald
 Authorization: Bearer {{token}}
 
 
@@ -66,4 +66,18 @@ Authorization: Bearer {{token}}
   "Email": "alice.wonderf@example.com",
   "City": "Foodsville",
   "EmployeePositions": ["Cashier", "Cook", "Server"]
+}
+
+### edit employees
+PUT {{baseUrl}}/restaurants/E2E115CF-4A20-40E4-ADD5-67CF34788A0A/employee
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "EmployeeId": "12c7fea3-ee9b-47fc-9409-f1dc3f82a41a",
+  "FirstName": "Donald",
+  "LastName": "Trump",
+  "Email": "realtrump@example.com",
+  "City": "Foodsville",
+  "EmployeePositions": ["Cook", "Server"]
 }

@@ -52,6 +52,7 @@ import { Observable } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RequiredStarDirective } from './directives/required-star.directive';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -111,6 +112,7 @@ const ROUTES: Array<Route> = [
     WelcomeComponent,
     AddEmployeeComponent,
     EditEmployeeComponent,
+    RequiredStarDirective,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),

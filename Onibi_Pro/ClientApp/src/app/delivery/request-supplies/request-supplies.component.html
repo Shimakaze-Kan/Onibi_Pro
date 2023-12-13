@@ -126,7 +126,7 @@
               placeholderLabel="Type to search"
             ></ngx-mat-select-search>
           </mat-option>
-          <mat-option style="color: gray">-- None --</mat-option>
+          <mat-option class="none">-- None --</mat-option>
           <mat-option
             *ngFor="let product of filteredProducts | async"
             [value]="product"

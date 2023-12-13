@@ -4,141 +4,158 @@
 ></mat-progress-bar>
 <h1 mat-dialog-title>New Employee</h1>
 <div mat-dialog-content class="dialog-content">
-  <form [formGroup]="newEmployeeForm" class="row mt-3" autocomplete="off">
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="emailInput">Email</label>
-        <mat-form-field appearance="outline">
-          <input
-            id="emailInput"
-            matInput
-            placeholder="Email"
-            formControlName="email"
-          />
-        </mat-form-field>
+  <form [formGroup]="newEmployeeForm" autocomplete="off">
+    <fieldset [disabled]="loading" class="row mt-3">
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="emailInput" appRequiredStar>Email</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="emailInput"
+              matInput
+              placeholder="Email"
+              formControlName="email"
+            />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="firstNameInput">First Name</label>
-        <mat-form-field appearance="outline">
-          <input
-            id="firstNameInput"
-            matInput
-            placeholder="First Name"
-            formControlName="firstName"
-          />
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="lastNameInput">Last Name</label>
-        <mat-form-field appearance="outline">
-          <input
-            id="lastNameInput"
-            matInput
-            placeholder="Last Name"
-            formControlName="lastName"
-          />
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="supervisorSelect">Supervisor</label>
-        <mat-form-field appearance="outline">
-          <mat-select
-            id="supervisorSelect"
-            formControlName="supervisor"
-            placeholder="Supervisor"
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="firstNameInput" appRequiredStar
+            >First Name</label
           >
-            <mat-option>
-              <ngx-mat-select-search
-                [formControl]="supervisorFilterCtrl"
-                placeholderLabel="Type to search"
-              ></ngx-mat-select-search>
-            </mat-option>
-            <mat-option class="none">-- None --</mat-option>
-            <mat-option
-              *ngFor="let supervisor of filteredSupervisors | async"
-              [value]="supervisor"
-            >
-              {{ supervisor }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field appearance="outline">
+            <input
+              id="firstNameInput"
+              matInput
+              placeholder="First Name"
+              formControlName="firstName"
+            />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="cityInput">City</label>
-        <mat-form-field appearance="outline">
-          <input
-            id="cityInput"
-            matInput
-            placeholder="City"
-            formControlName="city"
-          />
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="restaurantIdInput">Restaurant Id</label>
-        <mat-form-field appearance="outline">
-          <input
-            pattern="[1-9]*"
-            id="restaurantIdInput"
-            matInput
-            placeholder="Restaurant Id"
-            formControlName="restaurantId"
-          />
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="row">
-        <label class="mb-1" for="positionSelect">Position</label>
-        <mat-form-field appearance="outline">
-          <mat-select
-            id="positionSelect"
-            multiple
-            formControlName="position"
-            placeholder="Position"
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="lastNameInput" appRequiredStar
+            >Last Name</label
           >
-            <mat-option>
-              <ngx-mat-select-search
-                [formControl]="positionFilterCtrl"
-                placeholderLabel="Type to search"
-              ></ngx-mat-select-search>
-            </mat-option>
-            <mat-option class="none">-- None --</mat-option>
-            <mat-option
-              *ngFor="let position of filteredPositions | async"
-              [value]="position"
-            >
-              {{ position }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field appearance="outline">
+            <input
+              id="lastNameInput"
+              matInput
+              placeholder="Last Name"
+              formControlName="lastName"
+            />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-    <div class="col-12 col-md-6">
-      <p>
-        Please note that certain form controls may come pre-filled with data or
-        be restricted from modification, depending on your assigned role within
-        system. Your access and editing permissions will be tailored to your
-        role to ensure proper data management and security
-      </p>
-    </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="supervisorSelect" appRequiredStar
+            >Supervisor</label
+          >
+          <mat-form-field appearance="outline">
+            <mat-select
+              id="supervisorSelect"
+              formControlName="supervisor"
+              placeholder="Supervisor"
+            >
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="supervisorFilterCtrl"
+                  placeholderLabel="Type to search"
+                ></ngx-mat-select-search>
+              </mat-option>
+              <mat-option class="none">-- None --</mat-option>
+              <mat-option
+                *ngFor="let supervisor of filteredSupervisors | async"
+                [value]="supervisor"
+              >
+                {{ supervisor }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="cityInput" appRequiredStar>City</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="cityInput"
+              matInput
+              placeholder="City"
+              formControlName="city"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="restaurantIdInput" appRequiredStar
+            >Restaurant Id</label
+          >
+          <mat-form-field appearance="outline">
+            <input
+              pattern="[1-9]*"
+              id="restaurantIdInput"
+              matInput
+              placeholder="Restaurant Id"
+              formControlName="restaurantId"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="positionSelect" appRequiredStar
+            >Position</label
+          >
+          <mat-form-field appearance="outline">
+            <mat-select
+              id="positionSelect"
+              multiple
+              formControlName="position"
+              placeholder="Position"
+            >
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="positionFilterCtrl"
+                  placeholderLabel="Type to search"
+                ></ngx-mat-select-search>
+              </mat-option>
+              <div
+                class="cursor-pointer"
+                (click)="newEmployeeForm.controls.position.reset()"
+              >
+                <mat-option class="none">-- None --</mat-option>
+              </div>
+              <mat-option
+                *ngFor="let position of filteredPositions | async"
+                [value]="position"
+              >
+                {{ position }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <p>
+          Please note that certain form controls may come pre-filled with data
+          or be restricted from modification, depending on your assigned role
+          within system. Your access and editing permissions will be tailored to
+          your role to ensure proper data management and security
+        </p>
+      </div>
+    </fieldset>
   </form>
 </div>
 <div mat-dialog-actions class="justify-content-end">
   <button mat-button (click)="onClose()">Close</button>
   <button
     mat-button
-    [disabled]="newEmployeeForm.invalid"
+    [disabled]="newEmployeeForm.invalid || loading"
     (click)="createEmployee()"
     color="primary"
     cdkFocusInitial

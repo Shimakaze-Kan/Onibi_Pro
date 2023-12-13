@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
+using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
 
@@ -57,5 +58,16 @@ public class RestaurantsController : ApiBaseController
 
         return result.Match(result
             => Ok(_mapper.Map<CreateEmployeeResponse>(result)), Problem);
+    }
+
+    [HttpPut("{restaurantId}/employee")]
+    [ProducesResponseType(typeof(CreateEmployeeResponse), 200)]
+    public async Task<IActionResult> EditEmployee([FromRoute] Guid restaurantId, [FromBody] EditEmployeeRequest request)
+    {
+        var command = _mapper.Map<EditEmployeeCommand>((restaurantId, request));
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(_ => Ok(), Problem);
     }
 }

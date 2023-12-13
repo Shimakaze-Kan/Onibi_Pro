@@ -12,6 +12,7 @@ import {
 } from 'rxjs';
 import { CreateEmployeeRequest, RestaurantsClient } from '../../api/api';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Positions } from '../Positions';
 
 @Component({
   selector: 'app-add-employee',
@@ -89,7 +90,7 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       employeePositions: formValues.position || undefined,
     });
     this.client
-      .employee(this._restaurantId, request)
+      .employeePost(this._restaurantId, request)
       .pipe(
         take(1),
         tap(() => this.dialogRef.close({ reload: true })),
@@ -147,5 +148,5 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
   // dummy data
   supervisors = ['Jane Smith', 'Bob Johnson'];
   cities = ['New York', 'Sosnowiec'];
-  positions = ['Cashier', 'Cook', 'Server', 'Cleaner'];
+  positions = Positions.positions;
 }

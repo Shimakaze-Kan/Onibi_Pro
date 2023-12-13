@@ -9,7 +9,15 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { ReplaySubject, Subject, take, takeUntil, tap } from 'rxjs';
+import {
+  ReplaySubject,
+  Subject,
+  filter,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
 import { GetEmployeesResponse, RestaurantsClient } from '../api/api';
@@ -112,11 +120,13 @@ export class PersonelManagementComponent
       maxWidth: '750px',
     });
 
-    dialogRef.afterClosed().subscribe((result: { reload: boolean }) => {
-      if (result.reload) {
-        this.getEmploees().subscribe();
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter((result: { reload: boolean }) => result.reload),
+        switchMap((_) => this.getEmploees())
+      )
+      .subscribe();
   }
 
   openEditEmployeeDialog(data: EmployeeRecord) {
@@ -127,9 +137,13 @@ export class PersonelManagementComponent
       data: data,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter((result: { reload: boolean }) => result.reload),
+        switchMap((_) => this.getEmploees())
+      )
+      .subscribe();
   }
 
   private getEmploees() {
@@ -226,6 +240,7 @@ export class PersonelManagementComponent
 
 export class EmployeeRecord {
   constructor(data: GetEmployeesResponse, restaurantId: string) {
+    this.id = data.id;
     this.email = data.email;
     this.firstName = data.firstName;
     this.lastName = data.lastName;
@@ -234,6 +249,7 @@ export class EmployeeRecord {
     this.restaurantId = restaurantId;
     this.positions = data.positions?.join(', ');
   }
+  id: string | undefined;
   email: string | undefined;
   firstName: string | undefined;
   lastName: string | undefined;

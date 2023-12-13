@@ -23,10 +23,16 @@ public sealed class Employee : Entity<EmployeeId>
         _positions = employeePositions;
     }
 
-    public static Employee Create(string firstName, string lastName, string email,
+    public static Employee CreateUnique(string firstName, string lastName, string email,
         string city, List<EmployeePosition> employeePositions)
     {
         return new(EmployeeId.CreateUnique(), firstName, lastName, email, city, employeePositions);
+    }
+
+    public static Employee Create(EmployeeId id, string firstName, string lastName, string email,
+        string city, List<EmployeePosition> employeePositions)
+    {
+        return new(id, firstName, lastName, email, city, employeePositions);
     }
 
 #pragma warning disable CS8618

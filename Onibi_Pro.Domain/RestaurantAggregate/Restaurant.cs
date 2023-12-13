@@ -56,6 +56,30 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         return new Success();
     }
 
+    public ErrorOr<Success> EditEmployee(ManagerId manager, Employee employee)
+    {
+        if (!_managers.Any(m => m.Id == manager))
+        {
+            return Errors.Restaurant.InvalidManager;
+        }
+
+        var employeeIndex = _employees.FindIndex(e => e.Id == employee.Id);
+
+        if (employeeIndex == -1)
+        {
+            return Errors.Restaurant.EmployeeNotFound;
+        }
+
+        if (_employees.Any(e => e.Email == employee.Email && e.Id != employee.Id))
+        {
+            return Errors.Restaurant.DuplicatedEmail;
+        }
+
+        _employees[employeeIndex] = employee;
+
+        return new Success();
+    }
+
     public void UnregisterEmployee(Manager manager, Employee employee)
     {
         if (_managers.Contains(manager))

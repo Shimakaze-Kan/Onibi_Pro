@@ -16,5 +16,8 @@ public static partial class Errors
 
         public static Error DuplicatedEmail => Error.Conflict(
             code: "Employee.DuplicatedEmail", description: "Duplicated email.");
+
+        public static Error EmployeeNotFound => Error.NotFound(
+            code: "Employee.NotFound", description: "Employee does not exist.");
     }
 }

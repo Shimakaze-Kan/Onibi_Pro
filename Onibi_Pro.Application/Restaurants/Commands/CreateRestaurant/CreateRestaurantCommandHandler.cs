@@ -40,7 +40,7 @@ internal sealed class CreateRestaurantCommandHandler : IRequestHandler<CreateRes
 
         var restaurant = Restaurant.Create(Address.Create(request.Address.Street, request.Address.City, request.Address.PostalCode, request.Address.Country),
             request.Employees?.ConvertAll(employee =>
-                Employee.Create(employee.FirstName, employee.LastName, employee.Email, employee.City,
+                Employee.CreateUnique(employee.FirstName, employee.LastName, employee.Email, employee.City,
                     employee.EmployeePositions.ConvertAll(position =>
                     EmployeePosition.Create(Enum.Parse<Positions>(position.Position))))),
             request.OrderIds?.ConvertAll(OrderId.Create),

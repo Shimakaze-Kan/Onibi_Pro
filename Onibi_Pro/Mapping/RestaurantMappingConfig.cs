@@ -2,6 +2,7 @@
 
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
+using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
 using Onibi_Pro.Domain.RestaurantAggregate;
@@ -41,6 +42,10 @@ public class RestaurantMappingConfig : IRegister
                 .ToList());
 
         config.NewConfig<(Guid RestaurantId, CreateEmployeeRequest Request), CreateEmployeeCommand>()
+            .Map(dest => dest, src => src.Request)
+            .Map(dest => dest.RestaurantId, src => src.RestaurantId);
+        
+        config.NewConfig<(Guid RestaurantId, EditEmployeeRequest Request), EditEmployeeCommand>()
             .Map(dest => dest, src => src.Request)
             .Map(dest => dest.RestaurantId, src => src.RestaurantId);
 

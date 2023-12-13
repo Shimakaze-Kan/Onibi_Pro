@@ -30,7 +30,7 @@ internal sealed class CreateEmployeeCommandHanlder : IRequestHandler<CreateEmplo
         var managerId = ManagerId.Create(Guid.Parse("3A583B3E-3A5E-47DA-9009-13FE71345AB4")); // TODO get from current user service
         var positions = GetEmployeePositions(request);
 
-        var employee = Employee.Create(request.FirstName, request.LastName,
+        var employee = Employee.CreateUnique(request.FirstName, request.LastName,
             request.Email, request.City, positions);
 
         var result = restaurant.RegisterEmployee(managerId, employee);
