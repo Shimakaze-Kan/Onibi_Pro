@@ -14,9 +14,10 @@ internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, 
 
     public async Task<ErrorOr<AuthenticationResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(_authenticationService.Register(request.FirstName,
-                                                               request.LastName,
-                                                               request.Email,
-                                                               request.Password));
+        return await _authenticationService.RegisterAsync(request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Password,
+            cancellationToken);
     }
 }

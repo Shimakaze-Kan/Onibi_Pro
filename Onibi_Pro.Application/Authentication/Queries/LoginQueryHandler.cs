@@ -14,7 +14,6 @@ internal sealed class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<Au
 
     public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(_authenticationService.Login(request.Email,
-                                                                  request.Password));
+        return await _authenticationService.LoginAsync(request.Email, request.Password, cancellationToken);
     }
 }

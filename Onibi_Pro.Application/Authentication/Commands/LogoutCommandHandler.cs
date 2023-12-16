@@ -32,7 +32,7 @@ internal sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand, Erro
 
         var userId = _currentUserService.UserId;
 
-        _authenticationService.Logout(userId);
+        await _authenticationService.LogoutAsync(userId, cancellationToken);
         await Task.CompletedTask;
 
         return new Success();

@@ -44,7 +44,7 @@ public class LoginModel : PageModel
         return Page();
     }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -52,7 +52,7 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        var authResult = _authenticationService.Login(Login!, Password!);
+        var authResult = await _authenticationService.LoginAsync(Login!, Password!, cancellationToken);
 
         return authResult.Match<IActionResult>(resutl =>
         {

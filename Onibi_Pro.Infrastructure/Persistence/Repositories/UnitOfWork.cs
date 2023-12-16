@@ -7,6 +7,8 @@ using Onibi_Pro.Domain.RestaurantAggregate;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Domain.ShipmentAggregate;
 using Onibi_Pro.Domain.ShipmentAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
 internal sealed class UnitOfWork : IUnitOfWork
@@ -17,14 +19,21 @@ internal sealed class UnitOfWork : IUnitOfWork
     public IRepository<Shipment, ShipmentId> ShipmentRepository { get; }
     public IRepository<Order, OrderId> OrderRepository { get; }
     public IRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
+    public IRepository<User, UserId> UserRepository { get; }
 
-    public UnitOfWork(OnibiProDbContext dbContext)
+    public UnitOfWork(OnibiProDbContext dbContext,
+        IRepository<Menu, MenuId> menuRepository,
+        IRepository<Shipment, ShipmentId> shipmentRepository,
+        IRepository<Order, OrderId> orderRepository,
+        IRepository<Restaurant, RestaurantId> restaurantRepository,
+        IRepository<User, UserId> userRepository)
     {
         _dbContext = dbContext;
-        MenuRepository = new Repository<Menu, MenuId>(_dbContext);
-        ShipmentRepository = new Repository<Shipment, ShipmentId>(_dbContext);
-        OrderRepository = new Repository<Order, OrderId>(_dbContext);
-        RestaurantRepository = new Repository<Restaurant, RestaurantId>(_dbContext);
+        MenuRepository = menuRepository;
+        ShipmentRepository = shipmentRepository;
+        OrderRepository = orderRepository;
+        RestaurantRepository = restaurantRepository;
+        UserRepository = userRepository;
     }
 
     public async Task<int> CompleteAsync(CancellationToken cancellationToken)

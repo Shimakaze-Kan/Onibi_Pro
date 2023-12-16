@@ -1,32 +1,35 @@
 ﻿using ErrorOr;
+
 using Microsoft.Extensions.Logging;
+
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
-using Onibi_Pro.Domain.Entities;
+using Onibi_Pro.Domain.UserAggregate;
 
 namespace Onibi_Pro.Application.Services.Authentication;
 internal sealed class AuthenticationService : IAuthenticationService
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly IUserRepository _userRepository;
     private readonly ITokenGuard _tokenGuard;
     private readonly ILogger<AuthenticationService> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public AuthenticationService(IJwtTokenGenerator jwtTokenGenerator,
-        IUserRepository userRepository,
         ITokenGuard tokenGuard,
-        ILogger<AuthenticationService> logger)
+        ILogger<AuthenticationService> logger,
+        IUnitOfWork unitOfWork)
     {
         _jwtTokenGenerator = jwtTokenGenerator;
-        _userRepository = userRepository;
         _tokenGuard = tokenGuard;
         _logger = logger;
+        _unitOfWork = unitOfWork;
     }
 
-    public ErrorOr<AuthenticationResult> Login(string email, string password)
+    public async Task<ErrorOr<AuthenticationResult>> LoginAsync(string email,
+        string password, CancellationToken cancellationToken = default)
     {
-        User? user = _userRepository.GetByEmail(email);
+        User? user = await GetUserByEmailAsync(email, cancellationToken);
 
         if (user is null)
         {
@@ -40,20 +43,21 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName, user.Email);
-        _tokenGuard.AllowTokenAsync(user.Id, token, CancellationToken.None).GetAwaiter().GetResult();
+        var token = _jwtTokenGenerator.GenerateToken(user.Id.Value, user.FirstName, user.LastName, user.Email);
+        await _tokenGuard.AllowTokenAsync(user.Id.Value, token, cancellationToken);
 
         return new AuthenticationResult(user, token);
     }
 
-    public void Logout(Guid userId)
+    public async Task LogoutAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        _tokenGuard.DenyTokenAsync(userId, CancellationToken.None).GetAwaiter().GetResult();
+        await _tokenGuard.DenyTokenAsync(userId, cancellationToken);
     }
 
-    public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
+    public async Task<ErrorOr<AuthenticationResult>> RegisterAsync(string firstName, string lastName,
+        string email, string password, CancellationToken cancellationToken = default)
     {
-        User? user = _userRepository.GetByEmail(email);
+        User? user = await GetUserByEmailAsync(email, cancellationToken);
 
         if (user is not null)
         {
@@ -61,19 +65,19 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.User.DuplicateEmail;
         }
 
-        user = new()
-        {
-            Email = email,
-            FirstName = firstName,
-            LastName = lastName,
-            Password = password
-        };
+        user = User.CreateUnique(firstName, lastName, email, password, UserTypes.Manager);
 
-        _userRepository.Add(user);
+        await _unitOfWork.UserRepository.AddAsync(user, cancellationToken);
+        await _unitOfWork.CompleteAsync(cancellationToken);
 
-        var token = _jwtTokenGenerator.GenerateToken(user.Id, user.FirstName, user.LastName, user.Email);
-        _tokenGuard.AllowTokenAsync(user.Id, token, CancellationToken.None).GetAwaiter().GetResult();
+        var token = _jwtTokenGenerator.GenerateToken(user.Id.Value, user.FirstName, user.LastName, user.Email);
+        await _tokenGuard.AllowTokenAsync(user.Id.Value, token, cancellationToken);
 
         return new AuthenticationResult(user, token);
+    }
+
+    private async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return await _unitOfWork.UserRepository.GetAsync(user => user.Email == email, cancellationToken);
     }
 }

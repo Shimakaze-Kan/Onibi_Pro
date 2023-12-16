@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using Onibi_Pro.Domain.Common.Interfaces;
-using Onibi_Pro.Domain.MenuAggregate;
-using Onibi_Pro.Domain.ShipmentAggregate;
 using Onibi_Pro.Infrastructure.Persistence.Interceptors;
 
 namespace Onibi_Pro.Infrastructure.Persistence;
@@ -16,9 +14,6 @@ internal sealed class OnibiProDbContext : DbContext
     {
         _publishDomainEvents = publishDomainEvents;
     }
-
-    public DbSet<Menu> Menus { get; set; } = null!;
-    public DbSet<Shipment> Shipments { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
