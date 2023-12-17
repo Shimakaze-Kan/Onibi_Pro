@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.HttpOverrides;
+
 using Onibi_Pro;
 using Onibi_Pro.Application;
 using Onibi_Pro.Infrastructure;
@@ -31,8 +32,8 @@ internal class Program
                 });
             }
 
-            app.UseCors(options
-                => options.WithOrigins("https://localhost:44406").AllowAnyMethod());
+            //app.UseCors(options
+            //    => options.WithOrigins("https://localhost:44406").AllowAnyMethod());
 
             app.UseExceptionHandler();
 
@@ -54,13 +55,14 @@ internal class Program
                 name: "default",
                 pattern: "{controller}/{action=Index}/{id?}");
 
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapReverseProxy();
 
             app.UseTokenGuardMiddleware();
 
-            app.MapFallbackToFile("index.html");
+            //app.MapFallbackToFile("index.html");
 
             app.Run();
         }

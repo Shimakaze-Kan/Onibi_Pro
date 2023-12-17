@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Shared;
-using System.Text;
 
 namespace Onibi_Pro.Infrastructure.Authentication;
 internal static class DependencyInjection
@@ -48,11 +50,9 @@ internal static class DependencyInjection
                     };
                 });
 
-        services.AddAuthorization(options =>
-        {
-            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .Build();
-        });
+                .Build());
     }
 }

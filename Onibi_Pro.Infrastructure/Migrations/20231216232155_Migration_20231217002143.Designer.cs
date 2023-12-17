@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Onibi_Pro.Infrastructure.Persistence;
 
@@ -11,13 +12,15 @@ using Onibi_Pro.Infrastructure.Persistence;
 namespace Onibi_Pro.Infrastructure.Migrations
 {
     [DbContext(typeof(OnibiProDbContext))]
-    partial class OnibiProDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231216232155_Migration_20231217002143")]
+    partial class Migration_20231217002143
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "7.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -52,19 +55,19 @@ namespace Onibi_Pro.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f93a147f-cece-4049-8914-608824d95a34"),
+                            Id = new Guid("863dc18f-6554-4066-85fb-12b3ad0b4b6d"),
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = new Guid("42856a3f-62b8-4fd6-9c17-9f4adcd83edc"),
+                            Id = new Guid("bbccc304-4c62-4d4c-b670-b0d6aca0a082"),
                             Name = "RegionalManager",
                             NormalizedName = "REGIONALMANAGER"
                         },
                         new
                         {
-                            Id = new Guid("05ae1667-9f48-4331-ba60-7d1dd42f1706"),
+                            Id = new Guid("522f27d4-26cc-4730-a8fb-f81e3ec43de8"),
                             Name = "GlobalManager",
                             NormalizedName = "GLOBALMANAGER"
                         });
@@ -241,6 +244,10 @@ namespace Onibi_Pro.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -269,14 +276,6 @@ namespace Onibi_Pro.Infrastructure.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -310,9 +309,6 @@ namespace Onibi_Pro.Infrastructure.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<int>("UserType")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

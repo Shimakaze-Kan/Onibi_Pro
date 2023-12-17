@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 using Onibi_Pro.Domain.Common.Interfaces;
+using Onibi_Pro.Infrastructure.Identity;
 using Onibi_Pro.Infrastructure.Persistence.Interceptors;
 
 namespace Onibi_Pro.Infrastructure.Persistence;
-internal sealed class OnibiProDbContext : DbContext
+internal sealed class OnibiProDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     private readonly PublishDomainEventsInterceptor _publishDomainEvents;
 

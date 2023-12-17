@@ -22,7 +22,6 @@ public sealed class UserConfigurations : IEntityTypeConfiguration<User>
         builder.Property(x => x.FirstName);
         builder.Property(x => x.LastName);
         builder.Property(x => x.Email);
-        builder.Property(x => x.Password);
         builder.Property(x => x.UserType)
             .HasConversion(
             type => type.ToString(),
