@@ -46,3 +46,13 @@ Authorization: Bearer {{token}}
 
 ###
 GET https://localhost:7002/api/Authentication/isAuthenticated?3242432
+
+###
+POST {{baseUrl}}/account/register
+Content-Type: application/json
+
+{
+    "username":"string",
+    "password":"ssasa",
+    "email": "dfdfsdf"
+}
