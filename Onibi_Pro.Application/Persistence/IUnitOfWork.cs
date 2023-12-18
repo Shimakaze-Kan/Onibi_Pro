@@ -12,11 +12,11 @@ using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 namespace Onibi_Pro.Application.Persistence;
 public interface IUnitOfWork
 {
-    IRepository<Menu, MenuId> MenuRepository { get; }
-    IRepository<Shipment, ShipmentId> ShipmentRepository { get; }
-    IRepository<Order, OrderId> OrderRepository { get; }
-    IRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
-    IRepository<User, UserId> UserRepository { get; }
+    IDomainRepository<Menu, MenuId> MenuRepository { get; }
+    IDomainRepository<Shipment, ShipmentId> ShipmentRepository { get; }
+    IDomainRepository<Order, OrderId> OrderRepository { get; }
+    IDomainRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
+    IDomainRepository<User, UserId> UserRepository { get; }
     // todo rest of repos
     Task<int> CompleteAsync(CancellationToken cancellationToken = default);
 }

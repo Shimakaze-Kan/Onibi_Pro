@@ -3,7 +3,7 @@
 using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Application.Persistence;
-public interface IRepository<TAggregateRoot, TId>
+public interface IDomainRepository<TAggregateRoot, TId>
     where TAggregateRoot : AggregateRoot<TId>
     where TId : ValueObject
 {

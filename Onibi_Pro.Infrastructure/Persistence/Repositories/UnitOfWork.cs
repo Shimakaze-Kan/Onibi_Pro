@@ -15,18 +15,18 @@ internal sealed class UnitOfWork : IUnitOfWork
 {
     private readonly OnibiProDbContext _dbContext;
 
-    public IRepository<Menu, MenuId> MenuRepository { get; }
-    public IRepository<Shipment, ShipmentId> ShipmentRepository { get; }
-    public IRepository<Order, OrderId> OrderRepository { get; }
-    public IRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
-    public IRepository<User, UserId> UserRepository { get; }
+    public IDomainRepository<Menu, MenuId> MenuRepository { get; }
+    public IDomainRepository<Shipment, ShipmentId> ShipmentRepository { get; }
+    public IDomainRepository<Order, OrderId> OrderRepository { get; }
+    public IDomainRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
+    public IDomainRepository<User, UserId> UserRepository { get; }
 
     public UnitOfWork(OnibiProDbContext dbContext,
-        IRepository<Menu, MenuId> menuRepository,
-        IRepository<Shipment, ShipmentId> shipmentRepository,
-        IRepository<Order, OrderId> orderRepository,
-        IRepository<Restaurant, RestaurantId> restaurantRepository,
-        IRepository<User, UserId> userRepository)
+        IDomainRepository<Menu, MenuId> menuRepository,
+        IDomainRepository<Shipment, ShipmentId> shipmentRepository,
+        IDomainRepository<Order, OrderId> orderRepository,
+        IDomainRepository<Restaurant, RestaurantId> restaurantRepository,
+        IDomainRepository<User, UserId> userRepository)
     {
         _dbContext = dbContext;
         MenuRepository = menuRepository;

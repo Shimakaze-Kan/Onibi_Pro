@@ -1,6 +1,4 @@
-﻿using Dapper;
-
-using ErrorOr;
+﻿using ErrorOr;
 
 using Microsoft.Extensions.Logging;
 
@@ -20,21 +18,21 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly ILogger<AuthenticationService> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordService _passwordService;
-    private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IUserPasswordRepository _userPasswordRepository;
 
     public AuthenticationService(IJwtTokenGenerator jwtTokenGenerator,
         ITokenGuard tokenGuard,
         ILogger<AuthenticationService> logger,
         IUnitOfWork unitOfWork,
         IPasswordService passwordService,
-        IDbConnectionFactory dbConnectionFactory)
+        IUserPasswordRepository userPasswordRepository)
     {
         _jwtTokenGenerator = jwtTokenGenerator;
         _tokenGuard = tokenGuard;
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordService = passwordService;
-        _dbConnectionFactory = dbConnectionFactory;
+        _userPasswordRepository = userPasswordRepository;
     }
 
     public async Task<ErrorOr<AuthenticationResult>> LoginAsync(string email,
@@ -48,7 +46,7 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        var hashedPassword = await FetchHashedPassword(user.Id.Value);
+        var hashedPassword = await _userPasswordRepository.GetPasswordForUserAsync(user.Id, cancellationToken);
 
         if (!_passwordService.VerifyPassword(password, hashedPassword))
         {
@@ -89,20 +87,6 @@ internal sealed class AuthenticationService : IAuthenticationService
         await _tokenGuard.AllowTokenAsync(user.Id.Value, token, cancellationToken);
 
         return new AuthenticationResult(user, token);
-    }
-
-    private async Task<string> FetchHashedPassword(Guid userId)
-    {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
-        var hashedPassword = await connection.ExecuteScalarAsync<string>(
-            "SELECT Password FROM dbo.UserPasswords WHERE UserId = @UserId", new { userId });
-
-        if (string.IsNullOrEmpty(hashedPassword))
-        {
-            throw new ArgumentNullException(nameof(hashedPassword));
-        }
-
-        return hashedPassword;
     }
 
     private async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)

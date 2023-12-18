@@ -6,14 +6,14 @@ using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Models;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
-internal sealed class Repository<TAggregateRoot, TId> : IRepository<TAggregateRoot, TId>
+internal sealed class DomainRepository<TAggregateRoot, TId> : IDomainRepository<TAggregateRoot, TId>
     where TAggregateRoot : AggregateRoot<TId>
     where TId : ValueObject
 {
     private readonly OnibiProDbContext _dbContext;
     private readonly DbSet<TAggregateRoot> _dbSet;
 
-    public Repository(OnibiProDbContext dbContext)
+    public DomainRepository(OnibiProDbContext dbContext)
     {
         _dbContext = dbContext;
         _dbSet = _dbContext.Set<TAggregateRoot>();

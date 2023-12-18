@@ -17,11 +17,13 @@ internal static class DependencyInjection
 {
     internal static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IRepository<Menu, MenuId>, Repository<Menu, MenuId>>();
-        services.AddScoped<IRepository<Shipment, ShipmentId>, Repository<Shipment, ShipmentId>>();
-        services.AddScoped<IRepository<Order, OrderId>, Repository<Order, OrderId>>();
-        services.AddScoped<IRepository<Restaurant, RestaurantId>, Repository<Restaurant, RestaurantId>>();
-        services.AddScoped<IRepository<User, UserId>, Repository<User, UserId>>();
+        services.AddScoped<IDomainRepository<Menu, MenuId>, DomainRepository<Menu, MenuId>>();
+        services.AddScoped<IDomainRepository<Shipment, ShipmentId>, DomainRepository<Shipment, ShipmentId>>();
+        services.AddScoped<IDomainRepository<Order, OrderId>, DomainRepository<Order, OrderId>>();
+        services.AddScoped<IDomainRepository<Restaurant, RestaurantId>, DomainRepository<Restaurant, RestaurantId>>();
+        services.AddScoped<IDomainRepository<User, UserId>, DomainRepository<User, UserId>>();
+
+        services.AddScoped<IUserPasswordRepository, UserPasswordRepository>();
 
         return services;
     }
