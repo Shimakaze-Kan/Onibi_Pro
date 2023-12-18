@@ -2,11 +2,13 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Menus.Commands.CreateMenu;
 using Onibi_Pro.Application.Menus.Queries.GetMenus;
 using Onibi_Pro.Contracts.Menus;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Controllers;
 [Route("api/[controller]")]
@@ -23,6 +25,7 @@ public class MenusController : ApiBaseController
     }
 
     [HttpPost]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
     [ProducesResponseType(typeof(CreateMenuResponse), 200)]
     public async Task<IActionResult> CreateMenu(CreateMenuRequest request)
     {

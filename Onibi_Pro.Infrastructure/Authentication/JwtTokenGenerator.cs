@@ -2,6 +2,8 @@
 using Microsoft.IdentityModel.Tokens;
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
+using Onibi_Pro.Shared;
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,7 +20,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
         _jwtTokenSettings = options.Value;
     }
 
-    public string GenerateToken(Guid userId, string firstName, string lastName, string email)
+    public string GenerateToken(Guid userId, string firstName, string lastName, string email, string userType)
     {
         var claims = new[]
         {
@@ -26,6 +28,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
             new Claim(JwtRegisteredClaimNames.GivenName, firstName),
             new Claim(JwtRegisteredClaimNames.FamilyName, lastName),
             new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(JwtKeys.UserTypeKey, userType.ToUpper()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

@@ -54,7 +54,8 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        var token = _jwtTokenGenerator.GenerateToken(user.Id.Value, user.FirstName, user.LastName, user.Email);
+        var token = _jwtTokenGenerator.GenerateToken(user.Id.Value,
+            user.FirstName, user.LastName, user.Email, user.UserType.ToString());
         await _tokenGuard.AllowTokenAsync(user.Id.Value, token, cancellationToken);
 
         return new AuthenticationResult(user, token);
@@ -66,7 +67,7 @@ internal sealed class AuthenticationService : IAuthenticationService
     }
 
     public async Task<ErrorOr<AuthenticationResult>> RegisterAsync(string firstName, string lastName,
-        string email, string password, CancellationToken cancellationToken = default)
+        string email, string password, UserTypes userType, CancellationToken cancellationToken = default)
     {
         User? user = await GetUserByEmailAsync(email, cancellationToken);
 
@@ -78,12 +79,13 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var hashedPassword = _passwordService.HashPassword(password);
 
-        user = User.CreateUnique(firstName, lastName, email, hashedPassword, UserTypes.Manager);
+        user = User.CreateUnique(firstName, lastName, email, hashedPassword, userType);
 
         await _unitOfWork.UserRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);
 
-        var token = _jwtTokenGenerator.GenerateToken(user.Id.Value, user.FirstName, user.LastName, user.Email);
+        var token = _jwtTokenGenerator.GenerateToken(user.Id.Value,
+            user.FirstName, user.LastName, user.Email, user.UserType.ToString());
         await _tokenGuard.AllowTokenAsync(user.Id.Value, token, cancellationToken);
 
         return new AuthenticationResult(user, token);

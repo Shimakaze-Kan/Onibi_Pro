@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Shared;
-using System.Text;
 
 namespace Onibi_Pro.Infrastructure.Authentication;
 internal static class DependencyInjection
@@ -17,13 +18,13 @@ internal static class DependencyInjection
         services.Configure<JwtTokenSettings>(configurationManager.GetSection(JwtTokenSettings.SectionName));
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<ITokenGuard, TokenGuard>();
-        services.AddSecurity(configurationManager);
+        services.AddTokenConfig(configurationManager);
         services.AddSingleton<IPasswordService, PasswordService>();
 
         return services;
     }
 
-    private static void AddSecurity(this IServiceCollection services, ConfigurationManager configurationManager)
+    private static void AddTokenConfig(this IServiceCollection services, ConfigurationManager configurationManager)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -49,12 +50,5 @@ internal static class DependencyInjection
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                     };
                 });
-
-        services.AddAuthorization(options =>
-        {
-            options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
-        });
     }
 }

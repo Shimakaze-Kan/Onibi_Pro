@@ -1,7 +1,10 @@
 ﻿using MapsterMapper;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
 using Onibi_Pro.Application.Common.Interfaces.Services;
@@ -27,8 +30,8 @@ public class AuthenticationController : ApiBaseController
         _currentUserService = currentUserService;
     }
 
-    [AllowAnonymous] // TODO remove
     [HttpPost("register")]
+    [Authorize(Policy = AuthorizationPolicies.GlobalOrRegionalManagerAccess)]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         var command = _mapper.Map<RegisterCommand>(request);

@@ -1,8 +1,12 @@
-﻿using Onibi_Pro.Application.Common.Interfaces.Services;
+﻿using Microsoft.AspNetCore.Http;
+
+using Onibi_Pro.Application.Common.Interfaces.Services;
+using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Shared;
+
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Onibi_Pro.Services;
+namespace Onibi_Pro.Infrastructure.Identity;
 
 internal sealed class CurrentUserService : ICurrentUserService
 {
@@ -13,9 +17,12 @@ internal sealed class CurrentUserService : ICurrentUserService
 
     public string LastName
         => _jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.FamilyName).Value;
-    
+
     public string Email
         => _jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Email).Value;
+
+    public UserTypes UserType
+        => Enum.Parse<UserTypes>(_jwtToken.Claims.First(x => x.Type == JwtKeys.UserTypeKey).Value, ignoreCase: true);
 
     public Guid UserId
     {

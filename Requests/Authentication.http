@@ -5,11 +5,12 @@
 ### register
 POST {{baseUrl}}/authentication/register
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "firstName": "John",
     "lastName": "Johnson",
-    "email": "john@john.com",
+    "email": "johnRegionalManager@john.com",
     "password": "pass123@!"
 }
 
