@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Shared;
 using System.Text;
 
@@ -17,6 +18,7 @@ internal static class DependencyInjection
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<ITokenGuard, TokenGuard>();
         services.AddSecurity(configurationManager);
+        services.AddSingleton<IPasswordService, PasswordService>();
 
         return services;
     }

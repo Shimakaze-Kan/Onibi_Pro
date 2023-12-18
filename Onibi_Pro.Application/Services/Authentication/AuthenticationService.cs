@@ -1,11 +1,16 @@
-﻿using ErrorOr;
+﻿using Dapper;
+
+using ErrorOr;
 
 using Microsoft.Extensions.Logging;
 
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.UserAggregate;
+
+using User = Onibi_Pro.Domain.UserAggregate.User;
 
 namespace Onibi_Pro.Application.Services.Authentication;
 internal sealed class AuthenticationService : IAuthenticationService
@@ -14,16 +19,22 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly ITokenGuard _tokenGuard;
     private readonly ILogger<AuthenticationService> _logger;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPasswordService _passwordService;
+    private readonly IDbConnectionFactory _dbConnectionFactory;
 
     public AuthenticationService(IJwtTokenGenerator jwtTokenGenerator,
         ITokenGuard tokenGuard,
         ILogger<AuthenticationService> logger,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPasswordService passwordService,
+        IDbConnectionFactory dbConnectionFactory)
     {
         _jwtTokenGenerator = jwtTokenGenerator;
         _tokenGuard = tokenGuard;
         _logger = logger;
         _unitOfWork = unitOfWork;
+        _passwordService = passwordService;
+        _dbConnectionFactory = dbConnectionFactory;
     }
 
     public async Task<ErrorOr<AuthenticationResult>> LoginAsync(string email,
@@ -37,7 +48,9 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        if (user.Password != password)
+        var hashedPassword = await FetchHashedPassword(user.Id.Value);
+
+        if (!_passwordService.VerifyPassword(password, hashedPassword))
         {
             _logger.LogWarning("Wrong credentials for user: {email}", email);
             return Errors.Authentication.InvalidCredentials;
@@ -65,7 +78,9 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.User.DuplicateEmail;
         }
 
-        user = User.CreateUnique(firstName, lastName, email, password, UserTypes.Manager);
+        var hashedPassword = _passwordService.HashPassword(password);
+
+        user = User.CreateUnique(firstName, lastName, email, hashedPassword, UserTypes.Manager);
 
         await _unitOfWork.UserRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);
@@ -74,6 +89,20 @@ internal sealed class AuthenticationService : IAuthenticationService
         await _tokenGuard.AllowTokenAsync(user.Id.Value, token, cancellationToken);
 
         return new AuthenticationResult(user, token);
+    }
+
+    private async Task<string> FetchHashedPassword(Guid userId)
+    {
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        var hashedPassword = await connection.ExecuteScalarAsync<string>(
+            "SELECT Password FROM dbo.UserPasswords WHERE UserId = @UserId", new { userId });
+
+        if (string.IsNullOrEmpty(hashedPassword))
+        {
+            throw new ArgumentNullException(nameof(hashedPassword));
+        }
+
+        return hashedPassword;
     }
 
     private async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
