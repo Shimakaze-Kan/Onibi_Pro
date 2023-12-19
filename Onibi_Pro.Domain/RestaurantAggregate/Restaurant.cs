@@ -42,9 +42,9 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         return new(RestaurantId.CreateUnique(), address, employees, orders, managers);
     }
 
-    public ErrorOr<Success> RegisterEmployee(ManagerId manager, Employee employee)
+    public ErrorOr<Success> RegisterEmployee(UserId userId, Employee employee)
     {
-        if (!_managers.Any(m => m.Id == manager))
+        if (!_managers.Any(m => m.UserId == userId))
         {
             return Errors.Restaurant.InvalidManager;
         }

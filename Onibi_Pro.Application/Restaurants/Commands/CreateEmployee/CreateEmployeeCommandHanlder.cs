@@ -2,19 +2,24 @@
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 internal sealed class CreateEmployeeCommandHanlder : IRequestHandler<CreateEmployeeCommand, ErrorOr<Employee>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateEmployeeCommandHanlder(IUnitOfWork unitOfWork)
+    public CreateEmployeeCommandHanlder(IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<Employee>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
@@ -27,13 +32,13 @@ internal sealed class CreateEmployeeCommandHanlder : IRequestHandler<CreateEmplo
             return Errors.Restaurant.RestaurantNotFound;
         }
 
-        var managerId = ManagerId.Create(Guid.Parse("3A583B3E-3A5E-47DA-9009-13FE71345AB4")); // TODO get from current user service
+        var userId = UserId.Create(_currentUserService.UserId);
         var positions = GetEmployeePositions(request);
 
         var employee = Employee.CreateUnique(request.FirstName, request.LastName,
             request.Email, request.City, positions);
 
-        var result = restaurant.RegisterEmployee(managerId, employee);
+        var result = restaurant.RegisterEmployee(userId, employee);
 
         if (result.IsError)
         {

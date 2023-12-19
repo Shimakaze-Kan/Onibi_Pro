@@ -14,11 +14,12 @@ import { EmployeeRecord } from '../personel-management.component';
 import { Positions } from '../Positions';
 import {
   EditEmployeeRequest,
-  ManagerDetailsDto,
+  GetManagerDetailsResponse,
   RestaurantsClient,
 } from '../../api/api';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IEditEmployeeData } from './IEditEmployeeData';
+import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
 
 @Component({
   selector: 'app-edit-employee',
@@ -28,7 +29,7 @@ import { IEditEmployeeData } from './IEditEmployeeData';
 export class EditEmployeeComponent implements OnInit, OnDestroy {
   private readonly _onDestroy$ = new Subject<void>();
   private _employeeData: EmployeeRecord = undefined!;
-  private _managerDetails: ManagerDetailsDto = undefined!;
+  private _managerDetails: GetManagerDetailsResponse = undefined!;
 
   editEmployeeForm = new FormGroup({
     email: new FormControl<string>('', [Validators.required, Validators.email]),
@@ -58,7 +59,8 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
     // @ts-ignore
     @Inject(MAT_DIALOG_DATA) private editEmployeeData: IEditEmployeeData,
     private readonly client: RestaurantsClient,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly errorParser: ErrorMessagesParserService
   ) {
     this._managerDetails = editEmployeeData.managerDetails;
     this._employeeData = editEmployeeData.employeeData;
@@ -126,7 +128,9 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
           this.dialogRef.close({ reload: true });
         }),
         catchError((error) => {
-          const description = JSON.parse(error.response).title;
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
           this.snackBar.open(description, 'close', { duration: 5000 });
           this.loading = false;
 

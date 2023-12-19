@@ -22,24 +22,23 @@ import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
 import {
   GetEmployeesResponse,
+  GetManagerDetailsResponse,
   IdentityClient,
-  ManagerDetailsDto,
   RestaurantsClient,
 } from '../api/api';
 import { IEditEmployeeData } from './edit-employee/IEditEmployeeData';
+import { IdentityService } from '../utils/services/identity.service';
 
 @Component({
   selector: 'app-personel-management',
   templateUrl: './personel-management.component.html',
   styleUrls: ['./personel-management.component.scss'],
 })
-export class PersonelManagementComponent
-  implements AfterViewInit, OnDestroy, OnInit
-{
-  private readonly _restaurantId = 'E2E115CF-4A20-40E4-ADD5-67CF34788A0A';
+export class PersonelManagementComponent implements OnDestroy, OnInit {
+  private _restaurantId = '';
   private _employees: Array<EmployeeRecord> = [];
   private _onDestroy$ = new Subject<void>();
-  private _managerDetails: ManagerDetailsDto = undefined!;
+  private _managerDetails: GetManagerDetailsResponse = undefined!;
   displayedColumns = [
     'email',
     'firstName',
@@ -53,14 +52,19 @@ export class PersonelManagementComponent
 
   dataSource = new MatTableDataSource<EmployeeRecord>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator, { static: false })
+  set paginator(value: MatPaginator) {
+    if (this.dataSource) {
+      this.dataSource.paginator = value;
+    }
+  }
 
   employeeSearchForm = new FormGroup({
     email: new FormControl<string>(''),
     firstName: new FormControl<string>(''),
     lastName: new FormControl<string>(''),
     restaurantId: new FormControl<string>(''),
-    supervisors: new FormControl<string>(''),
+    supervisors: new FormControl<string>({ value: '', disabled: true }),
     city: new FormControl<string>(''),
     positions: new FormControl<string>(''),
   });
@@ -77,12 +81,9 @@ export class PersonelManagementComponent
   constructor(
     private readonly dialog: MatDialog,
     private readonly restaurantClient: RestaurantsClient,
-    private readonly identityClient: IdentityClient
+    private readonly identityClient: IdentityClient,
+    private readonly identityService: IdentityService
   ) {}
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
 
   ngOnDestroy(): void {
     this._onDestroy$.next();
@@ -114,8 +115,12 @@ export class PersonelManagementComponent
         this.filterPositions();
       });
 
+    this.loading = true;
     this.getManagerDetails()
-      .pipe(switchMap(() => this.getEmploees()))
+      .pipe(
+        switchMap(() => this.getEmploees()),
+        tap(() => (this.loading = false))
+      )
       .subscribe();
   }
 
@@ -246,9 +251,19 @@ export class PersonelManagementComponent
   }
 
   private getManagerDetails() {
-    return this.identityClient
-      .managerDetails('F59CF698-6F65-4902-8593-87E790931CBF')
-      .pipe(tap((result) => (this._managerDetails = result)));
+    return this.identityService
+      .getUserData()
+      .pipe(
+        switchMap((userData) =>
+          this.identityClient.managerDetails(userData.userId || '')
+        )
+      )
+      .pipe(
+        tap((result) => {
+          this._managerDetails = result;
+          this._restaurantId = result.restaurantId || '';
+        })
+      );
   }
 
   searchEmployees(): void {

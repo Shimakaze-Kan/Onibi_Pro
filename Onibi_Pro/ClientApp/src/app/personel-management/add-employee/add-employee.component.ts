@@ -12,11 +12,12 @@ import {
 } from 'rxjs';
 import {
   CreateEmployeeRequest,
-  ManagerDetailsDto,
+  GetManagerDetailsResponse,
   RestaurantsClient,
 } from '../../api/api';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Positions } from '../Positions';
+import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
 
 @Component({
   selector: 'app-add-employee',
@@ -54,7 +55,8 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
     private readonly client: RestaurantsClient,
     private readonly snackBar: MatSnackBar,
     // @ts-ignore
-    @Inject(MAT_DIALOG_DATA) private data: ManagerDetailsDto
+    @Inject(MAT_DIALOG_DATA) private data: GetManagerDetailsResponse,
+    private readonly errorParser: ErrorMessagesParserService
   ) {
     const supervisors = data.sameRestaurantManagers
       ?.map((supervisor) => `${supervisor.firstName} ${supervisor.lastName}`)
@@ -109,7 +111,9 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
         take(1),
         tap(() => this.dialogRef.close({ reload: true })),
         catchError((error) => {
-          const description = JSON.parse(error.response).title;
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
           this.snackBar.open(description, 'close', { duration: 5000 });
           this.loading = false;
 

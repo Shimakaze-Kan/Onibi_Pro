@@ -134,6 +134,7 @@
           type="submit"
           mat-flat-button
           color="primary"
+          [disabled]="loading"
           (click)="searchEmployees()"
         >
           Search
@@ -151,6 +152,7 @@
       class="ms-auto"
       mat-flat-button
       color="primary"
+      [disabled]="loading"
       (click)="openAddEmployeeDialog()"
     >
       Add Employee

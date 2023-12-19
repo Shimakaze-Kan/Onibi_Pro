@@ -257,7 +257,11 @@ export interface IIdentityClient {
     /**
      * @return Success
      */
-    managerDetails(managerId: string): Observable<ManagerDetailsDto>;
+    managerDetails(managerId: string): Observable<GetManagerDetailsResponse>;
+    /**
+     * @return Success
+     */
+    whoami(): Observable<GetWhoamiResponse>;
 }
 
 @Injectable({
@@ -276,7 +280,7 @@ export class IdentityClient implements IIdentityClient {
     /**
      * @return Success
      */
-    managerDetails(managerId: string): Observable<ManagerDetailsDto> {
+    managerDetails(managerId: string): Observable<GetManagerDetailsResponse> {
         let url_ = this.baseUrl + "/api/Identity/managerDetails/{managerId}";
         if (managerId === undefined || managerId === null)
             throw new Error("The parameter 'managerId' must be defined.");
@@ -298,14 +302,14 @@ export class IdentityClient implements IIdentityClient {
                 try {
                     return this.processManagerDetails(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<ManagerDetailsDto>;
+                    return _observableThrow(e) as any as Observable<GetManagerDetailsResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<ManagerDetailsDto>;
+                return _observableThrow(response_) as any as Observable<GetManagerDetailsResponse>;
         }));
     }
 
-    protected processManagerDetails(response: HttpResponseBase): Observable<ManagerDetailsDto> {
+    protected processManagerDetails(response: HttpResponseBase): Observable<GetManagerDetailsResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -316,7 +320,58 @@ export class IdentityClient implements IIdentityClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ManagerDetailsDto.fromJS(resultData200);
+            result200 = GetManagerDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    whoami(): Observable<GetWhoamiResponse> {
+        let url_ = this.baseUrl + "/api/Identity/whoami";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processWhoami(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWhoami(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetWhoamiResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetWhoamiResponse>;
+        }));
+    }
+
+    protected processWhoami(response: HttpResponseBase): Observable<GetWhoamiResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetWhoamiResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2146,6 +2201,94 @@ export interface IGetIngredientResponse {
     quantity?: number;
 }
 
+export class GetManagerDetailsManagerNamesResponse implements IGetManagerDetailsManagerNamesResponse {
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+
+    constructor(data?: IGetManagerDetailsManagerNamesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+        }
+    }
+
+    static fromJS(data: any): GetManagerDetailsManagerNamesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetManagerDetailsManagerNamesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        return data;
+    }
+}
+
+export interface IGetManagerDetailsManagerNamesResponse {
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+}
+
+export class GetManagerDetailsResponse implements IGetManagerDetailsResponse {
+    restaurantId?: string;
+    sameRestaurantManagers?: GetManagerDetailsManagerNamesResponse[] | undefined;
+
+    constructor(data?: IGetManagerDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.restaurantId = _data["restaurantId"];
+            if (Array.isArray(_data["sameRestaurantManagers"])) {
+                this.sameRestaurantManagers = [] as any;
+                for (let item of _data["sameRestaurantManagers"])
+                    this.sameRestaurantManagers!.push(GetManagerDetailsManagerNamesResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetManagerDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetManagerDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["restaurantId"] = this.restaurantId;
+        if (Array.isArray(this.sameRestaurantManagers)) {
+            data["sameRestaurantManagers"] = [];
+            for (let item of this.sameRestaurantManagers)
+                data["sameRestaurantManagers"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetManagerDetailsResponse {
+    restaurantId?: string;
+    sameRestaurantManagers?: GetManagerDetailsManagerNamesResponse[] | undefined;
+}
+
 export class GetMenuItemResponse implements IGetMenuItemResponse {
     menuItemId?: string;
     name?: string | undefined;
@@ -2302,6 +2445,58 @@ export interface IGetOrderByIdResponse {
     isCancelled?: boolean;
 }
 
+export class GetWhoamiResponse implements IGetWhoamiResponse {
+    userId?: string;
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    userType?: string | undefined;
+
+    constructor(data?: IGetWhoamiResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.email = _data["email"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.userType = _data["userType"];
+        }
+    }
+
+    static fromJS(data: any): GetWhoamiResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetWhoamiResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["email"] = this.email;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["userType"] = this.userType;
+        return data;
+    }
+}
+
+export interface IGetWhoamiResponse {
+    userId?: string;
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    userType?: string | undefined;
+}
+
 export class IngredientRequest implements IIngredientRequest {
     name?: string | undefined;
     unit?: string | undefined;
@@ -2428,94 +2623,6 @@ export class LoginRequest implements ILoginRequest {
 export interface ILoginRequest {
     email?: string | undefined;
     password?: string | undefined;
-}
-
-export class ManagerDetailsDto implements IManagerDetailsDto {
-    restaurantId?: string;
-    sameRestaurantManagers?: ManagerNames[] | undefined;
-
-    constructor(data?: IManagerDetailsDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.restaurantId = _data["restaurantId"];
-            if (Array.isArray(_data["sameRestaurantManagers"])) {
-                this.sameRestaurantManagers = [] as any;
-                for (let item of _data["sameRestaurantManagers"])
-                    this.sameRestaurantManagers!.push(ManagerNames.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): ManagerDetailsDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ManagerDetailsDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["restaurantId"] = this.restaurantId;
-        if (Array.isArray(this.sameRestaurantManagers)) {
-            data["sameRestaurantManagers"] = [];
-            for (let item of this.sameRestaurantManagers)
-                data["sameRestaurantManagers"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IManagerDetailsDto {
-    restaurantId?: string;
-    sameRestaurantManagers?: ManagerNames[] | undefined;
-}
-
-export class ManagerNames implements IManagerNames {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-
-    constructor(data?: IManagerNames) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-        }
-    }
-
-    static fromJS(data: any): ManagerNames {
-        data = typeof data === 'object' ? data : {};
-        let result = new ManagerNames();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        return data;
-    }
-}
-
-export interface IManagerNames {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
 }
 
 export class ManagerRequest implements IManagerRequest {

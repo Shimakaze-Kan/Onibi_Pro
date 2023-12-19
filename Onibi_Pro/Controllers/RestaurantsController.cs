@@ -2,6 +2,7 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Restaurants.Commands.AssignManager;
@@ -10,6 +11,7 @@ using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Controllers;
 [Route("api/[controller]")]
@@ -27,6 +29,7 @@ public class RestaurantsController : ApiBaseController
 
     [HttpPost]
     [ProducesResponseType(typeof(CreateRestaurantResponse), 200)]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
     public async Task<IActionResult> Create([FromBody] CreateRestaurantRequest request)
     {
         var command = _mapper.Map<CreateRestaurantCommand>(request);
@@ -50,6 +53,7 @@ public class RestaurantsController : ApiBaseController
     }
 
     [HttpPost("{restaurantId}/employee")]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
     [ProducesResponseType(typeof(CreateEmployeeResponse), 200)]
     public async Task<IActionResult> CreateEmployee([FromRoute] Guid restaurantId, [FromBody] CreateEmployeeRequest request)
     {
@@ -63,6 +67,7 @@ public class RestaurantsController : ApiBaseController
 
     [HttpPut("{restaurantId}/employee")]
     [ProducesResponseType(typeof(CreateEmployeeResponse), 200)]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
     public async Task<IActionResult> EditEmployee([FromRoute] Guid restaurantId, [FromBody] EditEmployeeRequest request)
     {
         var command = _mapper.Map<EditEmployeeCommand>((restaurantId, request));
@@ -73,6 +78,7 @@ public class RestaurantsController : ApiBaseController
     }
 
     [HttpPost("{restaurantId}/manager")]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
     public async Task<IActionResult> AssignManager([FromRoute] Guid restaurantId, [FromBody] AssignManagerRequest request)
     {
         var command = _mapper.Map<AssignManagerCommand>((restaurantId, request));

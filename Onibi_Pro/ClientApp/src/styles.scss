@@ -113,3 +113,19 @@ footer {
     }
   }
 }
+
+.mat-form-field-appearance-outline.mat-form-field-disabled {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__trailing {
+    border-color: $disabled-color !important;
+  }
+
+  .mat-mdc-select-placeholder,
+  span[class$="placeholder"] {
+    color: $disabled-color !important;
+  }
+
+  .mat-mdc-select-arrow {
+    color: $disabled-color !important;
+  }
+}
