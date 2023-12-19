@@ -24,6 +24,6 @@ internal sealed class OrderCreatedHandler : INotificationHandler<OrderCreated>
 
         restaurant.AddOrders([notification.OrderId]);
         await _unitOfWork.RestaurantRepository.UpdateAsync(restaurant, cancellationToken);
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
     }
 }

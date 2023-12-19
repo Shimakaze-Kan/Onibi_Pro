@@ -41,7 +41,7 @@ internal sealed class AssignManagerCommandHandler : IRequestHandler<AssignManage
             return result.Errors;
         }
 
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
 
         return Unit.Value;
     }

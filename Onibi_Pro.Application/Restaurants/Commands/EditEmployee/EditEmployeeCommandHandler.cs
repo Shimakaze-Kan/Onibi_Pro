@@ -45,7 +45,7 @@ internal sealed class EditEmployeeCommandHandler : IRequestHandler<EditEmployeeC
         }
 
         await _unitOfWork.RestaurantRepository.UpdateAsync(restaurant, cancellationToken);
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
 
         return new Success();
     }

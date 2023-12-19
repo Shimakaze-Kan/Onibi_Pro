@@ -13,10 +13,13 @@ namespace Onibi_Pro.Application.Persistence;
 public interface IUnitOfWork
 {
     IDomainRepository<Menu, MenuId> MenuRepository { get; }
-    IDomainRepository<Shipment, ShipmentId> ShipmentRepository { get; }
     IDomainRepository<Order, OrderId> OrderRepository { get; }
     IDomainRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
+    IDomainRepository<Shipment, ShipmentId> ShipmentRepository { get; }
     IDomainRepository<User, UserId> UserRepository { get; }
-    // todo rest of repos
-    Task<int> CompleteAsync(CancellationToken cancellationToken = default);
+
+    Task BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task CommitTransactionAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveAsync(CancellationToken cancellationToken = default);
+    Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 }

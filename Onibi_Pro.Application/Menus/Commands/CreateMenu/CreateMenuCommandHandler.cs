@@ -36,7 +36,7 @@ internal sealed class CreateMenuCommandHandler : IRequestHandler<CreateMenuComma
         }
 
         await _unitOfWork.MenuRepository.AddAsync(menu.Value, cancellationToken);
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
 
         return menu;
     }

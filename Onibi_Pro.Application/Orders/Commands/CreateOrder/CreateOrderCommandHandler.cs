@@ -60,7 +60,7 @@ internal sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderCom
         }
 
         await _unitOfWork.OrderRepository.AddAsync(order.Value, cancellationToken);
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
 
         return order;
     }

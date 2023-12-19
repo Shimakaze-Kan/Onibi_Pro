@@ -48,7 +48,7 @@ internal sealed class CreateRestaurantCommandHandler : IRequestHandler<CreateRes
             request.Managers?.ConvertAll(manager => Manager.Create(UserId.Create(Guid.NewGuid()))));
 
         await _unitOfWork.RestaurantRepository.AddAsync(restaurant, cancellationToken);
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.SaveAsync(cancellationToken);
 
         return restaurant;
     }

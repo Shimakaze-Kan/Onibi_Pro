@@ -81,8 +81,22 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         user = User.CreateUnique(firstName, lastName, email, hashedPassword, userType);
 
-        await _unitOfWork.UserRepository.AddAsync(user, cancellationToken);
-        await _unitOfWork.CompleteAsync(cancellationToken);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            await _unitOfWork.UserRepository.AddAsync(user, cancellationToken);
+            await _unitOfWork.SaveAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+            _logger.LogCritical(ex, "Error while creating user.");
+
+            return Error.Unexpected();
+        }
+
+        await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
         var token = _jwtTokenGenerator.GenerateToken(user.Id.Value,
             user.FirstName, user.LastName, user.Email, user.UserType.ToString());
