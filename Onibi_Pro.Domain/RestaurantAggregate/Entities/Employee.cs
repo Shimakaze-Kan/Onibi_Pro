@@ -4,7 +4,7 @@ using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 namespace Onibi_Pro.Domain.RestaurantAggregate.Entities;
 public sealed class Employee : Entity<EmployeeId>
 {
-    private readonly List<EmployeePosition> _positions = new();
+    private readonly List<EmployeePosition> _positions = [];
 
     public string FirstName { get; private set; }
     public string LastName { get; private set; }

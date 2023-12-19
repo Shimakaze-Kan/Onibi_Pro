@@ -19,5 +19,11 @@ public static partial class Errors
 
         public static Error EmployeeNotFound => Error.NotFound(
             code: "Employee.NotFound", description: "Employee does not exist.");
+
+        public static Error WrongUserManagerType => Error.Validation(
+            code: "Restaurant.WrongUserManagerType", description: "User must be of the manager type in order to be assigned to a restaurant.");
+
+        public static Error UserIsAlreadyManager => Error.Validation(
+            code: "Restaurant.UserIsAlreadyManager", description: "User is already a manager of a restaurant.");
     }
 }

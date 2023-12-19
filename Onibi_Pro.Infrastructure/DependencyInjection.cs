@@ -23,6 +23,8 @@ public static class DependencyInjection
         OnibiAuthorization.AddAuthorization(services);
         services.AddIdentity();
 
+        services.AddSingleton<IManagerDetailsService, ManagerDetailsService>();
+
         return services;
     }
 }

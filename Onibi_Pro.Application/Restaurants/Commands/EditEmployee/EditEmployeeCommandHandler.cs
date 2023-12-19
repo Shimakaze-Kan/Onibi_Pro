@@ -2,19 +2,24 @@
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 internal sealed class EditEmployeeCommandHandler : IRequestHandler<EditEmployeeCommand, ErrorOr<Success>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public EditEmployeeCommandHandler(IUnitOfWork unitOfWork)
+    public EditEmployeeCommandHandler(IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<Success>> Handle(EditEmployeeCommand request, CancellationToken cancellationToken)
@@ -31,9 +36,8 @@ internal sealed class EditEmployeeCommandHandler : IRequestHandler<EditEmployeeC
         var employee = Employee.Create(EmployeeId.Create(request.EmployeeId), request.FirstName,
             request.LastName, request.Email, request.City, positions);
 
-        // check errors if (employee.)
-        var managerId = ManagerId.Create(Guid.Parse("3A583B3E-3A5E-47DA-9009-13FE71345AB4")); // TODO get from current user service
-        var editRestult = restaurant.EditEmployee(managerId, employee);
+        var userId = UserId.Create(_currentUserService.UserId);
+        var editRestult = restaurant.EditEmployee(userId, employee);
 
         if (editRestult.IsError)
         {

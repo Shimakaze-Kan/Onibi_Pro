@@ -17,8 +17,8 @@ public sealed class Shipment : AggregateRoot<ShipmentId>
     private Shipment(ShipmentId id, List<Package>? packages, List<Courier>? couriers)
         : base(id)
     {
-        _packages = packages ?? new();
-        _couriers = couriers ?? new();
+        _packages = packages ?? [];
+        _couriers = couriers ?? [];
     }
 
     public static Shipment Create(List<Package>? packages = null, List<Courier>? couriers = null)

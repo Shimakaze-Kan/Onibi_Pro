@@ -18,7 +18,7 @@ public sealed class Menu : AggregateRoot<MenuId>
         : base(id)
     {
         Name = name;
-        _menuItems = menuItems ?? new();
+        _menuItems = menuItems ?? [];
     }
 
     public static ErrorOr<Menu> Create(string name, List<MenuItem> menuItems)

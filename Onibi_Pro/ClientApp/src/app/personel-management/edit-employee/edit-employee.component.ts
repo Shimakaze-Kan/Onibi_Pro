@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, Inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
@@ -12,8 +12,13 @@ import {
 } from 'rxjs';
 import { EmployeeRecord } from '../personel-management.component';
 import { Positions } from '../Positions';
-import { EditEmployeeRequest, RestaurantsClient } from '../../api/api';
+import {
+  EditEmployeeRequest,
+  ManagerDetailsDto,
+  RestaurantsClient,
+} from '../../api/api';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { IEditEmployeeData } from './IEditEmployeeData';
 
 @Component({
   selector: 'app-edit-employee',
@@ -21,8 +26,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./edit-employee.component.scss'],
 })
 export class EditEmployeeComponent implements OnInit, OnDestroy {
-  private readonly _restaurantId = 'E2E115CF-4A20-40E4-ADD5-67CF34788A0A';
   private readonly _onDestroy$ = new Subject<void>();
+  private _employeeData: EmployeeRecord = undefined!;
+  private _managerDetails: ManagerDetailsDto = undefined!;
 
   editEmployeeForm = new FormGroup({
     email: new FormControl<string>('', [Validators.required, Validators.email]),
@@ -30,7 +36,7 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
     lastName: new FormControl<string>('', Validators.required),
     city: new FormControl<string>('', Validators.required),
     restaurantId: new FormControl<string>(
-      { value: this._restaurantId, disabled: true },
+      { value: '', disabled: true },
       Validators.required
     ),
     positions: new FormControl<Array<string>>([], Validators.required),
@@ -50,10 +56,13 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
       { reload: boolean }
     >,
     // @ts-ignore
-    @Inject(MAT_DIALOG_DATA) private employeeData: EmployeeRecord,
+    @Inject(MAT_DIALOG_DATA) private editEmployeeData: IEditEmployeeData,
     private readonly client: RestaurantsClient,
     private readonly snackBar: MatSnackBar
-  ) {}
+  ) {
+    this._managerDetails = editEmployeeData.managerDetails;
+    this._employeeData = editEmployeeData.employeeData;
+  }
 
   ngOnInit(): void {
     this.filteredSupervisors.next(this.supervisors.slice());
@@ -72,15 +81,19 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
         this.filterPositions();
       });
 
+    const supervisors = this._managerDetails.sameRestaurantManagers
+      ?.map((supervisor) => `${supervisor.firstName} ${supervisor.lastName}`)
+      .join(', ');
+
     this.editEmployeeForm.setValue({
-      city: this.employeeData.city || null,
-      email: this.employeeData.email || null,
-      firstName: this.employeeData.firstName || null,
-      lastName: this.employeeData.lastName || null,
+      city: this._employeeData.city || null,
+      email: this._employeeData.email || null,
+      firstName: this._employeeData.firstName || null,
+      lastName: this._employeeData.lastName || null,
       positions:
-        this.employeeData.positions?.split(',').map((x) => x.trim()) || [],
-      restaurantId: this._restaurantId,
-      supervisors: this.employeeData.supervisors || null,
+        this._employeeData.positions?.split(',').map((x) => x.trim()) || [],
+      restaurantId: this._managerDetails.restaurantId || null,
+      supervisors: supervisors || null,
     });
   }
 
@@ -99,13 +112,13 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
     const request = new EditEmployeeRequest({
       city: formValues.city || undefined,
       email: formValues.email || undefined,
-      employeeId: this.employeeData.id,
+      employeeId: this._employeeData.id,
       employeePositions: formValues.positions || [],
       firstName: formValues.firstName || undefined,
       lastName: formValues.lastName || undefined,
     });
     this.client
-      .employeePut(this._restaurantId, request)
+      .employeePut(this._managerDetails.restaurantId || '', request)
       .pipe(
         take(1),
         tap(() => {

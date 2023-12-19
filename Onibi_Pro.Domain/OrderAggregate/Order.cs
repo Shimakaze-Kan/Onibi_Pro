@@ -9,7 +9,7 @@ using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 namespace Onibi_Pro.Domain.OrderAggregate;
 public sealed class Order : AggregateRoot<OrderId>
 {
-    private readonly List<OrderItem> _orderItems = new();
+    private readonly List<OrderItem> _orderItems = [];
 
     public DateTime OrderTime { get; private set; }
     public bool IsCancelled { get; private set; }

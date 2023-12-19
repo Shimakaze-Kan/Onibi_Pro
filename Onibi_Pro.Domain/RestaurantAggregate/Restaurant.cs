@@ -6,13 +6,15 @@ using Onibi_Pro.Domain.Common.ValueObjects;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.RestaurantAggregate;
 public sealed class Restaurant : AggregateRoot<RestaurantId>
 {
-    private readonly List<OrderId> _orders = new();
-    private readonly List<Employee> _employees = new();
-    private readonly List<Manager> _managers = new();
+    private readonly List<OrderId> _orders = [];
+    private readonly List<Employee> _employees = [];
+    private readonly List<Manager> _managers = [];
 
     public Address Address { get; private set; }
     public IReadOnlyList<Employee> Employees => _employees.ToList();
@@ -27,9 +29,9 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         : base(id)
     {
         Address = address;
-        _employees = employees ?? new();
-        _orders = orders ?? new();
-        _managers = managers ?? new();
+        _employees = employees ?? [];
+        _orders = orders ?? [];
+        _managers = managers ?? [];
     }
 
     public static Restaurant Create(Address address,
@@ -56,9 +58,9 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         return new Success();
     }
 
-    public ErrorOr<Success> EditEmployee(ManagerId manager, Employee employee)
+    public ErrorOr<Success> EditEmployee(UserId userId, Employee employee)
     {
-        if (!_managers.Any(m => m.Id == manager))
+        if (!_managers.Any(m => m.UserId == userId))
         {
             return Errors.Restaurant.InvalidManager;
         }
@@ -80,9 +82,9 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         return new Success();
     }
 
-    public void UnregisterEmployee(Manager manager, Employee employee)
+    public void UnregisterEmployee(UserId userId, Employee employee)
     {
-        if (_managers.Contains(manager))
+        if (_managers.Any(m => m.UserId == userId))
         {
             _employees.Remove(employee);
         }
@@ -96,6 +98,29 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
     public void RemoveOrder(OrderId orderId)
     {
         _orders.Remove(orderId);
+    }
+
+    public ErrorOr<Success> AssigneManager(UserId userId, UserTypes userType)
+    {
+        if (userType != UserTypes.Manager)
+        {
+            return Errors.Restaurant.WrongUserManagerType;
+        }
+
+
+        if (_managers.Any(x => x.UserId == userId))
+        {
+            return Errors.Restaurant.UserIsAlreadyManager;
+        }
+
+        var manager = Manager.Create(userId);
+        _managers.Add(manager);
+        return new Success();
+    }
+
+    public void UnassigneManager(Manager manager)
+    {
+        _managers.Remove(manager);
     }
 
 #pragma warning disable CS8618

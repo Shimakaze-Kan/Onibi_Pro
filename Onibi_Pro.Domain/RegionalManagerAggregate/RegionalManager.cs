@@ -17,7 +17,7 @@ public sealed class RegionalManager : AggregateRoot<RegionalManagerId>
     {
         FirstName = firstName;
         LastName = lastName;
-        _restaurants = restaurants ?? new();
+        _restaurants = restaurants ?? [];
     }
 
     public static RegionalManager Create(RegionalManagerId id, string firstName,

@@ -2,7 +2,10 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Onibi_Pro.Domain.RestaurantAggregate;
+using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Configurations;
 public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
@@ -113,12 +116,16 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
                 id => id.Value,
                 value => ManagerId.Create(value));
 
-            mb.Property(x => x.FirstName)
-                .HasMaxLength(250);
-            mb.Property(x => x.LastName)
-                .HasMaxLength(250);
-            mb.Property(x => x.Email)
-                .HasMaxLength(250);
+            mb.Property(x => x.UserId)
+                .HasConversion(
+                    id => id.Value,
+                    guid => UserId.Create(guid))
+                .IsRequired();
+
+            mb.HasOne<User>()
+                .WithOne()
+                .HasForeignKey<Manager>(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   ReplaySubject,
   Subject,
@@ -10,7 +10,11 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { CreateEmployeeRequest, RestaurantsClient } from '../../api/api';
+import {
+  CreateEmployeeRequest,
+  ManagerDetailsDto,
+  RestaurantsClient,
+} from '../../api/api';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Positions } from '../Positions';
 
@@ -20,7 +24,6 @@ import { Positions } from '../Positions';
   styleUrls: ['./add-employee.component.scss'],
 })
 export class AddEmployeeComponent implements OnInit, OnDestroy {
-  private readonly _restaurantId = 'E2E115CF-4A20-40E4-ADD5-67CF34788A0A';
   private readonly _onDestroy$ = new Subject<void>();
   loading = false;
 
@@ -30,11 +33,11 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
     lastName: new FormControl<string>('', Validators.required),
     city: new FormControl<string>('', Validators.required),
     restaurantId: new FormControl<string>(
-      { value: this._restaurantId, disabled: true },
+      { value: '', disabled: true },
       Validators.required
     ),
     position: new FormControl<Array<string>>([], Validators.required),
-    supervisor: new FormControl<string>({ value: '', disabled: true }),
+    supervisors: new FormControl<string>({ value: '', disabled: true }),
   });
 
   supervisorFilterCtrl = new FormControl<string>('');
@@ -49,8 +52,19 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       { reload: boolean }
     >,
     private readonly client: RestaurantsClient,
-    private readonly snackBar: MatSnackBar
-  ) {}
+    private readonly snackBar: MatSnackBar,
+    // @ts-ignore
+    @Inject(MAT_DIALOG_DATA) private data: ManagerDetailsDto
+  ) {
+    const supervisors = data.sameRestaurantManagers
+      ?.map((supervisor) => `${supervisor.firstName} ${supervisor.lastName}`)
+      .join(', ');
+
+    this.newEmployeeForm.controls.supervisors.setValue(supervisors || null);
+    this.newEmployeeForm.controls.restaurantId.setValue(
+      data.restaurantId || null
+    );
+  }
 
   ngOnInit(): void {
     this.filteredSupervisors.next(this.supervisors.slice());
@@ -90,7 +104,7 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       employeePositions: formValues.position || undefined,
     });
     this.client
-      .employeePost(this._restaurantId, request)
+      .employeePost(this.data.restaurantId || '', request)
       .pipe(
         take(1),
         tap(() => this.dialogRef.close({ reload: true })),

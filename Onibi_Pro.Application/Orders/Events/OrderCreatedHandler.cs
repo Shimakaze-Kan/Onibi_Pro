@@ -22,7 +22,7 @@ internal sealed class OrderCreatedHandler : INotificationHandler<OrderCreated>
             return;
         }
 
-        restaurant.AddOrders(new() { notification.OrderId });
+        restaurant.AddOrders([notification.OrderId]);
         await _unitOfWork.RestaurantRepository.UpdateAsync(restaurant, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);
     }

@@ -11,6 +11,7 @@ using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 internal sealed class CreateRestaurantCommandHandler : IRequestHandler<CreateRestaurantCommand, ErrorOr<Restaurant>>
@@ -44,7 +45,7 @@ internal sealed class CreateRestaurantCommandHandler : IRequestHandler<CreateRes
                     employee.EmployeePositions.ConvertAll(position =>
                     EmployeePosition.Create(Enum.Parse<Positions>(position.Position))))),
             request.OrderIds?.ConvertAll(OrderId.Create),
-            request.Managers?.ConvertAll(manager => Manager.Create(manager.FirstName, manager.LastName, manager.Email)));
+            request.Managers?.ConvertAll(manager => Manager.Create(UserId.Create(Guid.NewGuid()))));
 
         await _unitOfWork.RestaurantRepository.AddAsync(restaurant, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);

@@ -20,7 +20,13 @@ import {
 } from 'rxjs';
 import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
-import { GetEmployeesResponse, RestaurantsClient } from '../api/api';
+import {
+  GetEmployeesResponse,
+  IdentityClient,
+  ManagerDetailsDto,
+  RestaurantsClient,
+} from '../api/api';
+import { IEditEmployeeData } from './edit-employee/IEditEmployeeData';
 
 @Component({
   selector: 'app-personel-management',
@@ -33,6 +39,7 @@ export class PersonelManagementComponent
   private readonly _restaurantId = 'E2E115CF-4A20-40E4-ADD5-67CF34788A0A';
   private _employees: Array<EmployeeRecord> = [];
   private _onDestroy$ = new Subject<void>();
+  private _managerDetails: ManagerDetailsDto = undefined!;
   displayedColumns = [
     'email',
     'firstName',
@@ -69,7 +76,8 @@ export class PersonelManagementComponent
 
   constructor(
     private readonly dialog: MatDialog,
-    private readonly client: RestaurantsClient
+    private readonly restaurantClient: RestaurantsClient,
+    private readonly identityClient: IdentityClient
   ) {}
 
   ngAfterViewInit() {
@@ -106,7 +114,9 @@ export class PersonelManagementComponent
         this.filterPositions();
       });
 
-    this.getEmploees().subscribe();
+    this.getManagerDetails()
+      .pipe(switchMap(() => this.getEmploees()))
+      .subscribe();
   }
 
   reset() {
@@ -118,28 +128,34 @@ export class PersonelManagementComponent
       minHeight: '80%',
       maxHeight: '100%',
       maxWidth: '750px',
+      data: this._managerDetails,
     });
 
     dialogRef
       .afterClosed()
       .pipe(
+        filter((result) => !!result),
         filter((result: { reload: boolean }) => result.reload),
         switchMap((_) => this.getEmploees())
       )
       .subscribe();
   }
 
-  openEditEmployeeDialog(data: EmployeeRecord) {
+  openEditEmployeeDialog(employeeData: EmployeeRecord) {
     const dialogRef = this.dialog.open(EditEmployeeComponent, {
       minHeight: '80%',
       maxHeight: '100%',
       maxWidth: '750px',
-      data: data,
+      data: {
+        employeeData: employeeData,
+        managerDetails: this._managerDetails,
+      } as IEditEmployeeData,
     });
 
     dialogRef
       .afterClosed()
       .pipe(
+        filter((result) => !!result),
         filter((result: { reload: boolean }) => result.reload),
         switchMap((_) => this.getEmploees())
       )
@@ -150,7 +166,7 @@ export class PersonelManagementComponent
     this.loading = true;
 
     const formValues = this.employeeSearchForm.getRawValue();
-    return this.client
+    return this.restaurantClient
       .employees(
         this._restaurantId,
         formValues.firstName || undefined,
@@ -227,6 +243,12 @@ export class PersonelManagementComponent
         position.toLowerCase().includes(search!)
       )
     );
+  }
+
+  private getManagerDetails() {
+    return this.identityClient
+      .managerDetails('F59CF698-6F65-4902-8593-87E790931CBF')
+      .pipe(tap((result) => (this._managerDetails = result)));
   }
 
   searchEmployees(): void {

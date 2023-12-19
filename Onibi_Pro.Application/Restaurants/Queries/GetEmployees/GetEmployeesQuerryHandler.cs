@@ -51,7 +51,7 @@ internal sealed class GetEmployeesQuerryHandler : IRequestHandler<GetEmployeesQu
                 if (!lookup.TryGetValue(employee.Id, out var employeeDto))
                 {
                     employeeDto = new EmployeeDto(employee.Id, employee.FirstName,
-                        employee.LastName, employee.Email, employee.City, supervisorsCsv, new());
+                        employee.LastName, employee.Email, employee.City, supervisorsCsv, []);
                     lookup.Add(employee.Id, employeeDto);
                 }
 
@@ -118,7 +118,10 @@ internal sealed class GetEmployeesQuerryHandler : IRequestHandler<GetEmployeesQu
     private static async Task<string> GetSupervisorsCsv(GetEmployeesQuery request, IDbConnection connection)
     {
         var supervisors = await connection.QueryAsync(
-                    "SELECT FirstName, LastName FROM dbo.Managers WHERE RestaurantId = @RestaurantId", new { request.RestaurantId });
+                    @"SELECT FirstName, LastName 
+                    FROM dbo.Managers m
+                    JOIN dbo.Users u on m.UserId = u.Id
+                    WHERE RestaurantId = @RestaurantId", new { request.RestaurantId });
         var supervisorsCsv = string.Join(", ", supervisors.Select(supervisor => $"{supervisor.FirstName} {supervisor.LastName}"));
         return supervisorsCsv;
     }
@@ -130,6 +133,6 @@ internal sealed class GetEmployeesQuerryHandler : IRequestHandler<GetEmployeesQu
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string City { get; set; } = null!;
-        public List<Positions> Positions { get; set; } = new();
+        public List<Positions> Positions { get; set; } = [];
     }
 }

@@ -17,7 +17,7 @@ public sealed class GlobalManager : AggregateRoot<GlobalManagerId>
     {
         FirstName = firstName;
         LastName = lastName;
-        _regionalManagers = regionalManagers ?? new();
+        _regionalManagers = regionalManagers ?? [];
     }
 
     public static GlobalManager Create(string firstName, string lastName,

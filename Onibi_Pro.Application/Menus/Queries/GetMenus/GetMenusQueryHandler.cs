@@ -30,15 +30,15 @@ internal sealed class GetMenusQueryHandler : IRequestHandler<GetMenusQuery, Erro
 
     private static List<MenuDto> MapToResultDto(IEnumerable<IntermediateMenuDto> intermediateResults)
     {
-        List<MenuDto> menuList = new();
+        List<MenuDto> menuList = [];
 
         foreach (var entry in intermediateResults)
         {
-            List<MenuItemDto> menuItems = new();
+            List<MenuItemDto> menuItems = [];
 
             foreach (var item in entry.MenuItems)
             {
-                var ingredients = JsonSerializer.Deserialize<List<IngredientDto>>(item.Ingredients) ?? new();
+                var ingredients = JsonSerializer.Deserialize<List<IngredientDto>>(item.Ingredients) ?? [];
                 var menuItem = new MenuItemDto(item.MenuItemId, item.MenuItemName, item.Price, ingredients);
                 menuItems.Add(menuItem);
             }

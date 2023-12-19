@@ -4,6 +4,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Onibi_Pro.Application.Restaurants.Commands.AssignManager;
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
@@ -65,6 +66,16 @@ public class RestaurantsController : ApiBaseController
     public async Task<IActionResult> EditEmployee([FromRoute] Guid restaurantId, [FromBody] EditEmployeeRequest request)
     {
         var command = _mapper.Map<EditEmployeeCommand>((restaurantId, request));
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPost("{restaurantId}/manager")]
+    public async Task<IActionResult> AssignManager([FromRoute] Guid restaurantId, [FromBody] AssignManagerRequest request)
+    {
+        var command = _mapper.Map<AssignManagerCommand>((restaurantId, request));
 
         var result = await _mediator.Send(command);
 

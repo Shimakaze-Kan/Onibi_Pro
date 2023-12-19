@@ -4,7 +4,7 @@ namespace Onibi_Pro.Domain.Common.Models;
 public abstract class Entity<TId> : IEquatable<Entity<TId>>, IHasDomainEvent
     where TId : notnull
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
+    private readonly List<IDomainEvent> _domainEvents = [];
 
     public TId Id { get; protected set; }
     public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.ToList();

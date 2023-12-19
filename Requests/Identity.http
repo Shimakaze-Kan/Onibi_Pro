@@ -1,0 +1,9 @@
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6Ik1BTkFHRVIiLCJqdGkiOiIyYjEwN2VhYy03NzVjLTQzMTAtYTA3NS05YjA3NzdiN2Y1ODciLCJleHAiOjE3MDI5NTI3ODAsImlzcyI6Ik9uaWJpUHJvIiwiYXVkIjoiT25pYmlQcm8ifQ.Upwm740SzmCPTWrtNVB6J9qd72jIGBC-Gxlum3jNlW8
+
+### get manager details
+GET {{baseUrl}}/identity/managerDetails/F59CF698-6F65-4902-8593-87E790931CBF
+Content-Type: application/json
+Authorization: Bearer {{token}}
