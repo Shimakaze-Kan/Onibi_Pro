@@ -10,7 +10,7 @@ Authorization: Bearer {{token}}
 {
     "firstName": "John",
     "lastName": "Johnson",
-    "email": "johnRegionalManager@john.com",
+    "email": "testTransactionFail@john.com",
     "password": "pass123@!"
 }
 
@@ -20,7 +20,7 @@ POST {{baseUrl}}/authentication/login
 Content-Type: application/json
 
 {
-    "email": "john@john.com",
+    "email": "johnRegionalManager@john.com",
     "password": "pass123@!"
 }
 

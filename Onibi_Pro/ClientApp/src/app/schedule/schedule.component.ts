@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import {
   CalendarView,
   CalendarEvent,
   CalendarEventAction,
   CalendarEventTimesChangedEvent,
 } from 'angular-calendar';
+import { privateDecrypt } from 'crypto';
 import {
   subDays,
   startOfDay,
@@ -17,102 +18,79 @@ import {
 } from 'date-fns';
 import { Subject } from 'rxjs';
 
-const colors: Record<string, any> = {
-  red: {
-    primary: '#ad2121',
-    secondary: '#FAE3E3',
-  },
-  blue: {
-    primary: '#1e90ff',
-    secondary: '#D1E8FF',
-  },
-  yellow: {
-    primary: '#e3bc08',
-    secondary: '#FDF1BA',
-  },
-};
-
 @Component({
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.scss'],
 })
 export class ScheduleComponent {
+  loading = false;
   view: CalendarView = CalendarView.Month;
-
   CalendarView = CalendarView;
-
   viewDate: Date = new Date();
+  refresh = new Subject<void>();
+  activeDayIsOpen: boolean = true;
+  workingSchedule: ScheduleItem = null!;
+  priorities = Priorities;
 
-  // modalData: {
-  //   action: string;
-  //   event: CalendarEvent;
-  // };
-
-  actions: CalendarEventAction[] = [
+  private _actions: CalendarEventAction[] = [
     {
-      label: '<i class="fas fa-fw fa-pencil-alt"></i>',
+      label: '<img class="action-icon" src="assets/icons/pencil.svg"/>',
       a11yLabel: 'Edit',
       onClick: ({ event }: { event: CalendarEvent }): void => {
         this.handleEvent('Edited', event);
       },
     },
     {
-      label: '<i class="fas fa-fw fa-trash-alt"></i>',
+      label: '<img class="action-icon" src="assets/icons/trash-1.svg"/>',
       a11yLabel: 'Delete',
       onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.events = this.events.filter((iEvent) => iEvent !== event);
-        this.handleEvent('Deleted', event);
+        this.deleteEvent(ScheduleItem.fromCalendarEvent(event));
       },
     },
   ];
 
-  refresh = new Subject<void>();
-
-  events: CalendarEvent[] = [
-    {
-      start: subDays(startOfDay(new Date()), 1),
-      end: addDays(new Date(), 1),
-      title: 'A 3 day event',
-      color: { ...colors.red },
-      actions: this.actions,
-      allDay: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true,
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'An event with no end date',
-      color: { ...colors.yellow },
-      actions: this.actions,
-    },
-    {
-      start: subDays(endOfMonth(new Date()), 3),
-      end: addDays(endOfMonth(new Date()), 3),
-      title: 'A long event that spans 2 months',
-      color: { ...colors.blue },
-      allDay: true,
-    },
-    {
-      start: addHours(startOfDay(new Date()), 2),
-      end: addHours(new Date(), 2),
-      title: 'A draggable and resizable event',
-      color: { ...colors.yellow },
-      actions: this.actions,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true,
-    },
+  scheduleItems: ScheduleItem[] = [
+    new ScheduleItem(
+      'Team Meeting',
+      new Date('2023-12-23T10:00:00'),
+      new Date('2023-12-23T11:30:00'),
+      Priorities.Standard
+    ),
+    new ScheduleItem(
+      'Training Session',
+      new Date('2023-12-23T14:00:00'),
+      new Date('2023-12-23T16:00:00'),
+      Priorities.Essential
+    ),
+    new ScheduleItem(
+      'Project Review',
+      new Date('2023-12-23T09:30:00'),
+      new Date('2023-12-23T12:00:00'),
+      Priorities.Critical
+    ),
+    new ScheduleItem(
+      'Networking Event',
+      new Date('2023-12-23T18:00:00'),
+      new Date('2023-12-23T20:00:00'),
+      Priorities.Standard
+    ),
+    new ScheduleItem(
+      'Deadline Extension',
+      new Date('2023-12-23T16:00:00'),
+      new Date('2023-12-23T18:00:00'),
+      Priorities.Essential
+    ),
   ];
 
-  activeDayIsOpen: boolean = true;
+  events: CalendarEvent[] = ScheduleItem.toCalendarEvents(
+    this.scheduleItems,
+    this._actions
+  );
 
-  //constructor(private modal: NgbModal) {}
+  get canAddNewEvent(): boolean {
+    return !this.workingSchedule;
+  }
 
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
@@ -152,27 +130,154 @@ export class ScheduleComponent {
   }
 
   addEvent(): void {
-    this.events = [
-      ...this.events,
-      {
-        title: 'New event',
-        start: startOfDay(new Date()),
-        end: endOfDay(new Date()),
-        color: colors.red,
-        draggable: true,
-        resizable: {
-          beforeStart: true,
-          afterEnd: true,
-        },
-      },
-    ];
+    this.workingSchedule = new ScheduleItem(
+      '',
+      new Date(),
+      new Date(),
+      Priorities.Standard
+    );
   }
 
-  deleteEvent(eventToDelete: CalendarEvent) {
-    this.events = this.events.filter((event) => event !== eventToDelete);
-  }
+  deleteEvent = (eventToDelete: ScheduleItem): void => {
+    this.events = this.events.filter((event) => event.id !== eventToDelete.id);
+    this.scheduleItems = this.scheduleItems.filter(
+      (event) => event.id !== eventToDelete.id
+    );
+
+    this.refresh.next();
+  };
 
   closeOpenMonthViewDay() {
     this.activeDayIsOpen = false;
   }
+
+  clearWorkingSchedule = (): void => {
+    this.workingSchedule = null!;
+  };
+
+  canUpdateOrAddEvent(event: ScheduleItem): boolean {
+    return event.isValid();
+  }
+}
+
+class ScheduleItem {
+  private static _internalId: number = 0;
+  private _id: number;
+  private _title: string;
+  private _start: Date;
+  private _end: Date;
+  private _priority: Priorities;
+
+  constructor(
+    title: string,
+    start: Date,
+    end: Date,
+    priority: Priorities,
+    id?: number
+  ) {
+    this._title = title;
+    this._start = start;
+    this._end = end;
+    this._priority = priority;
+    if (!id) {
+      ScheduleItem._internalId++;
+      this._id = ScheduleItem._internalId;
+    } else {
+      this._id = id;
+    }
+  }
+
+  get id(): number {
+    return this._id;
+  }
+
+  get title(): string {
+    return this._title;
+  }
+
+  get start(): Date {
+    return this._start;
+  }
+
+  get end(): Date {
+    return this._end;
+  }
+
+  get priority(): Priorities {
+    return this._priority;
+  }
+
+  set title(value: string) {
+    this._title = value;
+  }
+
+  set start(value: Date) {
+    this._start = value;
+  }
+
+  set end(value: Date) {
+    this._end = value;
+  }
+
+  set priority(value: Priorities) {
+    this._priority = value;
+  }
+
+  toCalendarEvent(actions?: Array<CalendarEventAction>): CalendarEvent {
+    const color = priorityColors[this._priority];
+
+    return {
+      title: this._title,
+      start: startOfDay(this._start),
+      end: endOfDay(this._end),
+      color: { primary: color, secondary: color },
+      allDay: true,
+      draggable: true,
+      actions: actions,
+      id: this._id,
+    };
+  }
+
+  static toCalendarEvents(
+    array: Array<ScheduleItem>,
+    actions?: Array<CalendarEventAction>
+  ): Array<CalendarEvent> {
+    return array.map((item) => item.toCalendarEvent(actions));
+  }
+
+  static fromCalendarEvent(event: CalendarEvent): ScheduleItem {
+    return new ScheduleItem(
+      event.title,
+      event.start,
+      event.end!,
+      getPriorityByColor(event.color?.primary!),
+      +(event.id || 0)
+    );
+  }
+
+  static fromCalendarEvents(array: Array<CalendarEvent>): Array<ScheduleItem> {
+    return array.map((event) => ScheduleItem.fromCalendarEvent(event));
+  }
+
+  isValid(): boolean {
+    return [this._title, this.start, this.end].every((x) => !!x);
+  }
+}
+
+enum Priorities {
+  Critical,
+  Essential,
+  Standard,
+}
+
+const priorityColors: Record<Priorities, string> = {
+  [Priorities.Critical]: '#d20a0a',
+  [Priorities.Essential]: '#ffc933',
+  [Priorities.Standard]: '#0070f2',
+};
+
+function getPriorityByColor(color: string): Priorities {
+  return Object.keys(priorityColors).find(
+    (key) => priorityColors[key as unknown as Priorities] === color
+  ) as unknown as Priorities;
 }

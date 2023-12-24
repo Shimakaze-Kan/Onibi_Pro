@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row text-center mt-4">
     <div class="col-md-4">
-      <div class="d-inline-flex gap-3">
+      <div class="d-inline-flex gap-2">
         <button
           type="button"
           mat-flat-button
@@ -85,3 +85,150 @@
     </mwl-calendar-day-view>
   </div>
 </div>
+
+<!--modify schedule-->
+
+<div class="content-top-shadow-container mt-5">
+  <div class="content-container-header d-flex">
+    <mat-spinner *ngIf="loading"></mat-spinner>
+    <h4>Edit Schedule</h4>
+    <button
+      type="button"
+      class="ms-auto"
+      mat-flat-button
+      color="primary"
+      [disabled]="!canAddNewEvent || loading"
+      (click)="addEvent()"
+    >
+      Add New Event
+    </button>
+  </div>
+  <div class="mat-elevation-z8 container table-responsive" *ngIf="!loading">
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Title</th>
+          <th class="color-column-tr">Priority</th>
+          <th>Date Range</th>
+          <th>Employees</th>
+          <th class="action-column-tr">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="!!workingSchedule">
+          <ng-container
+            *ngTemplateOutlet="
+              tableRow;
+              context: {
+                event: workingSchedule,
+                onDelete: clearWorkingSchedule,
+                actionButtonText: 'Add',
+                isNewRow: true
+              }
+            "
+          ></ng-container>
+        </ng-container>
+        <ng-container *ngFor="let event of scheduleItems">
+          <ng-container
+            *ngTemplateOutlet="
+              tableRow;
+              context: {
+                event: event,
+                onDelete: deleteEvent,
+                actionButtonText: 'Update'
+              }
+            "
+          ></ng-container>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-template
+  #tableRow
+  let-event="event"
+  let-onDelete="onDelete"
+  let-actionButtonText="actionButtonText"
+  let-isNewRow="isNewRow"
+>
+  <tr class="position-relative" [class.new-row]="isNewRow">
+    <td>
+      <img class="new-icon" *ngIf="isNewRow" src="assets/icons/new.svg" />
+    </td>
+    <td>
+      <mat-form-field appearance="outline" class="d-flex">
+        <input
+          matInput
+          placeholder="Title"
+          [(ngModel)]="event.title"
+          required
+        />
+      </mat-form-field>
+    </td>
+    <td>
+      <mat-button-toggle-group [(ngModel)]="event.priority">
+        <mat-button-toggle [value]="priorities.Critical"
+          >Critical</mat-button-toggle
+        >
+        <mat-button-toggle [value]="priorities.Essential"
+          >Essential</mat-button-toggle
+        >
+        <mat-button-toggle [value]="priorities.Standard"
+          >Standard</mat-button-toggle
+        >
+      </mat-button-toggle-group>
+    </td>
+    <td class="date-range-td">
+      <mat-form-field appearance="outline" class="d-flex">
+        <mat-date-range-input [rangePicker]="rangePicker">
+          <input
+            matStartDate
+            [(ngModel)]="event.start"
+            placeholder="Start date"
+            required
+          />
+          <input
+            required
+            matEndDate
+            [(ngModel)]="event.end"
+            placeholder="End date"
+          />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="rangePicker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #rangePicker></mat-date-range-picker>
+      </mat-form-field>
+    </td>
+    <td>
+      <mat-form-field appearance="outline" class="d-flex">
+        <input matInput placeholder="Employees" required />
+      </mat-form-field>
+    </td>
+    <td>
+      <div class="action-column">
+        <button
+          class="w-100"
+          type="button"
+          mat-flat-button
+          color="accent"
+          (click)="onDelete(event)"
+        >
+          Delete
+        </button>
+        <button
+          [disabled]="!canUpdateOrAddEvent(event)"
+          class="w-100"
+          type="button"
+          mat-flat-button
+          color="primary"
+        >
+          {{ actionButtonText }}
+        </button>
+      </div>
+    </td>
+  </tr>
+</ng-template>

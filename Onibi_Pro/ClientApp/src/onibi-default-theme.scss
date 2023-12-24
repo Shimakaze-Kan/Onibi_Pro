@@ -147,3 +147,33 @@ div {
   @include scrollbar-width;
 }
 /* scrollbar stuff end */
+
+.action-icon {
+  width: 20px;
+  filter: invert(1);
+
+  &:hover {
+    filter: invert(0.7);
+  }
+}
+
+.content-top-shadow-container {
+  border-radius: 1.8rem 1.8rem 0 0;
+  background-color: white;
+  width: 100%;
+  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.25);
+
+  .content-container-header {
+    padding: 1.8rem;
+
+    mat-spinner {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+th {
+  font-weight: bold !important;
+}

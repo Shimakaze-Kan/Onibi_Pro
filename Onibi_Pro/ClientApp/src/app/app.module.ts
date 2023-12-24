@@ -53,6 +53,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RequiredStarDirective } from './directives/required-star.directive';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -74,6 +76,8 @@ const MATERIAL_MODULES = [
   MatProgressBarModule,
   MatSnackBarModule,
   MatProgressSpinnerModule,
+  MatDatepickerModule,
+  MatNativeDateModule,
 ];
 
 const canActivateAnything: CanActivateChildFn = (
