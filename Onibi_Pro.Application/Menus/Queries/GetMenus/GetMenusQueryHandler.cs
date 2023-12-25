@@ -7,22 +7,25 @@ using ErrorOr;
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 
 namespace Onibi_Pro.Application.Menus.Queries.GetMenus;
 internal sealed class GetMenusQueryHandler : IRequestHandler<GetMenusQuery, ErrorOr<IReadOnlyCollection<MenuDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetMenusQueryHandler(IDbConnectionFactory dbConnectionFactory)
+    public GetMenusQueryHandler(IDbConnectionFactory dbConnectionFactory,
+        ICurrentUserService currentUserService)
     {
         _dbConnectionFactory = dbConnectionFactory;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<IReadOnlyCollection<MenuDto>>> Handle(GetMenusQuery request, CancellationToken cancellationToken)
     {
-        // TODO check role
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
         var intermediateResults = await GetIntermediateResults(connection);
 
         return MapToResultDto(intermediateResults);

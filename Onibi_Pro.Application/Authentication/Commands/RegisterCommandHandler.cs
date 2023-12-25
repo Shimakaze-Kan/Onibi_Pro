@@ -6,19 +6,19 @@ using Onibi_Pro.Application.Services.Authentication;
 using Onibi_Pro.Domain.UserAggregate;
 
 namespace Onibi_Pro.Application.Authentication.Commands;
-internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<AuthenticationResult>>
+internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<Success>>
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly IRegisterService _registerService;
     private readonly ICurrentUserService _currentUserService;
 
-    public RegisterCommandHandler(IAuthenticationService authenticationService,
+    public RegisterCommandHandler(IRegisterService registerService,
         ICurrentUserService currentUserService)
     {
-        _authenticationService = authenticationService;
+        _registerService = registerService;
         _currentUserService = currentUserService;
     }
 
-    public async Task<ErrorOr<AuthenticationResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var newUserType = _currentUserService.UserType switch
         {
@@ -27,7 +27,7 @@ internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, 
             _ => throw new NotImplementedException()
         };
 
-        return await _authenticationService.RegisterAsync(request.FirstName,
+        return await _registerService.RegisterAsync(request.FirstName,
             request.LastName,
             request.Email,
             request.Password,

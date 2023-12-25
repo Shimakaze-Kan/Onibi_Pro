@@ -5,27 +5,35 @@ using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 using Onibi_Pro.Infrastructure.Authentication.DbModels;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
-internal sealed class UserPasswordRepository(OnibiProDbContext onibiProDbContext) : IUserPasswordRepository
+internal sealed class UserPasswordRepository(DbContextFactory dbContextFactory) : IUserPasswordRepository
 {
-    private readonly DbSet<UserPassword> _userPasswords = onibiProDbContext.Set<UserPassword>();
-    private readonly OnibiProDbContext _onibiProDbContext = onibiProDbContext;
+    private readonly DbContextFactory _dbContextFactory = dbContextFactory;
 
-    public async Task CreatePasswordAsync(UserId userId, string password, CancellationToken cancellationToken = default)
+    public async Task CreatePasswordAsync(UserId userId, string password, string clientName, CancellationToken cancellationToken = default)
     {
-        await _userPasswords.AddAsync(new(userId, password), cancellationToken);
-        await _onibiProDbContext.SaveChangesAsync(cancellationToken);
+        var context = _dbContextFactory.CreateDbContext(clientName);
+        var userPasswordsSet = context.Set<UserPassword>();
+
+        await userPasswordsSet.AddAsync(new(userId, password), cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<string> GetPasswordForUserAsync(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<string> GetPasswordForUserAsync(UserId userId, string clientName, CancellationToken cancellationToken = default)
     {
-        var userPassword = await _userPasswords.SingleAsync(x => x.UserId == userId, cancellationToken);
+        var context = _dbContextFactory.CreateDbContext(clientName);
+        var userPasswordsSet = context.Set<UserPassword>();
+
+        var userPassword = await userPasswordsSet.SingleAsync(x => x.UserId == userId, cancellationToken);
         return userPassword.Password;
     }
 
-    public async Task UpdatePasswordAsync(UserId userId, string password, CancellationToken cancellationToken = default)
+    public async Task UpdatePasswordAsync(UserId userId, string password, string clientName, CancellationToken cancellationToken = default)
     {
-        var userPassword = await _userPasswords.SingleAsync(x => x.UserId == userId, cancellationToken);
+        var context = _dbContextFactory.CreateDbContext(clientName);
+        var userPasswordsSet = context.Set<UserPassword>();
+
+        var userPassword = await userPasswordsSet.SingleAsync(x => x.UserId == userId, cancellationToken);
         userPassword = userPassword with { Password = password };
-        await _onibiProDbContext.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

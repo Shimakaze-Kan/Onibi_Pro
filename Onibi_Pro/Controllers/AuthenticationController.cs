@@ -38,8 +38,7 @@ public class AuthenticationController : ApiBaseController
 
         var authResult = await _mediator.Send(command);
 
-        return authResult.Match(
-            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)), Problem);
+        return authResult.Match(_ => Ok(), Problem);
     }
 
     [AllowAnonymous]

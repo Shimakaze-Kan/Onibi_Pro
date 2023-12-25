@@ -5,15 +5,15 @@ using Onibi_Pro.Application.Services.Authentication;
 namespace Onibi_Pro.Application.Authentication.Queries;
 internal sealed class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthenticationResult>>
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly ILoginService _loginService;
 
-    public LoginQueryHandler(IAuthenticationService authenticationService)
+    public LoginQueryHandler(ILoginService loginService)
     {
-        _authenticationService = authenticationService;
+        _loginService = loginService;
     }
 
     public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        return await _authenticationService.LoginAsync(request.Email, request.Password, cancellationToken);
+        return await _loginService.LoginAsync(request.Email, request.Password, cancellationToken);
     }
 }

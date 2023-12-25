@@ -6,30 +6,44 @@ using ErrorOr;
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
-
+using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Domain.Common.Errors;
 
 namespace Onibi_Pro.Application.Restaurants.Queries.GetSchedules;
 internal sealed class GetScheduleQueryHandler : IRequestHandler<GetScheduleQuery, ErrorOr<IReadOnlyCollection<ScheduleDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IAccessService _accessService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetScheduleQueryHandler(IDbConnectionFactory dbConnectionFactory)
+    public GetScheduleQueryHandler(IDbConnectionFactory dbConnectionFactory,
+        IAccessService accessService,
+        ICurrentUserService currentUserService)
     {
         _dbConnectionFactory = dbConnectionFactory;
+        _accessService = accessService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<IReadOnlyCollection<ScheduleDto>>> Handle(GetScheduleQuery request, CancellationToken cancellationToken)
     {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync(); // TODO check if user is manager of restaurant
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
-        var restaurantExists = await connection.ExecuteScalarAsync<bool>(
-            "SELECT ISNULL((SELECT 1 FROM dbo.Restaurants WHERE Id = @RestaurantId), 0)", new { request.RestaurantId });
+        var restaurantExists = await _accessService.RestauranExists(request.RestaurantId, connection);
 
         if (!restaurantExists)
         {
             return Errors.Restaurant.RestaurantNotFound;
+        }
+
+        var isRestaurantManager = await _accessService.IsUserRestaurantManager(
+            request.RestaurantId, _currentUserService.UserId, connection);
+
+        if (!isRestaurantManager)
+        {
+            return Errors.Restaurant.InvalidManager;
         }
 
         List<ScheduleDto> schedules = await GetSchedules(connection, request.RestaurantId);

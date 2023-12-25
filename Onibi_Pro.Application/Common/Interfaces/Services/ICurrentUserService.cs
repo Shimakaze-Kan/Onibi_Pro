@@ -6,6 +6,7 @@ public interface ICurrentUserService
     string Email { get; }
     string FirstName { get; }
     string LastName { get; }
+    string ClientName { get; }
     Guid UserId { get; }
     UserTypes UserType { get; }
     bool CanGetCurrentUser { get; }

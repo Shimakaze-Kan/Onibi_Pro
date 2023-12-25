@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Models;
 
@@ -13,9 +14,10 @@ internal sealed class DomainRepository<TAggregateRoot, TId> : IDomainRepository<
     private readonly OnibiProDbContext _dbContext;
     private readonly DbSet<TAggregateRoot> _dbSet;
 
-    public DomainRepository(OnibiProDbContext dbContext)
+    public DomainRepository(DbContextFactory dbContextFactory,
+        ICurrentUserService currentUserService)
     {
-        _dbContext = dbContext;
+        _dbContext = dbContextFactory.CreateDbContext(currentUserService.ClientName);
         _dbSet = _dbContext.Set<TAggregateRoot>();
     }
 

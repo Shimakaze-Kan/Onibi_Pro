@@ -10,15 +10,15 @@ using Onibi_Pro.Application.Services.Authentication;
 namespace Onibi_Pro.Application.Authentication.Commands;
 internal sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand, ErrorOr<Success>>
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly ILoginService _loginService;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<LogoutCommandHandler> _logger;
 
-    public LogoutCommandHandler(IAuthenticationService authenticationService,
+    public LogoutCommandHandler(ILoginService loginService,
         ICurrentUserService currentUserService,
         ILogger<LogoutCommandHandler> logger)
     {
-        _authenticationService = authenticationService;
+        _loginService = loginService;
         _currentUserService = currentUserService;
         _logger = logger;
     }
@@ -35,7 +35,7 @@ internal sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand, Erro
 
         var userId = _currentUserService.UserId;
 
-        await _authenticationService.LogoutAsync(userId, cancellationToken);
+        await _loginService.LogoutAsync(userId, cancellationToken);
         await Task.CompletedTask;
 
         return new Success();

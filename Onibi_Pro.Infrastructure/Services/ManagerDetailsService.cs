@@ -9,15 +9,18 @@ namespace Onibi_Pro.Infrastructure.Services;
 internal class ManagerDetailsService : IManagerDetailsService
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly ICurrentUserService _currentUserService;
 
-    public ManagerDetailsService(IDbConnectionFactory dbConnectionFactory)
+    public ManagerDetailsService(IDbConnectionFactory dbConnectionFactory,
+        ICurrentUserService currentUserService)
     {
         _dbConnectionFactory = dbConnectionFactory;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ManagerDetailsDto> GetManagerDetailsAsync(UserId userId)
     {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
         var query = @"
             SELECT m.RestaurantId, u.FirstName, u.LastName

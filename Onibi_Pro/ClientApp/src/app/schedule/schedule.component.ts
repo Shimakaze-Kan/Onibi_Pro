@@ -5,7 +5,13 @@ import {
   CalendarEventTimesChangedEvent,
   CalendarView,
 } from 'angular-calendar';
-import { endOfDay, isSameDay, isSameMonth, startOfDay } from 'date-fns';
+import {
+  endOfDay,
+  isSameDay,
+  isSameMonth,
+  parseISO,
+  startOfDay,
+} from 'date-fns';
 import {
   ReplaySubject,
   Subject,
@@ -139,8 +145,8 @@ export class ScheduleComponent implements OnInit {
     newEnd,
   }: CalendarEventTimesChangedEvent): void {
     const scheduleItem = this.scheduleItems.find((x) => x.id === event.id)!;
-    scheduleItem.start = newStart;
-    scheduleItem.end = newEnd!;
+    scheduleItem.start = startOfDay(newStart);
+    scheduleItem.end = endOfDay(newEnd!);
 
     this.updateEvent(scheduleItem);
   }
@@ -429,8 +435,8 @@ class ScheduleItem {
     return new CreateScheduleRequest({
       title: this.title,
       employeeIds: this.employeeIds,
-      endDate: this.end,
-      startDate: this.start,
+      endDate: this.removeTimezone(this.end),
+      startDate: this.removeTimezone(this.start),
       priority: Priorities[this.priority],
     });
   }
@@ -440,8 +446,8 @@ class ScheduleItem {
       scheduleId: this.id,
       title: this.title,
       employeeIds: this.employeeIds,
-      endDate: this.end,
-      startDate: this.start,
+      endDate: this.removeTimezone(this.end),
+      startDate: this.removeTimezone(this.start),
       priority: Priorities[this.priority],
     });
   }
@@ -456,8 +462,8 @@ class ScheduleItem {
   static fromCalendarEvent(event: CalendarEvent): ScheduleItem {
     return new ScheduleItem(
       event.title,
-      event.start,
-      event.end!,
+      startOfDay(event.start),
+      endOfDay(event.end!),
       getPriorityByColor(event.color?.primary!),
       [],
       event.id?.toString()
@@ -487,6 +493,19 @@ class ScheduleItem {
   isValid(): boolean {
     return [this._title, this.start, this.end, this._employeeIds.length].every(
       (x) => !!x
+    );
+  }
+
+  private removeTimezone(date: Date): Date {
+    return new Date(
+      Date.UTC(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        date.getHours(),
+        date.getMinutes(),
+        date.getMinutes()
+      )
     );
   }
 }

@@ -4,6 +4,7 @@ using ErrorOr;
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.MenuAggregate.Entities;
@@ -14,15 +15,18 @@ namespace Onibi_Pro.Application.Orders.Queries.GetOrderById;
 internal sealed class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, ErrorOr<IReadOnlyCollection<OrderDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetOrderByIdQueryHandler(IDbConnectionFactory dbConnectionFactory)
+    public GetOrderByIdQueryHandler(IDbConnectionFactory dbConnectionFactory,
+        ICurrentUserService currentUserService)
     {
         _dbConnectionFactory = dbConnectionFactory;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<IReadOnlyCollection<OrderDto>>> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
     {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
         var order = await connection.QueryAsync<OrderDto>(
             $"""

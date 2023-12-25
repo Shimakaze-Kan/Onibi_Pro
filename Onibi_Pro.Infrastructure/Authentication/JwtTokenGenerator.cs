@@ -20,7 +20,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
         _jwtTokenSettings = options.Value;
     }
 
-    public string GenerateToken(Guid userId, string firstName, string lastName, string email, string userType)
+    public string GenerateToken(Guid userId, string firstName, string lastName, string email, string userType, string clientName)
     {
         var claims = new[]
         {
@@ -30,6 +30,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
             new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim(JwtKeys.UserTypeKey, userType.ToUpper()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtKeys.ClientName, clientName),
         };
 
         var signingCredentials = new SigningCredentials(

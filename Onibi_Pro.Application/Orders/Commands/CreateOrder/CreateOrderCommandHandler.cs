@@ -8,6 +8,7 @@ using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
+using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
 using Onibi_Pro.Domain.OrderAggregate;
@@ -20,22 +21,27 @@ internal sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderCom
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IAccessService _accessService;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateOrderCommandHandler(IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider,
-        IDbConnectionFactory dbConnectionFactory)
+        IDbConnectionFactory dbConnectionFactory,
+        IAccessService accessService,
+        ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
         _dbConnectionFactory = dbConnectionFactory;
+        _accessService = accessService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<Order>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
-        var restaurantExists = await connection.ExecuteScalarAsync<bool>(
-            "SELECT ISNULL((SELECT 1 FROM dbo.Restaurants WHERE Id = @RestaurantId), 0)", new { request.RestaurantId });
+        var restaurantExists = await _accessService.RestauranExists(request.RestaurantId, connection);
 
         if (!restaurantExists)
         {

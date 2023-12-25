@@ -13,7 +13,7 @@ namespace Onibi_Pro.Pages;
 [AllowAnonymous]
 public class LoginModel : PageModel
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly ILoginService _loginService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly JwtTokenSettings _tokenSettings;
 
@@ -25,11 +25,11 @@ public class LoginModel : PageModel
     [BindProperty]
     public string? Password { get; set; }
 
-    public LoginModel(IAuthenticationService authenticationService,
+    public LoginModel(ILoginService loginService,
         IOptions<JwtTokenSettings> options,
         IDateTimeProvider dateTimeProvider)
     {
-        _authenticationService = authenticationService;
+        _loginService = loginService;
         _dateTimeProvider = dateTimeProvider;
         _tokenSettings = options.Value;
     }
@@ -52,7 +52,7 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        var authResult = await _authenticationService.LoginAsync(Login!, Password!, cancellationToken);
+        var authResult = await _loginService.LoginAsync(Login!, Password!, cancellationToken);
 
         return authResult.Match<IActionResult>(resutl =>
         {

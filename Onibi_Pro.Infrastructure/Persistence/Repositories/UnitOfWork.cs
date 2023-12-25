@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.MenuAggregate;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
@@ -11,6 +12,7 @@ using Onibi_Pro.Domain.ShipmentAggregate;
 using Onibi_Pro.Domain.ShipmentAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
+using Onibi_Pro.Infrastructure.Persistence.Interceptors;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
 internal sealed class UnitOfWork : IUnitOfWork
@@ -24,14 +26,15 @@ internal sealed class UnitOfWork : IUnitOfWork
     public IDomainRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
     public IDomainRepository<User, UserId> UserRepository { get; }
 
-    public UnitOfWork(OnibiProDbContext dbContext,
+    public UnitOfWork(DbContextFactory dbContextFactory,
+        ICurrentUserService currentUserService,
         IDomainRepository<Menu, MenuId> menuRepository,
         IDomainRepository<Shipment, ShipmentId> shipmentRepository,
         IDomainRepository<Order, OrderId> orderRepository,
         IDomainRepository<Restaurant, RestaurantId> restaurantRepository,
         IDomainRepository<User, UserId> userRepository)
     {
-        _dbContext = dbContext;
+        _dbContext = dbContextFactory.CreateDbContext(currentUserService.ClientName);
         MenuRepository = menuRepository;
         ShipmentRepository = shipmentRepository;
         OrderRepository = orderRepository;

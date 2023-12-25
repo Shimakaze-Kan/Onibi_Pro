@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 using Onibi_Pro.Application.Common.Behaviours;
+using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Application.Services.Authentication;
 
 namespace Onibi_Pro.Application;
@@ -14,7 +15,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddSingleton<IAccessService, AccessService>();
+        services.AddScoped<IRegisterService, RegisterService>();
+        services.AddScoped<ILoginService, LoginService>();
         services.AddMediatR(config
             => config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 

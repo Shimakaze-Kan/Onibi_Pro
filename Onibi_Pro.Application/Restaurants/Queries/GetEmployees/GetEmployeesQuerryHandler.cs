@@ -6,7 +6,9 @@ using ErrorOr;
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
+using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 
@@ -14,18 +16,23 @@ namespace Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 internal sealed class GetEmployeesQuerryHandler : IRequestHandler<GetEmployeesQuery, ErrorOr<IReadOnlyCollection<EmployeeDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IAccessService _accessService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public GetEmployeesQuerryHandler(IDbConnectionFactory dbConnectionFactory)
+    public GetEmployeesQuerryHandler(IDbConnectionFactory dbConnectionFactory,
+        IAccessService accessService,
+        ICurrentUserService currentUserService)
     {
         _dbConnectionFactory = dbConnectionFactory;
+        _accessService = accessService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<IReadOnlyCollection<EmployeeDto>>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
     {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
-        var restaurantExists = await connection.ExecuteScalarAsync<bool>(
-            "SELECT ISNULL((SELECT 1 FROM dbo.Restaurants WHERE Id = @RestaurantId), 0)", new { request.RestaurantId });
+        var restaurantExists = await _accessService.RestauranExists(request.RestaurantId, connection);
 
         if (!restaurantExists)
         {

@@ -4,6 +4,7 @@ using ErrorOr;
 
 using MediatR;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.Common.ValueObjects;
@@ -18,12 +19,15 @@ internal sealed class CreateRestaurantCommandHandler : IRequestHandler<CreateRes
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateRestaurantCommandHandler(IUnitOfWork unitOfWork,
-        IDbConnectionFactory dbConnectionFactory)
+        IDbConnectionFactory dbConnectionFactory,
+        ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _dbConnectionFactory = dbConnectionFactory;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ErrorOr<Restaurant>> Handle(CreateRestaurantCommand request, CancellationToken cancellationToken)
@@ -55,7 +59,7 @@ internal sealed class CreateRestaurantCommandHandler : IRequestHandler<CreateRes
 
     private async Task<bool> AreOrderIdsValid(List<Guid> orderIds)
     {
-        using var connection = await _dbConnectionFactory.OpenConnectionAsync();
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
         var query = "SELECT COUNT(*) FROM dbo.Orders WHERE Id IN @Ids";
         var count = await connection.QueryFirstOrDefaultAsync<int>(query, new { Ids = orderIds });

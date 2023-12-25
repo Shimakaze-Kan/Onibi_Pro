@@ -18,8 +18,6 @@ internal sealed class CreateMenuCommandHandler : IRequestHandler<CreateMenuComma
 
     public async Task<ErrorOr<Menu>> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
     {
-        await Task.CompletedTask;
-
         var menu = Menu.Create(
             name: request.Name,
             menuItems: request.MenuItems.ConvertAll(menuItem => MenuItem.Create(

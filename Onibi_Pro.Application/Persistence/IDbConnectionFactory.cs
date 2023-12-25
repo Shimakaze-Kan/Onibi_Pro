@@ -3,5 +3,5 @@
 namespace Onibi_Pro.Application.Persistence;
 public interface IDbConnectionFactory
 {
-    Task<IDbConnection> OpenConnectionAsync();
+    Task<IDbConnection> OpenConnectionAsync(string clientName);
 }

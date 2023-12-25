@@ -9,6 +9,7 @@ using Onibi_Pro.Infrastructure.Persistence;
 using Onibi_Pro.Infrastructure.ReverseProxy;
 using Onibi_Pro.Infrastructure.Services;
 using Onibi_Pro.Infrastructure.Identity;
+using Onibi_Pro.Infrastructure.MasterDb;
 
 namespace Onibi_Pro.Infrastructure;
 public static class DependencyInjection
@@ -19,11 +20,12 @@ public static class DependencyInjection
         services.AddCaching(configurationManager);
         services.AddAuthentication(configurationManager);
         services.AddReverseProxy(configurationManager);
-        services.AddPersistance(configurationManager);
+        services.AddPersistance();
         OnibiAuthorization.AddAuthorization(services);
         services.AddIdentity();
+        services.AddMasterDb();
 
-        services.AddSingleton<IManagerDetailsService, ManagerDetailsService>();
+        services.AddScoped<IManagerDetailsService, ManagerDetailsService>();
 
         return services;
     }

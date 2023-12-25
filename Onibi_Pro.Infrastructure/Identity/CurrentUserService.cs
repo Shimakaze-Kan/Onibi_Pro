@@ -24,6 +24,9 @@ internal sealed class CurrentUserService : ICurrentUserService
     public UserTypes UserType
         => Enum.Parse<UserTypes>(_jwtToken.Claims.First(x => x.Type == JwtKeys.UserTypeKey).Value, ignoreCase: true);
 
+    public string ClientName
+        => _jwtToken.Claims.First(x => x.Type == JwtKeys.ClientName).Value;
+
     public Guid UserId
     {
         get
