@@ -9,7 +9,9 @@ using Onibi_Pro.Application.Restaurants.Commands.AssignManager;
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 using Onibi_Pro.Application.Restaurants.Commands.CreateSchedule;
+using Onibi_Pro.Application.Restaurants.Commands.DeleteSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
+using Onibi_Pro.Application.Restaurants.Commands.EditSchedule;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Application.Restaurants.Queries.GetSchedules;
 using Onibi_Pro.Contracts.Restaurants;
@@ -110,5 +112,26 @@ public class RestaurantsController : ApiBaseController
 
         return result.Match(response 
             => Ok(_mapper.Map<IReadOnlyCollection<GetScheduleResponse>>(response)), Problem);
+    }
+
+    [HttpPut("{restaurantId}/schedule")]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
+    public async Task<IActionResult> UpdateSchedule([FromRoute] Guid restaurantId, [FromBody] EditScheduleRequest request)
+    {
+        var command = _mapper.Map<EditScheduleCommand>((restaurantId, request));
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpDelete("{restaurantId}/schedule")]
+    public async Task<IActionResult> RemoveSchedule([FromRoute] Guid restaurantId, [FromBody] DeleteScheduleRequest request)
+    {
+        var command = _mapper.Map<DeleteScheduleCommand>((restaurantId, request));
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(_ => Ok(), Problem);
     }
 }

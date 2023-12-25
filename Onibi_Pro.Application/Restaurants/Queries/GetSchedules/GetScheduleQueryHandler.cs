@@ -48,7 +48,8 @@ internal sealed class GetScheduleQueryHandler : IRequestHandler<GetScheduleQuery
             es.EmployeeId
           FROM dbo.Schedules s
           JOIN dbo.EmployeesSchedules es on s.ScheduleId = es.ScheduleId
-          WHERE s.RestaurantId = @RestaurantId";
+          WHERE s.RestaurantId = @RestaurantId
+          ORDER BY s.StartDate DESC";
 
         var scheduleDictionary = new Dictionary<Guid, ScheduleDto>();
 

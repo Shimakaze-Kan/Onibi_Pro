@@ -18,6 +18,8 @@ import {
 } from 'rxjs';
 import {
   CreateScheduleRequest,
+  DeleteScheduleRequest,
+  EditScheduleRequest,
   GetEmployeesResponse,
   GetScheduleResponse,
   IdentityClient,
@@ -36,6 +38,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class ScheduleComponent implements OnInit {
   private _restaurantId: string = undefined!;
   private _onDestroy$ = new Subject<void>();
+  editingRowId = '';
   employees: Array<GetEmployeesResponse> = [];
   loading = false;
   view: CalendarView = CalendarView.Month;
@@ -53,7 +56,13 @@ export class ScheduleComponent implements OnInit {
       label: '<img class="action-icon" src="assets/icons/pencil.svg"/>',
       a11yLabel: 'Edit',
       onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.handleEvent('Edited', event);
+        const scheduleItem = ScheduleItem.fromCalendarEvent(event);
+        this.editingRowId = scheduleItem.id;
+        document.getElementById(scheduleItem.id)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
       },
     },
     {
@@ -129,23 +138,11 @@ export class ScheduleComponent implements OnInit {
     newStart,
     newEnd,
   }: CalendarEventTimesChangedEvent): void {
-    this.events = this.events.map((iEvent) => {
-      if (iEvent === event) {
-        const scheduleItem = this.scheduleItems.find(
-          (x) => x.id === iEvent.id
-        )!;
-        scheduleItem.start = newStart;
-        scheduleItem.end = newEnd!;
+    const scheduleItem = this.scheduleItems.find((x) => x.id === event.id)!;
+    scheduleItem.start = newStart;
+    scheduleItem.end = newEnd!;
 
-        return {
-          ...event,
-          start: newStart,
-          end: newEnd,
-        };
-      }
-      return iEvent;
-    });
-    this.handleEvent('Dropped or resized', event);
+    this.updateEvent(scheduleItem);
   }
 
   handleEvent(action: string, event: CalendarEvent): void {
@@ -163,41 +160,20 @@ export class ScheduleComponent implements OnInit {
   }
 
   deleteEvent = (eventToDelete: ScheduleItem): void => {
-    this.events = this.events.filter((event) => event.id !== eventToDelete.id);
-    this.scheduleItems = this.scheduleItems.filter(
-      (event) => event.id !== eventToDelete.id
-    );
-
-    this.refresh.next();
-  };
-
-  closeOpenMonthViewDay() {
-    this.activeDayIsOpen = false;
-  }
-
-  clearWorkingSchedule = (): void => {
-    this.workingSchedule = null!;
-  };
-
-  canUpdateOrAddEvent(event: ScheduleItem): boolean {
-    return event.isValid();
-  }
-
-  createEvent = (event: ScheduleItem): void => {
-    const request = event.toCreateScheduleRequest();
     of({})
       .pipe(
         tap(() => (this.loading = true)),
         switchMap(() =>
-          this.restaurantClient.schedulePost(this._restaurantId, request)
+          this.restaurantClient.scheduleDelete(
+            this._restaurantId,
+            new DeleteScheduleRequest({ scheduleId: eventToDelete.id })
+          )
         ),
-        tap(() => {
-          this.updateCalendarEvents();
-        }),
         switchMap(() => this.restaurantClient.scheduleGet(this._restaurantId)),
         tap((schedule) => {
           this.scheduleItems = ScheduleItem.fromGetScheduleResponse(schedule);
           this.clearWorkingSchedule();
+          this.updateCalendarEvents();
           this.loading = false;
         }),
         catchError((error) => {
@@ -213,7 +189,76 @@ export class ScheduleComponent implements OnInit {
       .subscribe();
   };
 
-  updateEvent = (event: ScheduleItem): void => {};
+  closeOpenMonthViewDay() {
+    this.activeDayIsOpen = false;
+  }
+
+  clearWorkingSchedule = (): void => {
+    this.workingSchedule = null!;
+    this.editingRowId = '';
+  };
+
+  canUpdateOrAddEvent(event: ScheduleItem): boolean {
+    return event.isValid();
+  }
+
+  createEvent = (event: ScheduleItem): void => {
+    const request = event.toCreateScheduleRequest();
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.restaurantClient.schedulePost(this._restaurantId, request)
+        ),
+        switchMap(() => this.restaurantClient.scheduleGet(this._restaurantId)),
+        tap((schedule) => {
+          this.scheduleItems = ScheduleItem.fromGetScheduleResponse(schedule);
+          this.clearWorkingSchedule();
+          this.updateCalendarEvents();
+          this.loading = false;
+        }),
+        catchError((error) => {
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
+  };
+
+  updateEvent = (event: ScheduleItem): void => {
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.restaurantClient.schedulePut(
+            this._restaurantId,
+            event.toEditScheduleRequest()
+          )
+        ),
+        switchMap(() => this.restaurantClient.scheduleGet(this._restaurantId)),
+        tap((schedule) => {
+          this.scheduleItems = ScheduleItem.fromGetScheduleResponse(schedule);
+          this.clearWorkingSchedule();
+          this.updateCalendarEvents();
+          this.loading = false;
+        }),
+        catchError((error) => {
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
+  };
 
   getDisplayEmployee(ids: Array<string>): string {
     return this.employees
@@ -289,6 +334,7 @@ class ScheduleItem {
   private _end: Date;
   private _priority: Priorities;
   private _employeeIds: Array<string>;
+  private _isEdited = false;
 
   constructor(
     title: string,
@@ -335,24 +381,33 @@ class ScheduleItem {
     return this._employeeIds;
   }
 
+  get isEdited(): boolean {
+    return this._isEdited;
+  }
+
   set title(value: string) {
     this._title = value;
+    this._isEdited = true;
   }
 
   set start(value: Date) {
     this._start = value;
+    this._isEdited = true;
   }
 
   set end(value: Date) {
     this._end = value;
+    this._isEdited = true;
   }
 
   set priority(value: Priorities) {
     this._priority = value;
+    this._isEdited = true;
   }
 
   set employeeIds(value: Array<string>) {
     this._employeeIds = value;
+    this._isEdited = true;
   }
 
   toCalendarEvent(actions?: Array<CalendarEventAction>): CalendarEvent {
@@ -372,6 +427,17 @@ class ScheduleItem {
 
   toCreateScheduleRequest(): CreateScheduleRequest {
     return new CreateScheduleRequest({
+      title: this.title,
+      employeeIds: this.employeeIds,
+      endDate: this.end,
+      startDate: this.start,
+      priority: Priorities[this.priority],
+    });
+  }
+
+  toEditScheduleRequest(): EditScheduleRequest {
+    return new EditScheduleRequest({
+      scheduleId: this.id,
       title: this.title,
       employeeIds: this.employeeIds,
       endDate: this.end,

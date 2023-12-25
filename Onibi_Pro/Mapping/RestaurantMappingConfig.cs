@@ -4,7 +4,9 @@ using Onibi_Pro.Application.Restaurants.Commands.AssignManager;
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
 using Onibi_Pro.Application.Restaurants.Commands.CreateSchedule;
+using Onibi_Pro.Application.Restaurants.Commands.DeleteSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
+using Onibi_Pro.Application.Restaurants.Commands.EditSchedule;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
 using Onibi_Pro.Domain.RestaurantAggregate;
@@ -62,6 +64,14 @@ public class RestaurantMappingConfig : IRegister
             .Map(dest => dest.RestaurantId, src => src.RestaurantId);
 
         config.NewConfig<(Guid RestaurantId, CreateScheduleRequest Request), CreateScheduleCommand>()
+            .Map(dest => dest, src => src.Request)
+            .Map(dest => dest.RestaurantId, src => src.RestaurantId);
+        
+        config.NewConfig<(Guid RestaurantId, EditScheduleRequest Request), EditScheduleCommand>()
+            .Map(dest => dest, src => src.Request)
+            .Map(dest => dest.RestaurantId, src => src.RestaurantId);
+
+        config.NewConfig<(Guid RestaurantId, DeleteScheduleRequest Request), DeleteScheduleCommand>()
             .Map(dest => dest, src => src.Request)
             .Map(dest => dest.RestaurantId, src => src.RestaurantId);
     }

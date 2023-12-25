@@ -708,6 +708,16 @@ export interface IRestaurantsClient {
      * @return Success
      */
     scheduleGet(restaurantId: string): Observable<GetScheduleResponse[]>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    schedulePut(restaurantId: string, body: EditScheduleRequest | undefined): Observable<void>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    scheduleDelete(restaurantId: string, body: DeleteScheduleRequest | undefined): Observable<void>;
 }
 
 @Injectable({
@@ -1145,6 +1155,116 @@ export class RestaurantsClient implements IRestaurantsClient {
                 result200 = <any>null;
             }
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    schedulePut(restaurantId: string, body: EditScheduleRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/schedule";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSchedulePut(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSchedulePut(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSchedulePut(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    scheduleDelete(restaurantId: string, body: DeleteScheduleRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/schedule";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processScheduleDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processScheduleDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processScheduleDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2114,6 +2234,42 @@ export interface ICreateScheduleRequest {
     employeeIds?: string[] | undefined;
 }
 
+export class DeleteScheduleRequest implements IDeleteScheduleRequest {
+    scheduleId?: string;
+
+    constructor(data?: IDeleteScheduleRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.scheduleId = _data["scheduleId"];
+        }
+    }
+
+    static fromJS(data: any): DeleteScheduleRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteScheduleRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["scheduleId"] = this.scheduleId;
+        return data;
+    }
+}
+
+export interface IDeleteScheduleRequest {
+    scheduleId?: string;
+}
+
 export class EditEmployeeRequest implements IEditEmployeeRequest {
     employeeId?: string;
     firstName?: string | undefined;
@@ -2176,6 +2332,70 @@ export interface IEditEmployeeRequest {
     email?: string | undefined;
     city?: string | undefined;
     employeePositions?: string[] | undefined;
+}
+
+export class EditScheduleRequest implements IEditScheduleRequest {
+    scheduleId?: string;
+    title?: string | undefined;
+    priority?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    employeeIds?: string[] | undefined;
+
+    constructor(data?: IEditScheduleRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.scheduleId = _data["scheduleId"];
+            this.title = _data["title"];
+            this.priority = _data["priority"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["employeeIds"])) {
+                this.employeeIds = [] as any;
+                for (let item of _data["employeeIds"])
+                    this.employeeIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): EditScheduleRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditScheduleRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["scheduleId"] = this.scheduleId;
+        data["title"] = this.title;
+        data["priority"] = this.priority;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.employeeIds)) {
+            data["employeeIds"] = [];
+            for (let item of this.employeeIds)
+                data["employeeIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IEditScheduleRequest {
+    scheduleId?: string;
+    title?: string | undefined;
+    priority?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    employeeIds?: string[] | undefined;
 }
 
 export class EmployeePositionRequest implements IEmployeePositionRequest {

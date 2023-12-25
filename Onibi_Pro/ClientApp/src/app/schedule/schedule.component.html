@@ -158,7 +158,12 @@
   let-isNewRow="isNewRow"
   let-onAction="onAction"
 >
-  <tr class="position-relative" [class.new-row]="isNewRow">
+  <tr
+    class="position-relative"
+    [class.new-row]="isNewRow"
+    [class.editing-row]="editingRowId === event.id"
+    [id]="event.id"
+  >
     <td>
       <img class="new-icon" *ngIf="isNewRow" src="assets/icons/new.svg" />
     </td>
@@ -259,7 +264,7 @@
           Delete
         </button>
         <button
-          [disabled]="!canUpdateOrAddEvent(event)"
+          [disabled]="!canUpdateOrAddEvent(event) || !event.isEdited"
           class="w-100"
           type="button"
           mat-flat-button
