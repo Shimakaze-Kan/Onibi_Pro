@@ -699,6 +699,15 @@ export interface IRestaurantsClient {
      * @return Success
      */
     manager(restaurantId: string, body: AssignManagerRequest | undefined): Observable<void>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    schedulePost(restaurantId: string, body: CreateScheduleRequest | undefined): Observable<void>;
+    /**
+     * @return Success
+     */
+    scheduleGet(restaurantId: string): Observable<GetScheduleResponse[]>;
 }
 
 @Injectable({
@@ -1020,6 +1029,122 @@ export class RestaurantsClient implements IRestaurantsClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    schedulePost(restaurantId: string, body: CreateScheduleRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/schedule";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSchedulePost(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSchedulePost(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSchedulePost(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    scheduleGet(restaurantId: string): Observable<GetScheduleResponse[]> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/schedule";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processScheduleGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processScheduleGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetScheduleResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetScheduleResponse[]>;
+        }));
+    }
+
+    protected processScheduleGet(response: HttpResponseBase): Observable<GetScheduleResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetScheduleResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1929,6 +2054,66 @@ export interface ICreateRestaurantResponse {
     managers?: CreateRestaurantManagerResponse[] | undefined;
 }
 
+export class CreateScheduleRequest implements ICreateScheduleRequest {
+    title?: string | undefined;
+    priority?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    employeeIds?: string[] | undefined;
+
+    constructor(data?: ICreateScheduleRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.priority = _data["priority"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["employeeIds"])) {
+                this.employeeIds = [] as any;
+                for (let item of _data["employeeIds"])
+                    this.employeeIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateScheduleRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateScheduleRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["priority"] = this.priority;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.employeeIds)) {
+            data["employeeIds"] = [];
+            for (let item of this.employeeIds)
+                data["employeeIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICreateScheduleRequest {
+    title?: string | undefined;
+    priority?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    employeeIds?: string[] | undefined;
+}
+
 export class EditEmployeeRequest implements IEditEmployeeRequest {
     employeeId?: string;
     firstName?: string | undefined;
@@ -2443,6 +2628,70 @@ export interface IGetOrderByIdResponse {
     quantity?: number;
     orderTime?: Date;
     isCancelled?: boolean;
+}
+
+export class GetScheduleResponse implements IGetScheduleResponse {
+    scheduleId?: string;
+    title?: string | undefined;
+    priority?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    employeeIds?: string[] | undefined;
+
+    constructor(data?: IGetScheduleResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.scheduleId = _data["scheduleId"];
+            this.title = _data["title"];
+            this.priority = _data["priority"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["employeeIds"])) {
+                this.employeeIds = [] as any;
+                for (let item of _data["employeeIds"])
+                    this.employeeIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetScheduleResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetScheduleResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["scheduleId"] = this.scheduleId;
+        data["title"] = this.title;
+        data["priority"] = this.priority;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.employeeIds)) {
+            data["employeeIds"] = [];
+            for (let item of this.employeeIds)
+                data["employeeIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetScheduleResponse {
+    scheduleId?: string;
+    title?: string | undefined;
+    priority?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    employeeIds?: string[] | undefined;
 }
 
 export class GetWhoamiResponse implements IGetWhoamiResponse {

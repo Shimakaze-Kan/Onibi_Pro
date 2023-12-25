@@ -24,4 +24,6 @@ public sealed class EmployeeId : ValueObject
     {
         return new(value);
     }
+
+    private EmployeeId() { }
 }

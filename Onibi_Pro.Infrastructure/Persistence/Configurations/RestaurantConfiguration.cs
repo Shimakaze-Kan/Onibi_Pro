@@ -16,6 +16,7 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
         ConfigureOrderIdTable(builder);
         ConfigureManagerTable(builder);
         ConfigureEmployeeTable(builder);
+        ConfigureScheduleTable(builder);
 
         builder.Metadata.FindNavigation(nameof(Restaurant.Managers))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
@@ -26,6 +27,11 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
             .SetPropertyAccessMode(PropertyAccessMode.Field);
         builder.Metadata.FindNavigation(nameof(Restaurant.OrderIds))!
             .SetField("_orders");
+        
+        builder.Metadata.FindNavigation(nameof(Restaurant.Schedules))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+        builder.Metadata.FindNavigation(nameof(Restaurant.Schedules))!
+            .SetField("_schedules");
     }
 
     private static void ConfigureRestaurantTable(EntityTypeBuilder<Restaurant> builder)
@@ -126,6 +132,51 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
                 .WithOne()
                 .HasForeignKey<Manager>(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+    }
+
+    private static void ConfigureScheduleTable(EntityTypeBuilder<Restaurant> builder)
+    {
+        builder.OwnsMany(x => x.Schedules, sb =>
+        {
+            sb.ToTable("Schedules");
+
+            sb.WithOwner().HasForeignKey("RestaurantId");
+            sb.HasKey("Id", "RestaurantId");
+
+            sb.Property(x => x.Id)
+                .HasColumnName("ScheduleId")
+                .ValueGeneratedNever()
+                .HasConversion(
+                id => id.Value,
+                value => ScheduleId.Create(value));
+
+            sb.Property(x => x.Title)
+                .HasMaxLength(125);
+            sb.Property(x => x.StartDate);
+            sb.Property(x => x.EndDate);
+            sb.Property(x => x.Priority)
+                .HasConversion(
+                    priority => priority.ToString(),
+                    value => Enum.Parse<Priorities>(value));
+
+            sb.OwnsMany(x => x.Employees, eb =>
+            {
+                eb.ToTable("EmployeesSchedules");
+
+                eb.Property<int>("Id")
+                    .HasColumnType("int")
+                    .ValueGeneratedOnAdd();
+                eb.HasKey("Id");
+
+                eb.Property(x => x.Value)
+                    .ValueGeneratedNever()
+                    .HasColumnName("EmployeeId");
+            });
+
+
+            sb.Navigation(x => x.Employees).Metadata.SetField("_employeeIds");
+            sb.Navigation(x => x.Employees).UsePropertyAccessMode(PropertyAccessMode.Field);
         });
     }
 }

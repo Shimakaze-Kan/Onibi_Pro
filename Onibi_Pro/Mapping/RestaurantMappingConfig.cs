@@ -3,6 +3,7 @@
 using Onibi_Pro.Application.Restaurants.Commands.AssignManager;
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
+using Onibi_Pro.Application.Restaurants.Commands.CreateSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
@@ -57,6 +58,10 @@ public class RestaurantMappingConfig : IRegister
                     Enum.GetName(position.Position)!).ToList());
 
         config.NewConfig<(Guid RestaurantId, AssignManagerRequest Request), AssignManagerCommand>()
+            .Map(dest => dest, src => src.Request)
+            .Map(dest => dest.RestaurantId, src => src.RestaurantId);
+
+        config.NewConfig<(Guid RestaurantId, CreateScheduleRequest Request), CreateScheduleCommand>()
             .Map(dest => dest, src => src.Request)
             .Map(dest => dest.RestaurantId, src => src.RestaurantId);
     }

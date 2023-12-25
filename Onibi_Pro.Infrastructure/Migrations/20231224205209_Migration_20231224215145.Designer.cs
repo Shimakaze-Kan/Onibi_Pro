@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Onibi_Pro.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Onibi_Pro.Infrastructure.Persistence;
 namespace Onibi_Pro.Infrastructure.Migrations
 {
     [DbContext(typeof(OnibiProDbContext))]
-    partial class OnibiProDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231224205209_Migration_20231224215145")]
+    partial class Migration_20231224215145
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -315,7 +318,7 @@ namespace Onibi_Pro.Infrastructure.Migrations
                             b1.Property<DateTime>("EndDate")
                                 .HasColumnType("datetime2");
 
-                            b1.Property<string>("Priority")
+                            b1.Property<string>("Priotitiy")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 

@@ -118,7 +118,7 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
     this.loading = true;
     this.getManagerDetails()
       .pipe(
-        switchMap(() => this.getEmploees()),
+        switchMap(() => this.getEmployees()),
         tap(() => (this.loading = false))
       )
       .subscribe();
@@ -141,7 +141,7 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       .pipe(
         filter((result) => !!result),
         filter((result: { reload: boolean }) => result.reload),
-        switchMap((_) => this.getEmploees())
+        switchMap((_) => this.getEmployees())
       )
       .subscribe();
   }
@@ -162,12 +162,12 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       .pipe(
         filter((result) => !!result),
         filter((result: { reload: boolean }) => result.reload),
-        switchMap((_) => this.getEmploees())
+        switchMap((_) => this.getEmployees())
       )
       .subscribe();
   }
 
-  private getEmploees() {
+  private getEmployees() {
     this.loading = true;
 
     const formValues = this.employeeSearchForm.getRawValue();
@@ -267,7 +267,7 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
   }
 
   searchEmployees(): void {
-    this.getEmploees().subscribe();
+    this.getEmployees().subscribe();
   }
 
   supervisors = ['Jane Smith', 'Bob Johnson'];

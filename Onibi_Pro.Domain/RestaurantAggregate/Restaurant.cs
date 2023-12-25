@@ -15,11 +15,13 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
     private readonly List<OrderId> _orders = [];
     private readonly List<Employee> _employees = [];
     private readonly List<Manager> _managers = [];
+    private readonly List<Schedule> _schedules = [];
 
     public Address Address { get; private set; }
     public IReadOnlyList<Employee> Employees => _employees.ToList();
     public IReadOnlyList<OrderId> OrderIds => _orders.ToList();
     public IReadOnlyList<Manager> Managers => _managers.ToList();
+    public IReadOnlyList<Schedule> Schedules => _schedules.ToList();
 
     private Restaurant(RestaurantId id,
         Address address,
@@ -107,7 +109,6 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
             return Errors.Restaurant.WrongUserManagerType;
         }
 
-
         if (_managers.Any(x => x.UserId == userId))
         {
             return Errors.Restaurant.UserIsAlreadyManager;
@@ -121,6 +122,61 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
     public void UnassigneManager(Manager manager)
     {
         _managers.Remove(manager);
+    }
+
+    public ErrorOr<Success> AddSchedule(UserId userId, Schedule schedule)
+    {
+        if (!_managers.Any(m => m.UserId == userId))
+        {
+            return Errors.Restaurant.InvalidManager;
+        }
+
+        if (schedule.Employees.Any(employeeId => !_employees.Any(employee => employee.Id == employeeId)))
+        {
+            return Errors.Restaurant.EmployeeNotFound;
+        }
+
+        _schedules.Add(schedule);
+
+        return new Success();
+    }
+
+    public ErrorOr<Success> RemoveSchedule(UserId userId, ScheduleId scheduleId)
+    {
+        if (!_managers.Any(m => m.UserId == userId))
+        {
+            return Errors.Restaurant.InvalidManager;
+        }
+
+        var scheduleIndex = _schedules.FindIndex(schedule => schedule.Id == scheduleId);
+
+        if (scheduleIndex == -1)
+        {
+            return Errors.Restaurant.ScheduleNotFound;
+        }
+
+        _schedules.RemoveAt(scheduleIndex);
+
+        return new Success();
+    }
+
+    public ErrorOr<Success> UpdateSchedule(UserId userId, Schedule schedule)
+    {
+        if (!_managers.Any(m => m.UserId == userId))
+        {
+            return Errors.Restaurant.InvalidManager;
+        }
+
+        var scheduleIndex = _schedules.FindIndex(existingSchedule => existingSchedule.Id == schedule.Id);
+
+        if (scheduleIndex == -1)
+        {
+            return Errors.Restaurant.ScheduleNotFound;
+        }
+
+        _schedules[scheduleIndex] = schedule;
+
+        return new Success();
     }
 
 #pragma warning disable CS8618

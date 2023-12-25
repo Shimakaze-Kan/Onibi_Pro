@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Onibi_Pro.Application.Restaurants.Commands.AssignManager;
 using Onibi_Pro.Application.Restaurants.Commands.CreateEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.CreateRestaurant;
+using Onibi_Pro.Application.Restaurants.Commands.CreateSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
+using Onibi_Pro.Application.Restaurants.Queries.GetSchedules;
 using Onibi_Pro.Contracts.Restaurants;
 using Onibi_Pro.Shared;
 
@@ -86,5 +88,27 @@ public class RestaurantsController : ApiBaseController
         var result = await _mediator.Send(command);
 
         return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPost("{restaurantId}/schedule")]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
+    public async Task<IActionResult> CreateSchedule([FromRoute] Guid restaurantId, [FromBody] CreateScheduleRequest request)
+    {
+        var command = _mapper.Map<CreateScheduleCommand>((restaurantId, request));
+
+        var result = await _mediator.Send(command);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpGet("{restaurantId}/schedule")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetScheduleResponse>), 200)]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
+    public async Task<IActionResult> GetSchedules([FromRoute] Guid restaurantId)
+    {
+        var result = await _mediator.Send(new GetScheduleQuery(restaurantId));
+
+        return result.Match(response 
+            => Ok(_mapper.Map<IReadOnlyCollection<GetScheduleResponse>>(response)), Problem);
     }
 }

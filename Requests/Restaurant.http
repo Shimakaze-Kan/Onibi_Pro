@@ -1,7 +1,7 @@
 @baseUrl =  https://localhost:7002/api
 #@baseUrl =  http://localhost:8080/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OTUyZWIyZi1hOWRmLTRmODAtYTIwYy1hODg1NTA0OTAyMTQiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9oblJlZ2lvbmFsTWFuYWdlckBqb2huLmNvbSIsIlVTRVJfVFlQRSI6IlJFR0lPTkFMTUFOQUdFUiIsImp0aSI6ImFiNDM4YzA3LThlNTMtNGY0MC05NzEzLWZhNzI2YWFiMzhlZSIsImV4cCI6MTcwMzAyMjU5NCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.Qn5V87Cc25yliatfYbdRlTqbQnG4zZfSf1n2LWZAwTE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6Ik1BTkFHRVIiLCJqdGkiOiJmNjUyODg0My1hZDQ1LTRkMmUtYjQwZC1iZmY5YmFiNTVlZTEiLCJleHAiOjE3MDM0NjEyMDQsImlzcyI6Ik9uaWJpUHJvIiwiYXVkIjoiT25pYmlQcm8ifQ.x6x-6D6mWsFDqE9dGXNePFJbCjVY0aJlJiqdcFATelI
 
 ### create
 POST {{baseUrl}}/restaurants
@@ -91,3 +91,34 @@ Authorization: Bearer {{token}}
 {
   "UserId": "4952eb2f-a9df-4f80-a20c-a88550490214"
 }
+
+### create schedule
+POST {{baseUrl}}/restaurants/E2E115CF-4A20-40E4-ADD5-67CF34788A0A/schedule
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "Title": "Test title2",
+  "Priority": "Standard",
+  "StartDate": "2012-04-23T18:25:43.511Z",
+  "EndDate": "2012-04-23T18:25:43.511Z",
+  "EmployeeIds": ["0F73E4D1-1030-4B4F-8BC8-3EABF743C991", "FCB5C1C2-2D58-4393-A20A-618CF76552E3"]
+}
+
+### get schedules
+GET {{baseUrl}}/restaurants/E2E115CF-4A20-40E4-ADD5-67CF34788A0A/schedule
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### login
+# @name login
+POST {{baseUrl}}/authentication/login
+Content-Type: application/json
+
+{
+    "email": "john@john.com",
+    "password": "pass123@!"
+}
+
+### token
+@token = {{login.response.body.$.token}}

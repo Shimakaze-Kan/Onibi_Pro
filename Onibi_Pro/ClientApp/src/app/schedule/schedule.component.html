@@ -123,6 +123,7 @@
               context: {
                 event: workingSchedule,
                 onDelete: clearWorkingSchedule,
+                onAction: createEvent,
                 actionButtonText: 'Add',
                 isNewRow: true
               }
@@ -136,6 +137,7 @@
               context: {
                 event: event,
                 onDelete: deleteEvent,
+                onAction: updateEvent,
                 actionButtonText: 'Update'
               }
             "
@@ -152,6 +154,7 @@
   let-onDelete="onDelete"
   let-actionButtonText="actionButtonText"
   let-isNewRow="isNewRow"
+  let-onAction="onAction"
 >
   <tr class="position-relative" [class.new-row]="isNewRow">
     <td>
@@ -205,7 +208,41 @@
     </td>
     <td>
       <mat-form-field appearance="outline" class="d-flex">
-        <input matInput placeholder="Employees" required />
+        <mat-select
+          id="employeeSelect"
+          [(ngModel)]="event.employeeIds"
+          placeholder="Employee"
+          multiple
+        >
+          <mat-select-trigger>
+            {{ getDisplayEmployee(event.employeeIds) }}
+          </mat-select-trigger>
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="employeeFilterCtrl"
+              placeholderLabel="Type to search"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <div class="cursor-pointer" (click)="event.employeesIds = []">
+            <mat-option class="none">-- None --</mat-option>
+          </div>
+          <mat-option
+            *ngFor="let employee of filteredEmployees | async"
+            [value]="employee.id"
+          >
+            <div class="d-flex flex-column">
+              <span> {{ employee.firstName }} {{ employee.lastName }} </span>
+              <div>
+                <span
+                  class="position-font"
+                  *ngFor="let position of employee.positions"
+                >
+                  {{ position }}</span
+                >
+              </div>
+            </div>
+          </mat-option>
+        </mat-select>
       </mat-form-field>
     </td>
     <td>
@@ -225,6 +262,7 @@
           type="button"
           mat-flat-button
           color="primary"
+          (click)="onAction(event)"
         >
           {{ actionButtonText }}
         </button>

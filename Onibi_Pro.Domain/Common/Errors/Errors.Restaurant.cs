@@ -25,5 +25,17 @@ public static partial class Errors
 
         public static Error UserIsAlreadyManager => Error.Validation(
             code: "Restaurant.UserIsAlreadyManager", description: "User is already a manager of a restaurant.");
+
+        public static Error EndDateBeforeStartDate => Error.Validation(
+            code: "Schedule.WrongDateOrder", description: "Schedule must not end before the start date.");
+
+        public static Error WrongScheduleTitleLength => Error.Validation(
+            code: "Schedule.TitleLength", description: "Title of the schedule must be between 3 and 125 characters.");
+        
+        public static Error ScheduleEmployeeNumber => Error.Validation(
+            code: "Schedule.EmployeeNumber", description: "Schedule requires at least one assigned employee.");
+
+        public static Error ScheduleNotFound => Error.NotFound(
+            code: "Schedule.NotFound", description: "Schedule not found.");
     }
 }

@@ -1,29 +1,42 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
-  CalendarView,
   CalendarEvent,
   CalendarEventAction,
   CalendarEventTimesChangedEvent,
+  CalendarView,
 } from 'angular-calendar';
-import { privateDecrypt } from 'crypto';
+import { endOfDay, isSameDay, isSameMonth, startOfDay } from 'date-fns';
 import {
-  subDays,
-  startOfDay,
-  addDays,
-  endOfMonth,
-  addHours,
-  endOfDay,
-  isSameDay,
-  isSameMonth,
-} from 'date-fns';
-import { Subject } from 'rxjs';
+  ReplaySubject,
+  Subject,
+  catchError,
+  forkJoin,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
+import {
+  CreateScheduleRequest,
+  GetEmployeesResponse,
+  GetScheduleResponse,
+  IdentityClient,
+  RestaurantsClient,
+} from '../api/api';
+import { IdentityService } from '../utils/services/identity.service';
+import { FormControl } from '@angular/forms';
+import { ErrorMessagesParserService } from '../utils/services/error-messages-parser.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.scss'],
 })
-export class ScheduleComponent {
+export class ScheduleComponent implements OnInit {
+  private _restaurantId: string = undefined!;
+  private _onDestroy$ = new Subject<void>();
+  employees: Array<GetEmployeesResponse> = [];
   loading = false;
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
@@ -32,6 +45,8 @@ export class ScheduleComponent {
   activeDayIsOpen: boolean = true;
   workingSchedule: ScheduleItem = null!;
   priorities = Priorities;
+  employeeFilterCtrl = new FormControl<string>('');
+  filteredEmployees = new ReplaySubject<GetEmployeesResponse[]>(1);
 
   private _actions: CalendarEventAction[] = [
     {
@@ -50,46 +65,49 @@ export class ScheduleComponent {
     },
   ];
 
-  scheduleItems: ScheduleItem[] = [
-    new ScheduleItem(
-      'Team Meeting',
-      new Date('2023-12-23T10:00:00'),
-      new Date('2023-12-23T11:30:00'),
-      Priorities.Standard
-    ),
-    new ScheduleItem(
-      'Training Session',
-      new Date('2023-12-23T14:00:00'),
-      new Date('2023-12-23T16:00:00'),
-      Priorities.Essential
-    ),
-    new ScheduleItem(
-      'Project Review',
-      new Date('2023-12-23T09:30:00'),
-      new Date('2023-12-23T12:00:00'),
-      Priorities.Critical
-    ),
-    new ScheduleItem(
-      'Networking Event',
-      new Date('2023-12-23T18:00:00'),
-      new Date('2023-12-23T20:00:00'),
-      Priorities.Standard
-    ),
-    new ScheduleItem(
-      'Deadline Extension',
-      new Date('2023-12-23T16:00:00'),
-      new Date('2023-12-23T18:00:00'),
-      Priorities.Essential
-    ),
-  ];
-
-  events: CalendarEvent[] = ScheduleItem.toCalendarEvents(
-    this.scheduleItems,
-    this._actions
-  );
+  scheduleItems: ScheduleItem[] = [];
+  events: CalendarEvent[] = [];
 
   get canAddNewEvent(): boolean {
     return !this.workingSchedule;
+  }
+
+  constructor(
+    private readonly identityClient: IdentityClient,
+    private readonly identityService: IdentityService,
+    private readonly restaurantClient: RestaurantsClient,
+    private readonly errorParser: ErrorMessagesParserService,
+    private readonly snackBar: MatSnackBar
+  ) {}
+
+  ngOnInit(): void {
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.getManagerDetails()),
+        switchMap((result) =>
+          forkJoin({
+            employees: this.getEmployees(result.restaurantId || ''),
+            schedule: this.restaurantClient.scheduleGet(
+              result.restaurantId || ''
+            ),
+          })
+        ),
+        tap(({ employees, schedule }) => {
+          this.employees = employees;
+          this.filteredEmployees.next(employees.slice());
+          this.scheduleItems = ScheduleItem.fromGetScheduleResponse(schedule);
+          this.updateCalendarEvents();
+          this.loading = false;
+        })
+      )
+      .subscribe();
+
+    this.employeeFilterCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy$))
+      .subscribe(() => {
+        this.filterEmployees();
+      });
   }
 
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
@@ -113,6 +131,12 @@ export class ScheduleComponent {
   }: CalendarEventTimesChangedEvent): void {
     this.events = this.events.map((iEvent) => {
       if (iEvent === event) {
+        const scheduleItem = this.scheduleItems.find(
+          (x) => x.id === iEvent.id
+        )!;
+        scheduleItem.start = newStart;
+        scheduleItem.end = newEnd!;
+
         return {
           ...event,
           start: newStart,
@@ -158,36 +182,133 @@ export class ScheduleComponent {
   canUpdateOrAddEvent(event: ScheduleItem): boolean {
     return event.isValid();
   }
+
+  createEvent = (event: ScheduleItem): void => {
+    const request = event.toCreateScheduleRequest();
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.restaurantClient.schedulePost(this._restaurantId, request)
+        ),
+        tap(() => {
+          this.scheduleItems.push(event);
+          this.clearWorkingSchedule();
+          this.updateCalendarEvents();
+          this.loading = false;
+        }),
+        catchError((error) => {
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
+  };
+
+  updateEvent = (event: ScheduleItem): void => {};
+
+  getDisplayEmployee(ids: Array<string>): string {
+    return this.employees
+      .flatMap((employee) =>
+        ids.includes(employee.id || '')
+          ? `${employee.firstName} ${employee.lastName}`
+          : []
+      )
+      .join(', ');
+  }
+
+  private updateCalendarEvents(): void {
+    this.events = ScheduleItem.toCalendarEvents(
+      this.scheduleItems,
+      this._actions
+    );
+    this.refresh.next();
+  }
+
+  private getManagerDetails() {
+    return this.identityService
+      .getUserData()
+      .pipe(
+        switchMap((userData) =>
+          this.identityClient.managerDetails(userData.userId || '')
+        )
+      )
+      .pipe(
+        tap((result) => {
+          this._restaurantId = result.restaurantId || '';
+        })
+      );
+  }
+
+  private getEmployees(restaurantId: string) {
+    return this.restaurantClient.employees(
+      restaurantId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    );
+  }
+
+  private filterEmployees() {
+    if (!this.employees) {
+      return;
+    }
+
+    let search = this.employeeFilterCtrl.value;
+    if (!search) {
+      this.filteredEmployees.next(this.employees.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+
+    this.filteredEmployees.next(
+      this.employees.filter((employee) => {
+        const name = `${employee.firstName} ${employee.lastName}`;
+        return name.toLowerCase().includes(search!);
+      })
+    );
+  }
 }
 
 class ScheduleItem {
   private static _internalId: number = 0;
-  private _id: number;
+  private _id: string;
   private _title: string;
   private _start: Date;
   private _end: Date;
   private _priority: Priorities;
+  private _employeeIds: Array<string>;
 
   constructor(
     title: string,
     start: Date,
     end: Date,
     priority: Priorities,
-    id?: number
+    employeesIds: Array<string> = [],
+    id?: string
   ) {
     this._title = title;
     this._start = start;
     this._end = end;
     this._priority = priority;
+    this._employeeIds = employeesIds;
     if (!id) {
       ScheduleItem._internalId++;
-      this._id = ScheduleItem._internalId;
+      this._id = ScheduleItem._internalId.toString();
     } else {
       this._id = id;
     }
   }
 
-  get id(): number {
+  get id(): string {
     return this._id;
   }
 
@@ -207,6 +328,10 @@ class ScheduleItem {
     return this._priority;
   }
 
+  get employeeIds(): Array<string> {
+    return this._employeeIds;
+  }
+
   set title(value: string) {
     this._title = value;
   }
@@ -221,6 +346,10 @@ class ScheduleItem {
 
   set priority(value: Priorities) {
     this._priority = value;
+  }
+
+  set employeeIds(value: Array<string>) {
+    this._employeeIds = value;
   }
 
   toCalendarEvent(actions?: Array<CalendarEventAction>): CalendarEvent {
@@ -238,6 +367,16 @@ class ScheduleItem {
     };
   }
 
+  toCreateScheduleRequest(): CreateScheduleRequest {
+    return new CreateScheduleRequest({
+      title: this.title,
+      employeeIds: this.employeeIds,
+      endDate: this.end,
+      startDate: this.start,
+      priority: Priorities[this.priority],
+    });
+  }
+
   static toCalendarEvents(
     array: Array<ScheduleItem>,
     actions?: Array<CalendarEventAction>
@@ -251,7 +390,8 @@ class ScheduleItem {
       event.start,
       event.end!,
       getPriorityByColor(event.color?.primary!),
-      +(event.id || 0)
+      [],
+      event.id?.toString()
     );
   }
 
@@ -259,8 +399,26 @@ class ScheduleItem {
     return array.map((event) => ScheduleItem.fromCalendarEvent(event));
   }
 
+  static fromGetScheduleResponse(
+    array: Array<GetScheduleResponse>
+  ): Array<ScheduleItem> {
+    return array.map(
+      (schedule) =>
+        new ScheduleItem(
+          schedule.title!,
+          schedule.startDate!,
+          schedule.endDate!,
+          toPriority(schedule.priority!)!,
+          schedule.employeeIds,
+          schedule.scheduleId!
+        )
+    );
+  }
+
   isValid(): boolean {
-    return [this._title, this.start, this.end].every((x) => !!x);
+    return [this._title, this.start, this.end, this._employeeIds.length].every(
+      (x) => !!x
+    );
   }
 }
 
@@ -280,4 +438,14 @@ function getPriorityByColor(color: string): Priorities {
   return Object.keys(priorityColors).find(
     (key) => priorityColors[key as unknown as Priorities] === color
   ) as unknown as Priorities;
+}
+
+function toPriority(value: string): Priorities | undefined {
+  const keys = Object.keys(Priorities);
+  const foundKey = keys.find(
+    (key) => key.toLowerCase() === value.toLowerCase()
+  );
+  return foundKey !== undefined
+    ? Priorities[foundKey as keyof typeof Priorities]
+    : undefined;
 }
