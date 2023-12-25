@@ -192,9 +192,12 @@ export class ScheduleComponent implements OnInit {
           this.restaurantClient.schedulePost(this._restaurantId, request)
         ),
         tap(() => {
-          this.scheduleItems.push(event);
-          this.clearWorkingSchedule();
           this.updateCalendarEvents();
+        }),
+        switchMap(() => this.restaurantClient.scheduleGet(this._restaurantId)),
+        tap((schedule) => {
+          this.scheduleItems = ScheduleItem.fromGetScheduleResponse(schedule);
+          this.clearWorkingSchedule();
           this.loading = false;
         }),
         catchError((error) => {

@@ -145,8 +145,10 @@
 </div>
 
 <div class="content-top-shadow-container mt-5">
+  <div class="spinner-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+  </div>
   <div class="content-container-header d-flex">
-    <mat-spinner *ngIf="loading"></mat-spinner>
     <button
       type="button"
       class="ms-auto"
@@ -158,7 +160,7 @@
       Add Employee
     </button>
   </div>
-  <div class="mat-elevation-z8 container table-responsive" *ngIf="!loading">
+  <div class="mat-elevation-z8 container table-responsive">
     <table mat-table [dataSource]="dataSource">
       <ng-container matColumnDef="email">
         <th mat-header-cell *matHeaderCellDef>Email</th>

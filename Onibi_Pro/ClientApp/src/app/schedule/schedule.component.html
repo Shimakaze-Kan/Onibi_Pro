@@ -89,8 +89,10 @@
 <!--modify schedule-->
 
 <div class="content-top-shadow-container mt-5">
+  <div class="spinner-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+  </div>
   <div class="content-container-header d-flex">
-    <mat-spinner *ngIf="loading"></mat-spinner>
     <h4>Edit Schedule</h4>
     <button
       type="button"
@@ -103,7 +105,7 @@
       Add New Event
     </button>
   </div>
-  <div class="mat-elevation-z8 container table-responsive" *ngIf="!loading">
+  <div class="mat-elevation-z8 container table-responsive">
     <table class="table">
       <thead>
         <tr>
