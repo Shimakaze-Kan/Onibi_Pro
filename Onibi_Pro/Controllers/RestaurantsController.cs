@@ -82,7 +82,7 @@ public class RestaurantsController : ApiBaseController
     }
 
     [HttpPost("{restaurantId}/manager")]
-    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerAccess)]
     public async Task<IActionResult> AssignManager([FromRoute] Guid restaurantId, [FromBody] AssignManagerRequest request)
     {
         var command = _mapper.Map<AssignManagerCommand>((restaurantId, request));
