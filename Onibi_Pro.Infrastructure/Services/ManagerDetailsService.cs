@@ -23,7 +23,7 @@ internal class ManagerDetailsService : IManagerDetailsService
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
         var query = @"
-            SELECT m.RestaurantId, u.FirstName, u.LastName
+            SELECT m.ManagerId, m.RestaurantId, u.FirstName, u.LastName
             FROM dbo.Managers m
             JOIN dbo.Users u on m.UserId = u.Id
             WHERE m.RestaurantId = (
@@ -37,11 +37,11 @@ internal class ManagerDetailsService : IManagerDetailsService
 
         if (managers.Count == 0)
         {
-            return new ManagerDetailsDto(Guid.Empty, new List<ManagerNames>());
+            return new ManagerDetailsDto(Guid.Empty, Guid.Empty, new List<ManagerNames>());
         }
 
-        var restaurantId = managerDetails.First().RestaurantId;
+        var details = managerDetails.First();
 
-        return new ManagerDetailsDto(restaurantId, managers.AsReadOnly());
+        return new ManagerDetailsDto(details.ManagerId, details.RestaurantId, managers.AsReadOnly());
     }
 }

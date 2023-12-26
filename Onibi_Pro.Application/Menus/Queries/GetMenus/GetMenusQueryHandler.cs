@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Text.Json;
 
 using Dapper;
 
@@ -9,6 +8,7 @@ using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
+using Onibi_Pro.Domain.Common.ValueObjects;
 
 namespace Onibi_Pro.Application.Menus.Queries.GetMenus;
 internal sealed class GetMenusQueryHandler : IRequestHandler<GetMenusQuery, ErrorOr<IReadOnlyCollection<MenuDto>>>
@@ -26,68 +26,103 @@ internal sealed class GetMenusQueryHandler : IRequestHandler<GetMenusQuery, Erro
     public async Task<ErrorOr<IReadOnlyCollection<MenuDto>>> Handle(GetMenusQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
+
         var intermediateResults = await GetIntermediateResults(connection);
 
-        return MapToResultDto(intermediateResults);
+        return MapIntermediateResults(intermediateResults);
     }
 
-    private static List<MenuDto> MapToResultDto(IEnumerable<IntermediateMenuDto> intermediateResults)
+    private static List<MenuDto> MapIntermediateResults(List<IntermediateMenuDto> intermediateResults)
     {
-        List<MenuDto> menuList = [];
-
-        foreach (var entry in intermediateResults)
-        {
-            List<MenuItemDto> menuItems = [];
-
-            foreach (var item in entry.MenuItems)
-            {
-                var ingredients = JsonSerializer.Deserialize<List<IngredientDto>>(item.Ingredients) ?? [];
-                var menuItem = new MenuItemDto(item.MenuItemId, item.MenuItemName, item.Price, ingredients);
-                menuItems.Add(menuItem);
-            }
-
-            var menu = new MenuDto(entry.Id, entry.Name, menuItems);
-            menuList.Add(menu);
-        }
-
-        return menuList;
+        return intermediateResults.Select(intermediateMenu =>
+            new MenuDto(
+                intermediateMenu.MenuId,
+                intermediateMenu.MenuName,
+                intermediateMenu.MenuItems.Select(intermediateMenuItem =>
+                    new MenuItemDto(
+                        intermediateMenuItem.MenuItemId,
+                        intermediateMenuItem.MenuItemName,
+                        intermediateMenuItem.Price,
+                        intermediateMenuItem.Ingredients.Select(intermediateIngredient =>
+                            new IngredientDto(
+                                intermediateIngredient.IngredientName,
+                                Enum.TryParse<UnitType>(intermediateIngredient.Unit, true, out var unitType) 
+                                    ? unitType : throw new InvalidOperationException("Invalid unit type."),
+                                intermediateIngredient.Quantity
+                            )
+                        ).ToList()
+                    )
+                ).ToList()
+            )
+        ).ToList();
     }
 
-    private static async Task<IEnumerable<IntermediateMenuDto>> GetIntermediateResults(IDbConnection connection)
+    private static async Task<List<IntermediateMenuDto>> GetIntermediateResults(IDbConnection connection)
     {
-        string query = @"
-            SELECT 
-                m.Id AS Id,
-                m.Name,
-                mi.MenuId,
-                mi.MenuItemId,
-                mi.Name AS MenuItemName,
-                mi.Price,
-                mi.Ingredients
-            FROM Menus m
-            LEFT JOIN MenuItems mi ON m.Id = mi.MenuId";
+        string query = @$"
+            SELECT
+                m.Id AS {nameof(IntermediateMenuDto.MenuId)},
+                m.Name AS {nameof(IntermediateMenuDto.MenuName)},
+                mi.MenuItemId AS {nameof(IntermediateMenuItemDto.MenuItemId)},
+                mi.Name AS {nameof(IntermediateMenuItemDto.MenuItemName)},
+                mi.Price AS {nameof(IntermediateMenuItemDto.Price)},
+                ig.Name AS {nameof(IntermediateIngredientDto.IngredientName)},
+                ig.Unit AS {nameof(IntermediateIngredientDto.Unit)},
+                ig.Quantity AS {nameof(IntermediateIngredientDto.Quantity)}
+            FROM dbo.Menus m
+            JOIN dbo.MenuItems mi ON mi.MenuId = m.Id
+            JOIN dbo.Ingredients ig ON ig.MenuItemId = mi.MenuItemId";
 
         var menuDictionary = new Dictionary<Guid, IntermediateMenuDto>();
 
-        await connection.QueryAsync<IntermediateMenuDto, IntermediateMenuItemDto, IntermediateMenuDto>(
-            query, (menu, menuItem) =>
+        await connection.QueryAsync<IntermediateMenuDto, IntermediateMenuItemDto, IntermediateIngredientDto, IntermediateMenuDto>(
+            query,
+            (menu, menuItem, ingredient) =>
             {
-                if (!menuDictionary.TryGetValue(menu.Id, out var menuEntry))
+                if (!menuDictionary.TryGetValue(menu.MenuId, out var menuEntry))
                 {
                     menuEntry = menu;
-                    menuDictionary.Add(menuEntry.Id, menuEntry);
+                    menuEntry.MenuItems = [];
+                    menuDictionary.Add(menuEntry.MenuId, menuEntry);
                 }
 
-                if (menuItem != null)
+                var menuItemEntry = menuEntry.MenuItems.FirstOrDefault(mi => mi.MenuItemId == menuItem.MenuItemId);
+                if (menuItemEntry == null)
                 {
-                    menuEntry.MenuItems.Add(menuItem);
+                    menuItemEntry = menuItem;
+                    menuItemEntry.Ingredients = [];
+                    menuEntry.MenuItems.Add(menuItemEntry);
                 }
+
+                menuItemEntry.Ingredients.Add(ingredient);
 
                 return menuEntry;
             },
-            splitOn: "Id,MenuId"
+            splitOn: $"{nameof(IntermediateMenuDto.MenuId)},{nameof(IntermediateMenuItemDto.MenuItemId)},{nameof(IntermediateIngredientDto.IngredientName)}"
         );
 
-        return menuDictionary.Values;
+        return [.. menuDictionary.Values];
+    }
+
+    private class IntermediateMenuDto
+    {
+        public Guid MenuId { get; set; }
+        public string MenuName { get; set; } = "";
+        public List<IntermediateMenuItemDto> MenuItems { get; set; } = [];
+    }
+
+    private class IntermediateMenuItemDto
+    {
+        public Guid MenuItemId { get; set; }
+        public string MenuItemName { get; set; } = "";
+        public decimal Price { get; set; }
+        public List<IntermediateIngredientDto> Ingredients { get; set; } = [];
+    }
+
+    private class IntermediateIngredientDto
+    {
+        public string IngredientName { get; set; } = "";
+        public string Unit { get; set; } = "";
+        public decimal Quantity { get; set; }
     }
 }

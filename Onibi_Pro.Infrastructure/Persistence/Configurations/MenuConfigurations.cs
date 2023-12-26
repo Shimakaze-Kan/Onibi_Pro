@@ -54,10 +54,19 @@ public class MenuConfigurations : IEntityTypeConfiguration<Menu>
             mib.Property(x => x.Name).HasMaxLength(100);
             mib.Property(x => x.Price);
 
-            mib.Property(x => x.Ingredients)
-                .HasConversion(
-                 i => JsonSerializer.Serialize(i, new JsonSerializerOptions()),
-                 i => JsonSerializer.Deserialize<List<Ingredient>>(i, new JsonSerializerOptions()) ?? new());
+            mib.OwnsMany(x => x.Ingredients, a =>
+            {
+                a.ToTable("Ingredients");
+
+                a.Property<int>("Id").ValueGeneratedOnAdd();
+                a.HasKey("Id");
+
+                a.Property(x => x.Name).HasMaxLength(100);
+                a.Property(x => x.Unit).HasConversion(
+                    v => v.ToString(),
+                    v => (UnitType)Enum.Parse(typeof(UnitType), v));
+                a.Property(x => x.Quantity);
+            });
         });
     }
 }
