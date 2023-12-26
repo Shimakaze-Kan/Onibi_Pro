@@ -10,7 +10,7 @@ Authorization: Bearer {{token}}
 {
     "firstName": "John",
     "lastName": "Johnson",
-    "email": "testTransactionFail@john.com",
+    "email": "multipleClients@john.com",
     "password": "pass123@!"
 }
 

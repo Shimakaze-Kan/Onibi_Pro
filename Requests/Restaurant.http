@@ -1,7 +1,7 @@
 @baseUrl =  https://localhost:7002/api
 #@baseUrl =  http://localhost:8080/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6Ik1BTkFHRVIiLCJqdGkiOiJmNjUyODg0My1hZDQ1LTRkMmUtYjQwZC1iZmY5YmFiNTVlZTEiLCJleHAiOjE3MDM0NjEyMDQsImlzcyI6Ik9uaWJpUHJvIiwiYXVkIjoiT25pYmlQcm8ifQ.x6x-6D6mWsFDqE9dGXNePFJbCjVY0aJlJiqdcFATelI
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6IlJFR0lPTkFMTUFOQUdFUiIsImp0aSI6ImI0ZDNiNjNkLWM0ODItNDM4Yy1hYWZlLTk4NDEwNTU2ZjFhNyIsIkNMSUVOVF9OQU1FIjoiTWNEb3dlbCIsImV4cCI6MTcwMzU1MDE0NywiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.T8G_RpQIky3K3ilAUa-tqkxhUSekEZ2eeeyXZ5m_0Dk
 
 ### create
 POST {{baseUrl}}/restaurants
@@ -89,7 +89,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "UserId": "4952eb2f-a9df-4f80-a20c-a88550490214"
+  "UserId": "FB90EB91-F251-4A07-9547-E26977341455"
 }
 
 ### create schedule
