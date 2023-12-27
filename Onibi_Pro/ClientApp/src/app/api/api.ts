@@ -589,12 +589,18 @@ export interface IOrdersClient {
     /**
      * @return Success
      */
-    ordersGet(orderId: string): Observable<GetOrderByIdResponse[]>;
+    id(orderId: string): Observable<GetOrderByIdResponse[]>;
     /**
      * @param body (optional) 
      * @return Success
      */
     ordersPost(restaurantId: string, body: CreateOrderRequest | undefined): Observable<CreateOrderResponse>;
+    /**
+     * @param startRow (optional) 
+     * @param amount (optional) 
+     * @return Success
+     */
+    ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse[]>;
 }
 
 @Injectable({
@@ -613,8 +619,8 @@ export class OrdersClient implements IOrdersClient {
     /**
      * @return Success
      */
-    ordersGet(orderId: string): Observable<GetOrderByIdResponse[]> {
-        let url_ = this.baseUrl + "/api/Orders/{orderId}";
+    id(orderId: string): Observable<GetOrderByIdResponse[]> {
+        let url_ = this.baseUrl + "/api/Orders/id/{orderId}";
         if (orderId === undefined || orderId === null)
             throw new Error("The parameter 'orderId' must be defined.");
         url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
@@ -629,11 +635,11 @@ export class OrdersClient implements IOrdersClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processOrdersGet(response_);
+            return this.processId(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processOrdersGet(response_ as any);
+                    return this.processId(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<GetOrderByIdResponse[]>;
                 }
@@ -642,7 +648,7 @@ export class OrdersClient implements IOrdersClient {
         }));
     }
 
-    protected processOrdersGet(response: HttpResponseBase): Observable<GetOrderByIdResponse[]> {
+    protected processId(response: HttpResponseBase): Observable<GetOrderByIdResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -720,6 +726,74 @@ export class OrdersClient implements IOrdersClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CreateOrderResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param startRow (optional) 
+     * @param amount (optional) 
+     * @return Success
+     */
+    ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse[]> {
+        let url_ = this.baseUrl + "/api/Orders?";
+        if (startRow === null)
+            throw new Error("The parameter 'startRow' cannot be null.");
+        else if (startRow !== undefined)
+            url_ += "StartRow=" + encodeURIComponent("" + startRow) + "&";
+        if (amount === null)
+            throw new Error("The parameter 'amount' cannot be null.");
+        else if (amount !== undefined)
+            url_ += "Amount=" + encodeURIComponent("" + amount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrdersGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrdersGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetOrdersResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetOrdersResponse[]>;
+        }));
+    }
+
+    protected processOrdersGet(response: HttpResponseBase): Observable<GetOrdersResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetOrdersResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2956,6 +3030,66 @@ export interface IGetOrderByIdResponse {
     isCancelled?: boolean;
 }
 
+export class GetOrdersResponse implements IGetOrdersResponse {
+    orderId?: string;
+    orderTime?: Date;
+    isCancelled?: boolean;
+    orderItems?: OrderItemDtoResponse[] | undefined;
+    total?: number;
+
+    constructor(data?: IGetOrdersResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"];
+            this.orderTime = _data["orderTime"] ? new Date(_data["orderTime"].toString()) : <any>undefined;
+            this.isCancelled = _data["isCancelled"];
+            if (Array.isArray(_data["orderItems"])) {
+                this.orderItems = [] as any;
+                for (let item of _data["orderItems"])
+                    this.orderItems!.push(OrderItemDtoResponse.fromJS(item));
+            }
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): GetOrdersResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetOrdersResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId;
+        data["orderTime"] = this.orderTime ? this.orderTime.toISOString() : <any>undefined;
+        data["isCancelled"] = this.isCancelled;
+        if (Array.isArray(this.orderItems)) {
+            data["orderItems"] = [];
+            for (let item of this.orderItems)
+                data["orderItems"].push(item.toJSON());
+        }
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IGetOrdersResponse {
+    orderId?: string;
+    orderTime?: Date;
+    isCancelled?: boolean;
+    orderItems?: OrderItemDtoResponse[] | undefined;
+    total?: number;
+}
+
 export class GetScheduleResponse implements IGetScheduleResponse {
     scheduleId?: string;
     title?: string | undefined;
@@ -3350,6 +3484,54 @@ export interface IMenuItemResponse {
     name?: string | undefined;
     price?: number;
     ingredients?: IngredientResponse[] | undefined;
+}
+
+export class OrderItemDtoResponse implements IOrderItemDtoResponse {
+    menuItemId?: string;
+    quantity?: number;
+    menuItemName?: string | undefined;
+    price?: number;
+
+    constructor(data?: IOrderItemDtoResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.menuItemId = _data["menuItemId"];
+            this.quantity = _data["quantity"];
+            this.menuItemName = _data["menuItemName"];
+            this.price = _data["price"];
+        }
+    }
+
+    static fromJS(data: any): OrderItemDtoResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderItemDtoResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["menuItemId"] = this.menuItemId;
+        data["quantity"] = this.quantity;
+        data["menuItemName"] = this.menuItemName;
+        data["price"] = this.price;
+        return data;
+    }
+}
+
+export interface IOrderItemDtoResponse {
+    menuItemId?: string;
+    quantity?: number;
+    menuItemName?: string | undefined;
+    price?: number;
 }
 
 export class OrderItemRequest implements IOrderItemRequest {

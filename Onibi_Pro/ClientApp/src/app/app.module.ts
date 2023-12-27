@@ -55,6 +55,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RequiredStarDirective } from './directives/required-star.directive';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { OrderManagerComponent } from './orders/order-manager/order-manager.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -99,6 +100,7 @@ const ROUTES: Array<Route> = [
       { path: 'schedule', component: ScheduleComponent },
       { path: 'personel-management', component: PersonelManagementComponent },
       { path: 'delivery', component: DeliveryComponent },
+      { path: 'order', component: OrderManagerComponent },
     ],
   },
   { path: '**', redirectTo: '' },

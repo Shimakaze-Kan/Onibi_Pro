@@ -1,9 +1,20 @@
 @baseUrl =  https://localhost:7002/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMzBkYTgxNy01NzllLTQ1NzMtYmIxNy02ZTRiNjA2MGFlOWIiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsImp0aSI6ImJiYmRiYWU1LTk5YTItNDdiYy1hNzk1LTA0MmFiODRmZWNmNyIsImV4cCI6MTcwMjMzNTYyNCwiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.2uwwMVfcqoTnPkn3rJIsK4I9yTTK-ppqG7f0R16ZPF4
+### login
+# @name login
+POST {{baseUrl}}/authentication/login
+Content-Type: application/json
+
+{
+    "email": "john@john.com",
+    "password": "pass123@!"
+}
+
+### token
+@token = {{login.response.body.$.token}}
 
 ### order by id
-GET {{baseUrl}}/Orders/2B750804-E65E-43D7-BAC1-B43B6757DC31
+GET {{baseUrl}}/Orders/3E1F3691-902F-44BC-B409-20BBA7AF3A62
 Authorization: Bearer {{token}}
 
 ### order by id wrong id
@@ -19,11 +30,11 @@ Authorization: Bearer {{token}}
     "OrderItems": [
         {
             "Quantity": 12,
-            "MenuItemId": "918BF590-D97E-418C-9460-8331C6AC8727"
+            "MenuItemId": "038C4A1F-D524-4461-8FB3-1183EBB627DC"
         },
         {
             "Quantity": 1,
-            "MenuItemId": "27456114-A8DA-4922-86B2-A6559EAE20EF"
+            "MenuItemId": "E0708EC6-EE40-4042-B94C-5A7A1745D40E"
         }
     ]
 }
@@ -45,3 +56,8 @@ Authorization: Bearer {{token}}
         }
     ]
 }
+
+### get orders
+GET {{baseUrl}}/Orders?startrow=2&amount=1
+Content-Type: application/json
+Authorization: Bearer {{token}}

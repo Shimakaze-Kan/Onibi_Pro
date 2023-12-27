@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Orders.Commands.CreateOrder;
 using Onibi_Pro.Application.Orders.Queries.GetOrderById;
+using Onibi_Pro.Application.Orders.Queries.GetOrders;
 using Onibi_Pro.Contracts.Orders;
 
 namespace Onibi_Pro.Controllers;
@@ -23,9 +24,9 @@ public class OrdersController : ApiBaseController
         _mapper = mapper;
     }
 
-    [HttpGet("{orderId}")]
+    [HttpGet("id/{orderId}")]
     [ProducesResponseType(typeof(IReadOnlyCollection<GetOrderByIdResponse>), 200)]
-    public async Task<IActionResult> GetById(Guid orderId)
+    public async Task<IActionResult> GetById([FromRoute] Guid orderId)
     {
         var query = new GetOrderByIdQuery(orderId);
 
@@ -45,5 +46,16 @@ public class OrdersController : ApiBaseController
 
         return result.Match(result
             => Ok(_mapper.Map<CreateOrderResponse>(result)), Problem);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetOrdersResponse>), 200)]
+    public async Task<IActionResult> GetOrders([FromQuery] GetOrdersRequest request)
+    {
+        var query = _mapper.Map<GetOrdersQuery>(request);
+
+        var result = await _mediator.Send(query);
+
+        return Ok(_mapper.Map<IReadOnlyCollection<GetOrdersResponse>>(result));
     }
 }

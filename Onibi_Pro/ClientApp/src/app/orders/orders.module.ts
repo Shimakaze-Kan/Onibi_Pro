@@ -43,5 +43,6 @@ import { UtilsModule } from '../utils/utils.module';
     MatDatepickerModule,
     MatNativeDateModule,
   ],
+  exports: [OrderManagerComponent],
 })
 export class OrdersModule {}

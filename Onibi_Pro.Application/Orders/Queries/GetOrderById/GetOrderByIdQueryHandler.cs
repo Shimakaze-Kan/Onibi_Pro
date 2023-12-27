@@ -12,7 +12,7 @@ using Onibi_Pro.Domain.OrderAggregate;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Orders.Queries.GetOrderById;
-internal sealed class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, ErrorOr<IReadOnlyCollection<OrderDto>>>
+internal sealed class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, ErrorOr<IReadOnlyCollection<OrderPositionDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -24,11 +24,11 @@ internal sealed class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQue
         _currentUserService = currentUserService;
     }
 
-    public async Task<ErrorOr<IReadOnlyCollection<OrderDto>>> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<IReadOnlyCollection<OrderPositionDto>>> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
-        var order = await connection.QueryAsync<OrderDto>(
+        var order = await connection.QueryAsync<OrderPositionDto>(
             $"""
             SELECT mi.{nameof(MenuItem.Name)}, oi.{nameof(OrderItem.Quantity)},
                 o.{nameof(Order.OrderTime)}, o.{nameof(Order.IsCancelled)}

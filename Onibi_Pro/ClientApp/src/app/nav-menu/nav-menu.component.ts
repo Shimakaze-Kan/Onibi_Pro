@@ -81,6 +81,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     { name: 'Schedule', id: 3, url: '/schedule' },
     { name: 'Personel Management', id: 4, url: '/personel-management' },
     { name: 'fetch-data', id: 4, url: '/fetch-data' },
+    { name: 'Order', id: 4, url: '/order' },
   ];
 
   get currentPageName(): string {
