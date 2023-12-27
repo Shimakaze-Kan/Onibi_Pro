@@ -34,18 +34,19 @@
       <li *ngIf="!!supplies.controls.length" style="color: black">
         <span class="col-1 mt-auto mb-auto">No.</span>
         <span class="col-5 mt-auto mb-auto">Name</span>
-        <span class="col-3 mt-auto mb-auto">Amount</span>
+        <span class="col-2 mt-auto mb-auto">Unit</span>
+        <span class="col-2 mt-auto mb-auto">Amount</span>
       </li>
       <li
         class="border-list"
         [class.form]="isIndexEdited(i)"
-        *ngFor="let productForm of supplies.controls; let i = index"
+        *ngFor="let ingredientForm of supplies.controls; let i = index"
       >
         <ng-container
           *ngTemplateOutlet="
             isIndexEdited(i) ? supplyItemForm : supplyItem;
             context: {
-              form: productForm,
+              form: ingredientForm,
               supplyOpertaion: supplyOperation.Update,
               index: i
             }
@@ -55,7 +56,7 @@
           *ngIf="isIndexEdited(i)"
           (click)="updateSupply(i)"
           class="ms-3 mt-auto mb-auto col-2"
-          [disabled]="productForm.invalid"
+          [disabled]="ingredientForm.invalid"
           mat-flat-button
           color="primary"
         >
@@ -113,25 +114,34 @@
     autocomplete="off"
   >
     <div class="row">
-      <label class="mb-1" for="productSelect">Product</label>
+      <label class="mb-1" for="ingredientSelect">Ingredient</label>
       <mat-form-field appearance="outline">
         <mat-select
-          id="productSelect"
-          formControlName="name"
-          placeholder="Product"
+          id="ingredientSelect"
+          (selectionChange)="populateIngredientToForm($event, form)"
+          [value]="getIngredientFromForm(form)"
+          placeholder="Ingredient"
+          [disabled]="loading"
         >
+          <mat-select-trigger>
+            {{ form.get("name").value }}
+            <span class="ms-1 small-gray-text">{{
+              form.get("unit").value
+            }}</span>
+          </mat-select-trigger>
           <mat-option>
             <ngx-mat-select-search
-              [formControl]="productFilterCtrl"
+              [formControl]="ingredientFilterCtrl"
               placeholderLabel="Type to search"
             ></ngx-mat-select-search>
           </mat-option>
           <mat-option class="none">-- None --</mat-option>
           <mat-option
-            *ngFor="let product of filteredProducts | async"
-            [value]="product"
+            *ngFor="let ingredient of filteredIngredients | async"
+            [value]="ingredient"
           >
-            {{ product }}
+            {{ ingredient.name }}
+            <span class="ms-1 small-gray-text">{{ ingredient.unit }}</span>
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -161,7 +171,10 @@
   <span class="col-5 mt-auto mb-auto text-break">{{
     form.get("name")?.value
   }}</span>
-  <span class="col-3 mt-auto mb-auto text-break">{{
+  <span class="col-2 mt-auto mb-auto text-break">{{
+    form.get("unit")?.value
+  }}</span>
+  <span class="col-2 mt-auto mb-auto text-break">{{
     form.get("amount")?.value
   }}</span>
 

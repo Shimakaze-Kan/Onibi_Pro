@@ -96,7 +96,7 @@ export class DeliveryComponent implements AfterViewInit {
   openRequestSuppliesDialog() {
     this.dialog.open(RequestSuppliesComponent, {
       maxWidth: '750px',
-      width: '600px',
+      width: '750px',
     });
   }
 

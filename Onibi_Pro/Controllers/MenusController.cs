@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Menus.Commands.CreateMenu;
+using Onibi_Pro.Application.Menus.Queries.GetIngredients;
 using Onibi_Pro.Application.Menus.Queries.GetMenus;
 using Onibi_Pro.Contracts.Menus;
 using Onibi_Pro.Shared;
@@ -43,5 +44,14 @@ public class MenusController : ApiBaseController
         var result = await _mediator.Send(new GetMenusQuery());
 
         return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetMenusResponse>>(result)), Problem);
+    }
+
+    [HttpGet("ingredients")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetIngredientsResponse>), 200)]
+    public async Task<IActionResult> GetIngredients()
+    {
+        var result = await _mediator.Send(new GetIngredientsQuery());
+
+        return Ok(_mapper.Map<IReadOnlyCollection<GetIngredientsResponse>>(result));
     }
 }

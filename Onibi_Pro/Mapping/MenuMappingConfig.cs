@@ -1,6 +1,7 @@
 ﻿using Mapster;
 
 using Onibi_Pro.Application.Menus.Commands.CreateMenu;
+using Onibi_Pro.Application.Menus.Queries.GetIngredients;
 using Onibi_Pro.Application.Menus.Queries.GetMenus;
 using Onibi_Pro.Contracts.Menus;
 using Onibi_Pro.Domain.Common.ValueObjects;
@@ -26,6 +27,9 @@ public class MenuMappingConfig : IRegister
             .Map(dest => dest.Unit, src => Enum.GetName(src.Unit));
 
         config.NewConfig<IngredientDto, GetIngredientResponse>()
+            .Map(dest => dest.Unit, src => Enum.GetName(src.Unit));
+
+        config.NewConfig<IngredientKeyValueDto, GetIngredientsResponse>()
             .Map(dest => dest.Unit, src => Enum.GetName(src.Unit));
     }
 }

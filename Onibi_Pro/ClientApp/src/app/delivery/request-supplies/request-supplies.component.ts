@@ -1,15 +1,30 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
-  NgForm,
   Validators,
 } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ReplaySubject, Subject, takeUntil, tap } from 'rxjs';
+import {
+  ReplaySubject,
+  Subject,
+  catchError,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
+import {
+  GetIngredientResponse,
+  GetIngredientsResponse,
+  MenusClient,
+} from '../../api/api';
+import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-request-supplies',
@@ -20,38 +35,43 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   private readonly _onDestroy$ = new Subject<void>();
   private _editingIndexes: Array<number> = [];
   readonly currentDate = new Date();
+  ingredients: Array<GetIngredientsResponse> = [];
+  loading = false;
   supplyOperation = SupplyOperation;
 
-  productFilterCtrl = new FormControl<string>('');
-  filteredProducts = new ReplaySubject<string[]>(1);
+  ingredientFilterCtrl = new FormControl<string>('');
+  filteredIngredients = new ReplaySubject<GetIngredientResponse[]>(1);
 
   newSupplyForm = this.fb.group({
     until: new FormControl<Date | undefined>(undefined, Validators.required),
     isUrgent: new FormControl<boolean>(false),
-    products: this.fb.array<ISupply>([]),
+    ingredients: this.fb.array<ISupply>([]),
   });
 
   tmpSupplyForm = this.fb.group({
     name: new FormControl<string>('', Validators.required),
+    unit: new FormControl<string>('', Validators.required),
     amount: new FormControl<string>('', Validators.required),
   });
 
   get supplies() {
-    return this.newSupplyForm.controls.products as FormArray;
+    return this.newSupplyForm.controls.ingredients as FormArray;
   }
 
   constructor(
     private readonly dialogRef: MatDialogRef<RequestSuppliesComponent>,
     private readonly fb: FormBuilder,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly client: MenusClient,
+    private readonly errorParser: ErrorMessagesParserService,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.filteredProducts.next(this.products.slice());
-    this.productFilterCtrl.valueChanges
+    this.ingredientFilterCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy$))
       .subscribe(() => {
-        this.filterProducts();
+        this.filterIngredients();
       });
 
     this.newSupplyForm.controls.isUrgent.valueChanges
@@ -68,6 +88,27 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
+
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.client.ingredients()),
+        tap((result) => {
+          this.ingredients = result;
+          this.filteredIngredients.next(this.ingredients.slice());
+          this.loading = false;
+        }),
+        catchError((error) => {
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -80,20 +121,21 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   }
 
   addSupplyForm(): void {
-    const productForm = this.fb.group({
+    const ingredientForm = this.fb.group({
       name: new FormControl<string>('', Validators.required),
+      unit: new FormControl<string>('', Validators.required),
       amount: new FormControl<string>('', Validators.required),
     });
 
-    productForm.patchValue(this.tmpSupplyForm.getRawValue());
+    ingredientForm.patchValue(this.tmpSupplyForm.getRawValue());
 
-    if (productForm.invalid) {
+    if (ingredientForm.invalid) {
       return;
     }
 
     this.tmpSupplyForm.reset();
 
-    this.supplies.push(productForm);
+    this.supplies.push(ingredientForm);
   }
 
   deleteSupply(index: number): void {
@@ -131,62 +173,43 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
     });
   }
 
-  private filterProducts() {
-    if (!this.products) {
+  populateIngredientToForm(event: MatSelectChange, form: FormGroup): void {
+    const ingredient = event.value;
+    form.get('name')?.setValue(ingredient?.name);
+    form.get('unit')?.setValue(ingredient?.unit);
+  }
+
+  getIngredientFromForm(form: FormGroup): GetIngredientsResponse | undefined {
+    const name = form.get('name')?.value;
+    const unit = form.get('unit')?.value;
+
+    return this.ingredients.find((x) => x.name === name && x.unit === unit);
+  }
+
+  private filterIngredients() {
+    if (!this.ingredients) {
       return;
     }
 
-    let search = this.productFilterCtrl.value;
+    let search = this.ingredientFilterCtrl.value;
     if (!search) {
-      this.filteredProducts.next(this.products.slice());
+      this.filteredIngredients.next(this.ingredients.slice());
       return;
     } else {
       search = search.toLowerCase();
     }
 
-    this.filteredProducts.next(
-      this.products.filter((product) => product.toLowerCase().includes(search!))
+    this.filteredIngredients.next(
+      this.ingredients.filter((ingredient) =>
+        ingredient.name?.toLowerCase().includes(search!)
+      )
     );
   }
-
-  products = [
-    'Burger buns',
-    'Ground beef',
-    'Chicken fillets',
-    'Lettuce',
-    'Tomatoes',
-    'Cheese slices',
-    'Pickles',
-    'Ketchup',
-    'Mustard',
-    'Mayonnaise',
-    'French fries',
-    'Soft drink cups',
-    'Straws',
-    'Napkins',
-    'Disposable plates',
-    'Disposable utensils',
-    'Cooking oil',
-    'Salt',
-    'Pepper',
-    'Onions',
-    'Ice cream',
-    'Cups for ice cream',
-    'Milkshakes',
-    'Salad dressing',
-    'Grill cleaning supplies',
-    'Cash register rolls',
-    'To-go containers',
-    'Cleaning wipes',
-    'Trash bags',
-    'Hand soap',
-    'Disposable gloves',
-  ];
 }
 
 interface ISupply {
   name: string;
-  code: string;
+  unit: string;
   amount: string;
 }
 
