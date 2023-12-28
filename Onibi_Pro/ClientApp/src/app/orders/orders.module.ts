@@ -18,9 +18,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { UtilsModule } from '../utils/utils.module';
+import { CreateOrderComponent } from './order-manager/create-order/create-order.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
-  declarations: [OrderManagerComponent],
+  declarations: [OrderManagerComponent, CreateOrderComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -42,6 +44,7 @@ import { UtilsModule } from '../utils/utils.module';
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatProgressBarModule,
   ],
   exports: [OrderManagerComponent],
 })

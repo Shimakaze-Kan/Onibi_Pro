@@ -22,6 +22,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.ToTable("Orders");
 
         builder.HasKey(x => x.Id);
+        builder.HasIndex(x => new { x.OrderTime, x.IsCancelled }).IsDescending();
 
         builder.Property(x => x.Id)
             .ValueGeneratedNever()

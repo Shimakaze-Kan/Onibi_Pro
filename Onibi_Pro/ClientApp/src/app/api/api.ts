@@ -600,7 +600,7 @@ export interface IOrdersClient {
      * @param amount (optional) 
      * @return Success
      */
-    ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse[]>;
+    ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse>;
 }
 
 @Injectable({
@@ -741,7 +741,7 @@ export class OrdersClient implements IOrdersClient {
      * @param amount (optional) 
      * @return Success
      */
-    ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse[]> {
+    ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse> {
         let url_ = this.baseUrl + "/api/Orders?";
         if (startRow === null)
             throw new Error("The parameter 'startRow' cannot be null.");
@@ -768,14 +768,14 @@ export class OrdersClient implements IOrdersClient {
                 try {
                     return this.processOrdersGet(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<GetOrdersResponse[]>;
+                    return _observableThrow(e) as any as Observable<GetOrdersResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<GetOrdersResponse[]>;
+                return _observableThrow(response_) as any as Observable<GetOrdersResponse>;
         }));
     }
 
-    protected processOrdersGet(response: HttpResponseBase): Observable<GetOrdersResponse[]> {
+    protected processOrdersGet(response: HttpResponseBase): Observable<GetOrdersResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -786,14 +786,7 @@ export class OrdersClient implements IOrdersClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GetOrdersResponse.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = GetOrdersResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2603,13 +2596,61 @@ export interface IGetOrderByIdResponse {
 }
 
 export class GetOrdersResponse implements IGetOrdersResponse {
+    orders?: GetOrdersResponse_Order[] | undefined;
+    totalCount?: number;
+
+    constructor(data?: IGetOrdersResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["orders"])) {
+                this.orders = [] as any;
+                for (let item of _data["orders"])
+                    this.orders!.push(GetOrdersResponse_Order.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): GetOrdersResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetOrdersResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.orders)) {
+            data["orders"] = [];
+            for (let item of this.orders)
+                data["orders"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+export interface IGetOrdersResponse {
+    orders?: GetOrdersResponse_Order[] | undefined;
+    totalCount?: number;
+}
+
+export class GetOrdersResponse_Order implements IGetOrdersResponse_Order {
     orderId?: string;
     orderTime?: Date;
     isCancelled?: boolean;
     orderItems?: GetOrdersResponse_OrderItem[] | undefined;
     total?: number;
 
-    constructor(data?: IGetOrdersResponse) {
+    constructor(data?: IGetOrdersResponse_Order) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2632,9 +2673,9 @@ export class GetOrdersResponse implements IGetOrdersResponse {
         }
     }
 
-    static fromJS(data: any): GetOrdersResponse {
+    static fromJS(data: any): GetOrdersResponse_Order {
         data = typeof data === 'object' ? data : {};
-        let result = new GetOrdersResponse();
+        let result = new GetOrdersResponse_Order();
         result.init(data);
         return result;
     }
@@ -2654,7 +2695,7 @@ export class GetOrdersResponse implements IGetOrdersResponse {
     }
 }
 
-export interface IGetOrdersResponse {
+export interface IGetOrdersResponse_Order {
     orderId?: string;
     orderTime?: Date;
     isCancelled?: boolean;

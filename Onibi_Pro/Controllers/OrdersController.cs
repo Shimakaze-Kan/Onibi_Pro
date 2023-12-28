@@ -49,13 +49,13 @@ public class OrdersController : ApiBaseController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyCollection<GetOrdersResponse>), 200)]
+    [ProducesResponseType(typeof(GetOrdersResponse), 200)]
     public async Task<IActionResult> GetOrders([FromQuery] GetOrdersRequest request)
     {
         var query = _mapper.Map<GetOrdersQuery>(request);
 
         var result = await _mediator.Send(query);
 
-        return Ok(_mapper.Map<IReadOnlyCollection<GetOrdersResponse>>(result));
+        return Ok(_mapper.Map<GetOrdersResponse>(result));
     }
 }

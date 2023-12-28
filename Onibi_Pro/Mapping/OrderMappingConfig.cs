@@ -16,7 +16,9 @@ public class OrderMappingConfig : IRegister
             .Map(dest => dest.RestaurantId, src => src.restaurantId);
 
         config.NewConfig<Order, CreateOrderResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value);
+            .Map(dest => dest, src => src)
+            .Map(dest => dest.Id, src => src.Id.Value)
+            .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<List<GetOrdersResponse.OrderItem>>());
         
         config.NewConfig<OrderItem, GetOrdersResponse.OrderItem>()
             .Map(dest => dest.MenuItemId, src => src.MenuItemId.Value);

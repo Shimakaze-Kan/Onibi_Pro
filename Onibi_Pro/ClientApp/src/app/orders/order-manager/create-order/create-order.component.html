@@ -1,0 +1,83 @@
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
+<h1 mat-dialog-title>Place Order</h1>
+<div mat-dialog-content class="dialog-content">
+  <div class="d-flex">
+    <button
+      type="button"
+      class="mt-2 mb-2 ms-auto"
+      style="width: fit-content"
+      mat-flat-button
+      color="primary"
+      (click)="addProduct()"
+    >
+      Add Product
+    </button>
+  </div>
+  <table class="w-100">
+    <tr *ngIf="!!orderItems.length">
+      <th>Product</th>
+      <th>Qty</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let item of orderItems">
+      <td style="width: 65%">
+        <mat-form-field appearance="outline" class="w-100 pe-3">
+          <mat-select
+            id="menuSelect"
+            [(ngModel)]="item.menuItemId"
+            placeholder="Menu"
+          >
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="menuFilterCtrl"
+                placeholderLabel="Type to search"
+              ></ngx-mat-select-search>
+            </mat-option>
+            <mat-optgroup
+              [label]="menuGroup.name || ''"
+              *ngFor="let menuGroup of filteredMenus | async"
+            >
+              <mat-option
+                *ngFor="let menuItem of menuGroup.menuItems"
+                [value]="menuItem.menuItemId"
+              >
+                {{ menuItem.name }}
+              </mat-option>
+            </mat-optgroup>
+          </mat-select>
+        </mat-form-field>
+      </td>
+      <td style="width: 20%">
+        <mat-form-field appearance="outline">
+          <input
+            min="1"
+            type="number"
+            matInput
+            placeholder="Qty"
+            [(ngModel)]="item.quantity"
+          />
+        </mat-form-field>
+      </td>
+      <td style="width: 15%" class="d-flex">
+        <button mat-icon-button (click)="removeProduct(item)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </td>
+    </tr>
+  </table>
+</div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button
+    mat-button
+    [disabled]="!canPlaceOrder"
+    (click)="placeOrder()"
+    color="primary"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
+</div>

@@ -43,6 +43,7 @@ public class MenuConfigurations : IEntityTypeConfiguration<Menu>
 
             mib.WithOwner().HasForeignKey("MenuId");
             mib.HasKey("Id", "MenuId");
+            mib.HasIndex("MenuId");
 
             mib.Property(x => x.Id)
                 .HasColumnName("MenuItemId")

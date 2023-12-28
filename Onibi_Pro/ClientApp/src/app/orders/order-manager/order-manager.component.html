@@ -1,4 +1,17 @@
 <div class="container">
+  <div class="d-flex">
+    <button
+      type="button"
+      class="mt-2 mb-4 ms-auto"
+      style="width: fit-content"
+      mat-flat-button
+      color="primary"
+      [disabled]="loading"
+      (click)="openCreateOrderDialog()"
+    >
+      Place Order
+    </button>
+  </div>
   <div class="mat-elevation-z8 table-responsive">
     <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
       <ng-container matColumnDef="orderId">
@@ -89,7 +102,14 @@
       ></tr>
     </table>
 
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons>
+    <mat-paginator
+      (page)="pageChangeEvent($event)"
+      [length]="totalRecords"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons
+    >
     </mat-paginator>
   </div>
 </div>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Onibi_Pro.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Onibi_Pro.Infrastructure.Persistence;
 namespace Onibi_Pro.Infrastructure.Migrations
 {
     [DbContext(typeof(OnibiProDbContext))]
-    partial class OnibiProDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231228192036_Migration_20231228201923")]
+    partial class Migration_20231228201923
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,9 +52,6 @@ namespace Onibi_Pro.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderTime", "IsCancelled")
-                        .IsDescending();
 
                     b.ToTable("Orders", (string)null);
                 });

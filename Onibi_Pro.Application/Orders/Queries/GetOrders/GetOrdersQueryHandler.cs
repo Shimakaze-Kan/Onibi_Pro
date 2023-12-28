@@ -9,8 +9,10 @@ using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
+using static Onibi_Pro.Application.Orders.Queries.GetOrders.OrdersDto;
+
 namespace Onibi_Pro.Application.Orders.Queries.GetOrders;
-internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, IReadOnlyCollection<OrderDto>>
+internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, OrdersDto>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -25,7 +27,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, IR
         _managerDetailsService = managerDetailsService;
     }
 
-    public async Task<IReadOnlyCollection<OrderDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<OrdersDto> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
@@ -33,7 +35,10 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, IR
         var restaurantId = managerDetails.RestaurantId;
         var endRow = request.StartRow + request.Amount;
 
-        return await GetOrders(request, connection, restaurantId, endRow);
+        var orders = await GetOrders(request, connection, restaurantId, endRow);
+        var totalCount = await GetTotalCount(connection, restaurantId);
+
+        return new(orders, totalCount);
     }
 
     private static async Task<IReadOnlyCollection<OrderDto>> GetOrders(
@@ -96,5 +101,15 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, IR
         );
 
         return [.. orderDictionary.Values];
+    }
+
+    private static async Task<long> GetTotalCount(IDbConnection connection, Guid restaurantId)
+    {
+        var query = @"
+            SELECT COUNT(1)
+            FROM dbo.OrderIds WITH (NOLOCK)
+            WHERE RestaurantId = @restaurantId;";
+
+        return await connection.ExecuteScalarAsync<long>(query, new { restaurantId });
     }
 }
