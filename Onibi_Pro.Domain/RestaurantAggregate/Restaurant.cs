@@ -102,6 +102,11 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         _orders.Remove(orderId);
     }
 
+    public bool DoesOrderExist(OrderId orderId)
+    {
+        return _orders.Any(order => order == orderId);
+    }
+
     public ErrorOr<Success> AssigneManager(UserId userId, UserTypes userType)
     {
         if (userType != UserTypes.Manager)

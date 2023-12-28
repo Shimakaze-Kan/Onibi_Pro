@@ -49,6 +49,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, Or
             SELECT 
                 o.Id AS OrderId, 
                 o.OrderTime, 
+                o.CancelledTime,
                 o.IsCancelled,
                 ROW_NUMBER() OVER (ORDER BY o.OrderTime DESC) AS RowNum
             FROM dbo.Orders o
@@ -58,6 +59,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, Or
         SELECT 
             oo.OrderId,
             oo.OrderTime,
+            oo.CancelledTime,
             oo.IsCancelled,
             (
                 SELECT 

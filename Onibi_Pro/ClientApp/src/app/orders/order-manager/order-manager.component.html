@@ -30,10 +30,22 @@
           {{ element.orderTime | date : "MMM dd, yyyy 'at' hh:mm a" }}
         </td>
       </ng-container>
+      <ng-container matColumnDef="cancelledTime">
+        <th mat-header-cell *matHeaderCellDef>Cancelled Time</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.cancelledTime | date : "MMM dd, yyyy 'at' hh:mm a" }}
+        </td>
+      </ng-container>
       <ng-container matColumnDef="isCancelled">
         <th mat-header-cell *matHeaderCellDef>Is Cancelled</th>
         <td mat-cell *matCellDef="let element">
-          <mat-icon>{{ element.isCancelled ? "check" : "close" }}</mat-icon>
+          <button
+            mat-icon-button
+            [disabled]="loading || element.isCancelled"
+            (click)="cancelOrder(element.orderId)"
+          >
+            <mat-icon>{{ element.isCancelled ? "check" : "close" }}</mat-icon>
+          </button>
         </td>
       </ng-container>
       <ng-container matColumnDef="expand">

@@ -32,6 +32,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(x => x.OrderTime);
         builder.Property(x => x.IsCancelled);
+        builder.Property(x => x.CancelledTime);
     }
 
     private static void ConfigureOrderItemsTable(EntityTypeBuilder<Order> builder)

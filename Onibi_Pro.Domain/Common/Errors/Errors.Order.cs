@@ -19,5 +19,8 @@ public static partial class Errors
 
         public static Error RestaurantNotFound => Error.Validation(
             code: "Order.RestaurantNotFound", description: "Restaurant not found.");
+
+        public static Error AlreadyCancelled => Error.Validation(
+            code: "Order.AlreadyCancelled", description: "Order is already cancelled.");
     }
 }

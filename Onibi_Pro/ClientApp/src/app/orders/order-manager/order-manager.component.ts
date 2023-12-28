@@ -1,7 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { filter, forkJoin, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  filter,
+  forkJoin,
+  map,
+  mergeMap,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import {
   GetOrdersResponse_Order,
   IdentityClient,
@@ -12,6 +21,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateOrderComponent } from './create-order/create-order.component';
 import { IdentityService } from '../../utils/services/identity.service';
 import { CreateOrderData } from './create-order/CreateOrderData';
+import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-order-manager',
@@ -26,27 +37,25 @@ export class OrderManagerComponent implements OnInit {
   pageIndex = 0;
   orders: Array<GetOrdersResponse_Order> = [];
   loading = false;
-  displayedColumns = ['orderId', 'total', 'orderTime', 'isCancelled', 'expand'];
+  displayedColumns = [
+    'orderId',
+    'total',
+    'orderTime',
+    'cancelledTime',
+    'isCancelled',
+    'expand',
+  ];
   state = false;
   dataSource = new MatTableDataSource<GetOrdersResponse_Order>();
-
-  // @ViewChild(MatPaginator, { static: false })
-  // set paginator(value: MatPaginator) {
-  //   if (this.state === false) {
-  //     this.dataSource.paginator = value;
-  //     this.state = true;
-  //   }
-  //   // if (this.dataSource && !this.dataSource.paginator) {
-  //   //   this.dataSource.paginator = value;
-  //   // }
-  // }
 
   constructor(
     private readonly ordersClient: OrdersClient,
     private readonly menuClient: MenusClient,
     private readonly identity: IdentityService,
     private readonly identityClient: IdentityClient,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly errorParser: ErrorMessagesParserService,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -122,10 +131,38 @@ export class OrderManagerComponent implements OnInit {
     of({})
       .pipe(
         tap(() => (this.loading = true)),
-        switchMap(() =>
-          this.getOrders(1 + this.pageIndex * this.pageSize, this.pageSize)
-        ),
+        switchMap(() => this.getOrders(this.getStartRow(), this.pageSize)),
         tap(() => (this.loading = false))
+      )
+      .subscribe();
+  }
+
+  cancelOrder(orderId: string): void {
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.ordersClient.ordersPut(orderId)),
+        switchMap(() => this.getOrders(this.getStartRow(), this.pageSize)),
+        tap(() => (this.loading = false)),
+        catchError((error) => {
+          if (
+            this.errorParser.hasErrorCode(
+              'Order.AlreadyCancelled',
+              JSON.parse(error.response)
+            )
+          ) {
+            // it means another manager already cancelled order, need to update table
+            this.getOrders(this.getStartRow(), this.pageSize).subscribe();
+          }
+
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
       )
       .subscribe();
   }
@@ -138,5 +175,9 @@ export class OrderManagerComponent implements OnInit {
         this.totalRecords = result.totalCount!;
       })
     );
+  }
+
+  private getStartRow(): number {
+    return 1 + this.pageIndex * this.pageSize;
   }
 }

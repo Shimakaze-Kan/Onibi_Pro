@@ -12,6 +12,7 @@ public sealed class Order : AggregateRoot<OrderId>
     private readonly List<OrderItem> _orderItems = [];
 
     public DateTime OrderTime { get; private set; }
+    public DateTime? CancelledTime { get; private set; }
     public bool IsCancelled { get; private set; }
     public IReadOnlyList<OrderItem> OrderItems => _orderItems.ToList();
 
@@ -21,6 +22,7 @@ public sealed class Order : AggregateRoot<OrderId>
         OrderTime = orderTime;
         IsCancelled = isCancelled;
         _orderItems = orderItems;
+        CancelledTime = null;
     }
 
     public static ErrorOr<Order> Create(DateTime orderTime, List<OrderItem> orderItems, RestaurantId restaurantId)
@@ -41,9 +43,17 @@ public sealed class Order : AggregateRoot<OrderId>
         _orderItems.Add(item);
     }
 
-    public void Cancel()
+    public ErrorOr<Success> Cancel(DateTime currentTime)
     {
+        if (IsCancelled)
+        {
+            return Errors.Order.AlreadyCancelled;
+        }
+
         IsCancelled = true;
+        CancelledTime = currentTime;
+
+        return new Success();
     }
 
     private Order() { }

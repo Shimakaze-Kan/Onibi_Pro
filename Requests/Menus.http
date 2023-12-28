@@ -128,8 +128,21 @@ Authorization: Bearer {{token}}
   ]
 }
 
+### login
+# @name login
+POST {{baseUrl}}/authentication/login
+Content-Type: application/json
+
+{
+    "email": "john@john.com",
+    "password": "pass123@!"
+}
+
+### token
+@token = {{login.response.body.$.token}}
 
 
 ### get
 GET {{baseUrl}}/Menus
 Authorization: Bearer {{token}}
+

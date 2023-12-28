@@ -601,6 +601,10 @@ export interface IOrdersClient {
      * @return Success
      */
     ordersGet(startRow: number | undefined, amount: number | undefined): Observable<GetOrdersResponse>;
+    /**
+     * @return Success
+     */
+    ordersPut(orderId: string): Observable<void>;
 }
 
 @Injectable({
@@ -788,6 +792,56 @@ export class OrdersClient implements IOrdersClient {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = GetOrdersResponse.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    ordersPut(orderId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Orders/{orderId}";
+        if (orderId === undefined || orderId === null)
+            throw new Error("The parameter 'orderId' must be defined.");
+        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrdersPut(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrdersPut(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processOrdersPut(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2646,6 +2700,7 @@ export interface IGetOrdersResponse {
 export class GetOrdersResponse_Order implements IGetOrdersResponse_Order {
     orderId?: string;
     orderTime?: Date;
+    cancelledTime?: Date | undefined;
     isCancelled?: boolean;
     orderItems?: GetOrdersResponse_OrderItem[] | undefined;
     total?: number;
@@ -2663,6 +2718,7 @@ export class GetOrdersResponse_Order implements IGetOrdersResponse_Order {
         if (_data) {
             this.orderId = _data["orderId"];
             this.orderTime = _data["orderTime"] ? new Date(_data["orderTime"].toString()) : <any>undefined;
+            this.cancelledTime = _data["cancelledTime"] ? new Date(_data["cancelledTime"].toString()) : <any>undefined;
             this.isCancelled = _data["isCancelled"];
             if (Array.isArray(_data["orderItems"])) {
                 this.orderItems = [] as any;
@@ -2684,6 +2740,7 @@ export class GetOrdersResponse_Order implements IGetOrdersResponse_Order {
         data = typeof data === 'object' ? data : {};
         data["orderId"] = this.orderId;
         data["orderTime"] = this.orderTime ? this.orderTime.toISOString() : <any>undefined;
+        data["cancelledTime"] = this.cancelledTime ? this.cancelledTime.toISOString() : <any>undefined;
         data["isCancelled"] = this.isCancelled;
         if (Array.isArray(this.orderItems)) {
             data["orderItems"] = [];
@@ -2698,6 +2755,7 @@ export class GetOrdersResponse_Order implements IGetOrdersResponse_Order {
 export interface IGetOrdersResponse_Order {
     orderId?: string;
     orderTime?: Date;
+    cancelledTime?: Date | undefined;
     isCancelled?: boolean;
     orderItems?: GetOrdersResponse_OrderItem[] | undefined;
     total?: number;

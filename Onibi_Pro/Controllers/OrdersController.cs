@@ -4,10 +4,12 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Onibi_Pro.Application.Orders.Commands.CancelOrder;
 using Onibi_Pro.Application.Orders.Commands.CreateOrder;
 using Onibi_Pro.Application.Orders.Queries.GetOrderById;
 using Onibi_Pro.Application.Orders.Queries.GetOrders;
 using Onibi_Pro.Contracts.Orders;
+using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 
 namespace Onibi_Pro.Controllers;
 [Route("api/[controller]")]
@@ -57,5 +59,13 @@ public class OrdersController : ApiBaseController
         var result = await _mediator.Send(query);
 
         return Ok(_mapper.Map<GetOrdersResponse>(result));
+    }
+
+    [HttpPut("{orderId}")]
+    public async Task<IActionResult> CancelOrder([FromRoute] Guid orderId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new CancelOrderCommand(OrderId.Create(orderId)), cancellationToken);
+
+        return result.Match(result => Ok(), Problem);
     }
 }

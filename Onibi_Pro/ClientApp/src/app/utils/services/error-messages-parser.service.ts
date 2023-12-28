@@ -23,6 +23,20 @@ export class ErrorMessagesParserService {
       return 'An error occurred.';
     }
   }
+
+  hasErrorCode(code: string, response: ErrorResponse): boolean {
+    if (!(response.errors && Object.keys(response.errors).length > 0)) {
+      return false;
+    }
+
+    for (const property in response.errors) {
+      if (property === code) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 interface ErrorResponse {
