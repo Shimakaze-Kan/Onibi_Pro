@@ -1,4 +1,7 @@
-﻿namespace Onibi_Pro.Contracts.Orders;
-public record CreateOrderResponse(Guid Id, DateTime DateTime, bool IsCancelled, IReadOnlyList<OrderItemResponse> OrderItems);
+﻿using static Onibi_Pro.Contracts.Orders.CreateOrderResponse;
 
-public record OrderItemResponse(Guid MenuItemId, int Quantity);
+namespace Onibi_Pro.Contracts.Orders;
+public record CreateOrderResponse(Guid Id, DateTime DateTime, bool IsCancelled, IReadOnlyList<OrderItem> OrderItems)
+{
+    public record OrderItem(Guid MenuItemId, int Quantity);
+};

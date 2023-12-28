@@ -47,11 +47,11 @@ public class MenusController : ApiBaseController
     }
 
     [HttpGet("ingredients")]
-    [ProducesResponseType(typeof(IReadOnlyCollection<GetIngredientsResponse>), 200)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetIngredientResponse>), 200)]
     public async Task<IActionResult> GetIngredients()
     {
         var result = await _mediator.Send(new GetIngredientsQuery());
 
-        return Ok(_mapper.Map<IReadOnlyCollection<GetIngredientsResponse>>(result));
+        return Ok(_mapper.Map<IReadOnlyCollection<GetIngredientResponse>>(result));
     }
 }

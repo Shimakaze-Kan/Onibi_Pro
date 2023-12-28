@@ -17,11 +17,7 @@ import {
   tap,
 } from 'rxjs';
 import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
-import {
-  GetIngredientResponse,
-  GetIngredientsResponse,
-  MenusClient,
-} from '../../api/api';
+import { GetIngredientResponse, MenusClient } from '../../api/api';
 import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
@@ -35,7 +31,7 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   private readonly _onDestroy$ = new Subject<void>();
   private _editingIndexes: Array<number> = [];
   readonly currentDate = new Date();
-  ingredients: Array<GetIngredientsResponse> = [];
+  ingredients: Array<GetIngredientResponse> = [];
   loading = false;
   supplyOperation = SupplyOperation;
 
@@ -179,7 +175,7 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
     form.get('unit')?.setValue(ingredient?.unit);
   }
 
-  getIngredientFromForm(form: FormGroup): GetIngredientsResponse | undefined {
+  getIngredientFromForm(form: FormGroup): GetIngredientResponse | undefined {
     const name = form.get('name')?.value;
     const unit = form.get('unit')?.value;
 

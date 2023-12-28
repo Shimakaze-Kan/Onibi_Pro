@@ -1,6 +1,8 @@
-﻿namespace Onibi_Pro.Contracts.Menus;
-public record CreateMenuResponse(Guid Id, string Name, List<MenuItemResponse> MenuItems);
+﻿using static Onibi_Pro.Contracts.Menus.CreateMenuResponse;
 
-public record MenuItemResponse(Guid Id, string Name, decimal Price, List<IngredientResponse> Ingredients);
-
-public record IngredientResponse(string Name, string Unit, decimal Quantity);
+namespace Onibi_Pro.Contracts.Menus;
+public record CreateMenuResponse(Guid Id, string Name, List<MenuItem> MenuItems)
+{
+    public record MenuItem(Guid Id, string Name, decimal Price, List<Ingredient> Ingredients);
+    public record Ingredient(string Name, string Unit, decimal Quantity);
+};

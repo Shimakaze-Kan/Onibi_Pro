@@ -1,5 +1,8 @@
-﻿namespace Onibi_Pro.Contracts.Identity;
-public record GetManagerDetailsResponse(Guid ManagerId, Guid RestaurantId,
-    IReadOnlyCollection<GetManagerDetailsManagerNamesResponse> SameRestaurantManagers);
+﻿using static Onibi_Pro.Contracts.Identity.GetManagerDetailsResponse;
 
-public record GetManagerDetailsManagerNamesResponse(string FirstName, string LastName);
+namespace Onibi_Pro.Contracts.Identity;
+public record GetManagerDetailsResponse(Guid ManagerId, Guid RestaurantId,
+    IReadOnlyCollection<ManagerName> SameRestaurantManagers)
+{
+    public record ManagerName(string FirstName, string LastName);
+};

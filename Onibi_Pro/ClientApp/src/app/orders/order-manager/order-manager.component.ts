@@ -1,12 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  GetOrdersResponse,
-  OrderItemDtoResponse,
-  OrdersClient,
-} from '../../api/api';
-import { of, switchMap, tap } from 'rxjs';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { of, switchMap, tap } from 'rxjs';
+import { GetOrdersResponse, OrdersClient } from '../../api/api';
 
 @Component({
   selector: 'app-order-manager',

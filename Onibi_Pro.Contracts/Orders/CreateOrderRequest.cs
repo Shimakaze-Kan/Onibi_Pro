@@ -1,4 +1,7 @@
-﻿namespace Onibi_Pro.Contracts.Orders;
-public record CreateOrderRequest(List<OrderItemRequest> OrderItems);
+﻿using static Onibi_Pro.Contracts.Orders.CreateOrderRequest;
 
-public record OrderItemRequest(int Quantity, Guid MenuItemId);
+namespace Onibi_Pro.Contracts.Orders;
+public record CreateOrderRequest(List<OrderItem> OrderItems)
+{
+    public record OrderItem(int Quantity, Guid MenuItemId);
+};

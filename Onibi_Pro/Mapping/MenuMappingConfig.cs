@@ -20,16 +20,16 @@ public class MenuMappingConfig : IRegister
         config.NewConfig<Menu, CreateMenuResponse>()
             .Map(dest => dest.Id, src => src.Id.Value);
         
-        config.NewConfig<MenuItem, MenuItemResponse>()
+        config.NewConfig<MenuItem, CreateMenuResponse.MenuItem>()
             .Map(dest => dest.Id, src => src.Id.Value);
 
-        config.NewConfig<Ingredient, IngredientResponse>()
+        config.NewConfig<Ingredient, CreateMenuResponse.Ingredient>()
             .Map(dest => dest.Unit, src => Enum.GetName(src.Unit));
 
-        config.NewConfig<IngredientDto, GetIngredientResponse>()
+        config.NewConfig<IngredientDto, GetMenusResponse.Ingredient>()
             .Map(dest => dest.Unit, src => Enum.GetName(src.Unit));
 
-        config.NewConfig<IngredientKeyValueDto, GetIngredientsResponse>()
+        config.NewConfig<IngredientKeyValueDto, GetIngredientResponse>()
             .Map(dest => dest.Unit, src => Enum.GetName(src.Unit));
     }
 }

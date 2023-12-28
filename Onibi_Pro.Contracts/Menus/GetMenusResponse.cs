@@ -1,8 +1,11 @@
-﻿namespace Onibi_Pro.Contracts.Menus;
+﻿using static Onibi_Pro.Contracts.Menus.GetMenusResponse;
 
-public record GetMenusResponse(Guid Id, string Name, IReadOnlyCollection<GetMenuItemResponse> MenuItems);
+namespace Onibi_Pro.Contracts.Menus;
 
-public record GetMenuItemResponse(Guid MenuItemId, string Name,
-    decimal Price, IReadOnlyCollection<GetIngredientResponse> Ingredients);
+public record GetMenusResponse(Guid Id, string Name, IReadOnlyCollection<MenuItem> MenuItems)
+{
+    public record MenuItem(Guid MenuItemId, string Name,
+        decimal Price, IReadOnlyCollection<Ingredient> Ingredients);
 
-public record GetIngredientResponse(string Name, string Unit, decimal Quantity);
+    public record Ingredient(string Name, string Unit, decimal Quantity);
+};

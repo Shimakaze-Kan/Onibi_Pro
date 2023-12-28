@@ -21,20 +21,20 @@ public class RestaurantMappingConfig : IRegister
         config.NewConfig<CreateRestaurantRequest, CreateRestaurantCommand>()
             .Map(dest => dest, src => src);
 
-        config.NewConfig<EmployeePositionRequest, EmployeePositionCommand>()
+        config.NewConfig<CreateRestaurantRequest.Employee, EmployeePositionCommand>()
             .Map(dest => dest, src => src);
 
         config.NewConfig<Restaurant, CreateRestaurantResponse>()
             .Map(dest => dest.Id, src => src.Id.Value)
             .Map(dest => dest.OrderIds, src => src.OrderIds.Select(orderId => orderId.Value).ToList());
 
-        config.NewConfig<Employee, CreateRestaurantEmployeeResponse>()
+        config.NewConfig<Employee, CreateRestaurantResponse.Employee>()
             .Map(dest => dest.Id, src => src.Id.Value)
             .Map(dest => dest.EmployeePositions, src =>
                 src.Positions.Select(position =>
-                    new CreateRestaurantEmployeePositionResponse(Enum.GetName(position.Position)!)).ToList());
+                    new CreateRestaurantResponse.EmployeePosition(Enum.GetName(position.Position)!)).ToList());
 
-        config.NewConfig<Manager, CreateRestaurantManagerResponse>()
+        config.NewConfig<Manager, CreateRestaurantResponse.Manager>()
             .Map(dest => dest.Id, src => src.Id.Value);
 
         config.NewConfig<(Guid RestaurantId, GetEmployeeRequest Request), GetEmployeesQuery>()

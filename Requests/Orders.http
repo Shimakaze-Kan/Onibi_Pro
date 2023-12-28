@@ -58,6 +58,6 @@ Authorization: Bearer {{token}}
 }
 
 ### get orders
-GET {{baseUrl}}/Orders?startrow=2&amount=1
+GET {{baseUrl}}/Orders?startrow=1&amount=1
 Content-Type: application/json
 Authorization: Bearer {{token}}

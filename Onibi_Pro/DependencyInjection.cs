@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Onibi API", Version = "v1" });
+            c.CustomSchemaIds(type => type.FullName?.Replace('+', '_') ?? type.Name);
         });
 
         return services;
