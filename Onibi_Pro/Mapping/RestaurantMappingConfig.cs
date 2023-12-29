@@ -25,8 +25,7 @@ public class RestaurantMappingConfig : IRegister
             .Map(dest => dest, src => src);
 
         config.NewConfig<Restaurant, CreateRestaurantResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value)
-            .Map(dest => dest.OrderIds, src => src.OrderIds.Select(orderId => orderId.Value).ToList());
+            .Map(dest => dest.Id, src => src.Id.Value);
 
         config.NewConfig<Employee, CreateRestaurantResponse.Employee>()
             .Map(dest => dest.Id, src => src.Id.Value)

@@ -13,7 +13,6 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
         ConfigureRestaurantTable(builder);
-        ConfigureOrderIdTable(builder);
         ConfigureManagerTable(builder);
         ConfigureEmployeeTable(builder);
         ConfigureScheduleTable(builder);
@@ -22,11 +21,6 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
             .SetPropertyAccessMode(PropertyAccessMode.Field);
         builder.Metadata.FindNavigation(nameof(Restaurant.Employees))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.Metadata.FindNavigation(nameof(Restaurant.OrderIds))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
-        builder.Metadata.FindNavigation(nameof(Restaurant.OrderIds))!
-            .SetField("_orders");
         
         builder.Metadata.FindNavigation(nameof(Restaurant.Schedules))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
@@ -89,20 +83,6 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
 
             eb.Navigation(x => x.Positions).Metadata.SetField("_positions");
             eb.Navigation(x => x.Positions).UsePropertyAccessMode(PropertyAccessMode.Field);
-        });
-    }
-
-    private static void ConfigureOrderIdTable(EntityTypeBuilder<Restaurant> builder)
-    {
-        builder.OwnsMany(x => x.OrderIds, ob =>
-        {
-            ob.ToTable("OrderIds");
-            ob.HasKey("Id");
-            ob.WithOwner().HasForeignKey("RestaurantId");
-
-            ob.Property(x => x.Value)
-                .HasColumnName("OrderId")
-                .ValueGeneratedNever();
         });
     }
 

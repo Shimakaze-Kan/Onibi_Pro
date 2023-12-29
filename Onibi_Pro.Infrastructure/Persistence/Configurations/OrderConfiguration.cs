@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
 using Onibi_Pro.Domain.OrderAggregate;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
+using Onibi_Pro.Domain.RestaurantAggregate;
+using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Configurations;
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
@@ -33,6 +35,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.OrderTime);
         builder.Property(x => x.IsCancelled);
         builder.Property(x => x.CancelledTime);
+        builder.Property(x => x.RestaurantId)
+            .ValueGeneratedNever()
+            .HasConversion(c => c.Value, value => RestaurantId.Create(value));
+
+        builder.HasOne<Restaurant>()
+            .WithMany()
+            .HasForeignKey(x => x.RestaurantId);
     }
 
     private static void ConfigureOrderItemsTable(EntityTypeBuilder<Order> builder)

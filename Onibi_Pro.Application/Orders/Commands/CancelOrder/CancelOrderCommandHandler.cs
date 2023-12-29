@@ -2,12 +2,10 @@
 
 using MediatR;
 
-using Microsoft.Extensions.Logging;
-
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
+using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Domain.Common.Errors;
-using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Orders.Commands.CancelOrder;
@@ -17,19 +15,22 @@ internal sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderCom
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IManagerDetailsService _managerDetailsService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly ILogger<CancelOrderCommandHandler> _logger;
+    private readonly IAccessService _accessService;
+    private readonly IDbConnectionFactory _dbConnectionFactory;
 
     public CancelOrderCommandHandler(IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider,
         IManagerDetailsService managerDetailsService,
         ICurrentUserService currentUserService,
-        ILogger<CancelOrderCommandHandler> logger)
+        IAccessService accessService,
+        IDbConnectionFactory dbConnectionFactory)
     {
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
         _managerDetailsService = managerDetailsService;
         _currentUserService = currentUserService;
-        _logger = logger;
+        _accessService = accessService;
+        _dbConnectionFactory = dbConnectionFactory;
     }
 
     public async Task<ErrorOr<Success>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
@@ -42,20 +43,13 @@ internal sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderCom
         }
 
         var managerDetails = await _managerDetailsService.GetManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
-        var restaurant = await _unitOfWork.RestaurantRepository.GetByIdAsync(
-            RestaurantId.Create(managerDetails.RestaurantId), cancellationToken);
 
-        if (restaurant is null)
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
+        var canCancel = await _accessService.CanManagerCancelOrder(managerDetails.ManagerId, request.OrderId.Value, connection);
+
+        if (!canCancel)
         {
-            _logger.LogCritical("Restaurant: {restaurantId} not found. User Id: {userId}, Manager Id: {managerId}.",
-                managerDetails.RestaurantId, _currentUserService.UserId, managerDetails.ManagerId);
-
-            return Error.Unexpected();
-        }
-
-        if (!restaurant.DoesOrderExist(request.OrderId))
-        {
-            return Errors.Order.OrderNotFound;
+            return Errors.Order.OperationForbidden;
         }
 
         var result = order.Cancel(_dateTimeProvider.UtcNow);

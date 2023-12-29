@@ -2766,6 +2766,7 @@ export class GetOrdersResponse_OrderItem implements IGetOrdersResponse_OrderItem
     quantity?: number;
     menuItemName?: string | undefined;
     price?: number;
+    sum?: number;
 
     constructor(data?: IGetOrdersResponse_OrderItem) {
         if (data) {
@@ -2782,6 +2783,7 @@ export class GetOrdersResponse_OrderItem implements IGetOrdersResponse_OrderItem
             this.quantity = _data["quantity"];
             this.menuItemName = _data["menuItemName"];
             this.price = _data["price"];
+            this.sum = _data["sum"];
         }
     }
 
@@ -2798,6 +2800,7 @@ export class GetOrdersResponse_OrderItem implements IGetOrdersResponse_OrderItem
         data["quantity"] = this.quantity;
         data["menuItemName"] = this.menuItemName;
         data["price"] = this.price;
+        data["sum"] = this.sum;
         return data;
     }
 }
@@ -2807,6 +2810,7 @@ export interface IGetOrdersResponse_OrderItem {
     quantity?: number;
     menuItemName?: string | undefined;
     price?: number;
+    sum?: number;
 }
 
 export class AssignManagerRequest implements IAssignManagerRequest {
@@ -2971,9 +2975,7 @@ export interface ICreateEmployeeResponse {
 
 export class CreateRestaurantRequest implements ICreateRestaurantRequest {
     address?: Address;
-    orderIds?: string[] | undefined;
     employees?: CreateRestaurantRequest_Employee[] | undefined;
-    managers?: CreateRestaurantRequest_Manager[] | undefined;
 
     constructor(data?: ICreateRestaurantRequest) {
         if (data) {
@@ -2987,20 +2989,10 @@ export class CreateRestaurantRequest implements ICreateRestaurantRequest {
     init(_data?: any) {
         if (_data) {
             this.address = _data["address"] ? Address.fromJS(_data["address"]) : <any>undefined;
-            if (Array.isArray(_data["orderIds"])) {
-                this.orderIds = [] as any;
-                for (let item of _data["orderIds"])
-                    this.orderIds!.push(item);
-            }
             if (Array.isArray(_data["employees"])) {
                 this.employees = [] as any;
                 for (let item of _data["employees"])
                     this.employees!.push(CreateRestaurantRequest_Employee.fromJS(item));
-            }
-            if (Array.isArray(_data["managers"])) {
-                this.managers = [] as any;
-                for (let item of _data["managers"])
-                    this.managers!.push(CreateRestaurantRequest_Manager.fromJS(item));
             }
         }
     }
@@ -3015,20 +3007,10 @@ export class CreateRestaurantRequest implements ICreateRestaurantRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["address"] = this.address ? this.address.toJSON() : <any>undefined;
-        if (Array.isArray(this.orderIds)) {
-            data["orderIds"] = [];
-            for (let item of this.orderIds)
-                data["orderIds"].push(item);
-        }
         if (Array.isArray(this.employees)) {
             data["employees"] = [];
             for (let item of this.employees)
                 data["employees"].push(item.toJSON());
-        }
-        if (Array.isArray(this.managers)) {
-            data["managers"] = [];
-            for (let item of this.managers)
-                data["managers"].push(item.toJSON());
         }
         return data;
     }
@@ -3036,9 +3018,7 @@ export class CreateRestaurantRequest implements ICreateRestaurantRequest {
 
 export interface ICreateRestaurantRequest {
     address?: Address;
-    orderIds?: string[] | undefined;
     employees?: CreateRestaurantRequest_Employee[] | undefined;
-    managers?: CreateRestaurantRequest_Manager[] | undefined;
 }
 
 export class CreateRestaurantRequest_Employee implements ICreateRestaurantRequest_Employee {
@@ -3135,50 +3115,6 @@ export class CreateRestaurantRequest_EmployeePosition implements ICreateRestaura
 
 export interface ICreateRestaurantRequest_EmployeePosition {
     position?: string | undefined;
-}
-
-export class CreateRestaurantRequest_Manager implements ICreateRestaurantRequest_Manager {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    email?: string | undefined;
-
-    constructor(data?: ICreateRestaurantRequest_Manager) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.email = _data["email"];
-        }
-    }
-
-    static fromJS(data: any): CreateRestaurantRequest_Manager {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateRestaurantRequest_Manager();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["email"] = this.email;
-        return data;
-    }
-}
-
-export interface ICreateRestaurantRequest_Manager {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    email?: string | undefined;
 }
 
 export class CreateRestaurantResponse implements ICreateRestaurantResponse {

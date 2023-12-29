@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Onibi_Pro.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Onibi_Pro.Infrastructure.Persistence;
 namespace Onibi_Pro.Infrastructure.Migrations
 {
     [DbContext(typeof(OnibiProDbContext))]
-    partial class OnibiProDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231229204130_Migration_20231229214109")]
+    partial class Migration_20231229214109
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,8 +58,6 @@ namespace Onibi_Pro.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RestaurantId");
 
                     b.HasIndex("OrderTime", "IsCancelled")
                         .IsDescending();
@@ -196,12 +197,6 @@ namespace Onibi_Pro.Infrastructure.Migrations
 
             modelBuilder.Entity("Onibi_Pro.Domain.OrderAggregate.Order", b =>
                 {
-                    b.HasOne("Onibi_Pro.Domain.RestaurantAggregate.Restaurant", null)
-                        .WithMany()
-                        .HasForeignKey("RestaurantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.OwnsMany("Onibi_Pro.Domain.OrderAggregate.ValueObjects.OrderItem", "OrderItems", b1 =>
                         {
                             b1.Property<Guid>("OrderId")

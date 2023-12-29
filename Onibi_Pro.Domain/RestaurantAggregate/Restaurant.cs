@@ -12,36 +12,31 @@ using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 namespace Onibi_Pro.Domain.RestaurantAggregate;
 public sealed class Restaurant : AggregateRoot<RestaurantId>
 {
-    private readonly List<OrderId> _orders = [];
     private readonly List<Employee> _employees = [];
     private readonly List<Manager> _managers = [];
     private readonly List<Schedule> _schedules = [];
 
     public Address Address { get; private set; }
     public IReadOnlyList<Employee> Employees => _employees.ToList();
-    public IReadOnlyList<OrderId> OrderIds => _orders.ToList();
     public IReadOnlyList<Manager> Managers => _managers.ToList();
     public IReadOnlyList<Schedule> Schedules => _schedules.ToList();
 
     private Restaurant(RestaurantId id,
         Address address,
         List<Employee>? employees,
-        List<OrderId>? orders,
         List<Manager>? managers)
         : base(id)
     {
         Address = address;
         _employees = employees ?? [];
-        _orders = orders ?? [];
         _managers = managers ?? [];
     }
 
     public static Restaurant Create(Address address,
         List<Employee>? employees = null,
-        List<OrderId>? orders = null,
         List<Manager>? managers = null)
     {
-        return new(RestaurantId.CreateUnique(), address, employees, orders, managers);
+        return new(RestaurantId.CreateUnique(), address, employees, managers);
     }
 
     public ErrorOr<Success> RegisterEmployee(UserId userId, Employee employee)
@@ -90,21 +85,6 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         {
             _employees.Remove(employee);
         }
-    }
-
-    public void AddOrders(List<OrderId> orders)
-    {
-        _orders.AddRange(orders);
-    }
-
-    public void RemoveOrder(OrderId orderId)
-    {
-        _orders.Remove(orderId);
-    }
-
-    public bool DoesOrderExist(OrderId orderId)
-    {
-        return _orders.Any(order => order == orderId);
     }
 
     public ErrorOr<Success> AssigneManager(UserId userId, UserTypes userType)

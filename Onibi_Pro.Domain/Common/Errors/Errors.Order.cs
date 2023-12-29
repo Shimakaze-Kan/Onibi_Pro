@@ -22,5 +22,8 @@ public static partial class Errors
 
         public static Error AlreadyCancelled => Error.Validation(
             code: "Order.AlreadyCancelled", description: "Order is already cancelled.");
+
+        public static Error OperationForbidden => Error.Unauthorized(
+            code: "Order.OperationForbidden", description: "Cannot cancel order.");
     }
 }

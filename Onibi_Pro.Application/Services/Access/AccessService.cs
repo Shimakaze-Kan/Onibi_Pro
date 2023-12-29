@@ -18,4 +18,13 @@ internal sealed class AccessService : IAccessService
         return await connection.ExecuteScalarAsync<bool>(
             "SELECT ISNULL((SELECT 1 FROM dbo.Restaurants WHERE Id = @RestaurantId), 0)", new { restaurantId });
     }
+
+    public async Task<bool> CanManagerCancelOrder(Guid managerId, Guid orderId, IDbConnection connection)
+    {
+        return await connection.ExecuteScalarAsync<bool>(
+            @"SELECT ISNULL((SELECT 1 
+                FROM dbo.Orders o
+                JOIN dbo.Managers m ON o.RestaurantId = m.RestaurantId
+                WHERE m.ManagerId = @managerId AND o.Id = @orderId), 0)", new { managerId, orderId });
+    }
 }

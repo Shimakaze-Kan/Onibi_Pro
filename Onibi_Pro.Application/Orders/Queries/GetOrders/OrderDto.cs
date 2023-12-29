@@ -10,5 +10,8 @@ public record OrdersDto(IReadOnlyCollection<OrderDto> Orders, long TotalCount)
         public decimal Total { get; init; } = 0;
     }
 
-    public record OrderItemDto(Guid MenuItemId, int Quantity, string MenuItemName, decimal Price);
+    public record OrderItemDto(Guid MenuItemId, int Quantity, string MenuItemName, decimal Price)
+    {
+        public decimal Sum => Quantity * Price;
+    }
 }

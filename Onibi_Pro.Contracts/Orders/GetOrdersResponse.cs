@@ -7,5 +7,5 @@ public record GetOrdersResponse(IReadOnlyCollection<Order> Orders, long TotalCou
     public record Order(Guid OrderId, DateTime OrderTime, DateTime? CancelledTime, bool IsCancelled,
         IReadOnlyList<OrderItem> OrderItems, decimal Total);
 
-    public record OrderItem(Guid MenuItemId, int Quantity, string MenuItemName, decimal Price);
+    public record OrderItem(Guid MenuItemId, int Quantity, string MenuItemName, decimal Price, decimal Sum);
 };

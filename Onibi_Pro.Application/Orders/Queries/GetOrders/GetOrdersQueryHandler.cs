@@ -53,8 +53,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, Or
                 o.IsCancelled,
                 ROW_NUMBER() OVER (ORDER BY o.OrderTime DESC) AS RowNum
             FROM dbo.Orders o
-            JOIN dbo.OrderIds oid ON oid.OrderId = o.Id
-            WHERE oid.RestaurantId = @restaurantId
+            WHERE o.RestaurantId = @restaurantId
         )
         SELECT 
             oo.OrderId,
@@ -109,7 +108,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, Or
     {
         var query = @"
             SELECT COUNT(1)
-            FROM dbo.OrderIds WITH (NOLOCK)
+            FROM dbo.Orders WITH (NOLOCK)
             WHERE RestaurantId = @restaurantId;";
 
         return await connection.ExecuteScalarAsync<long>(query, new { restaurantId });
