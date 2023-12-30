@@ -45,7 +45,8 @@ internal sealed class GetPackageByIdQueryHandler : IRequestHandler<GetPackageByI
             UserTypes.RegionalManager => await SetupRegionalManagerAndClause(dynamicParameters),
             _ => (string.Empty, dynamicParameters)
         };
-        PackageDto? result = await GetPackage(connection, dynamicParameters, andClause);
+
+        var result = await GetPackage(connection, dynamicParameters, andClause);
 
         if (result is null)
         {
@@ -58,7 +59,7 @@ internal sealed class GetPackageByIdQueryHandler : IRequestHandler<GetPackageByI
     private static async Task<PackageDto?> GetPackage(IDbConnection connection, DynamicParameters dynamicParameters, string andClause)
     {
         return await connection.QueryFirstOrDefaultAsync<PackageDto>(
-                    @$"SELECT [PackageId]
+            @$"SELECT [PackageId]
               ,[DestinationRestaurant] AS {nameof(PackageDto.DestinationRestaurant)}
               ,[Manager] AS {nameof(PackageDto.Manager)}
               ,[RegionalManager] AS {nameof(PackageDto.RegionalManager)}

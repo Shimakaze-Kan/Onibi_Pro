@@ -15,6 +15,7 @@ internal static class DependencyInjection
             .AddRegionalManagerPolicy()
             .AddManagerPolicy()
             .AddGlobalOrRegionalManagerPolicy()
+            .AddRegionalManagerOrManagerPolicy()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build());
@@ -39,4 +40,10 @@ internal static class DependencyInjection
                 policy => policy.RequireAssertion(context =>
                     context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.RegionalManager.ToString().ToUpper()) ||
                     context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.GlobalManager.ToString().ToUpper())));
+
+    private static AuthorizationBuilder AddRegionalManagerOrManagerPolicy(this AuthorizationBuilder builder)
+        => builder.AddPolicy(AuthorizationPolicies.RegionalManagerOrManagerAccess,
+                policy => policy.RequireAssertion(context =>
+                    context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.RegionalManager.ToString().ToUpper()) ||
+                    context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.Manager.ToString().ToUpper())));
 }

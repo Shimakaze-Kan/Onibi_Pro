@@ -29,6 +29,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { QRCodeModule } from 'angularx-qrcode';
 import { ShowQrCodeComponent } from './show-qr-code/show-qr-code.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { ShowQrCodeComponent } from './show-qr-code/show-qr-code.component';
     MatDatepickerModule,
     MatNativeDateModule,
     QRCodeModule,
+    MatProgressSpinnerModule,
   ],
   exports: [DeliveryComponent],
 })

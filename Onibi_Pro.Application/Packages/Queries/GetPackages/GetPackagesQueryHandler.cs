@@ -34,7 +34,7 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
         DynamicParameters dynamicParameters = new();
-        dynamicParameters.Add("@PageNumber", request.StartRow);
+        dynamicParameters.Add("@PageNumber", request.StartRow / request.Amount + 1);
         dynamicParameters.Add("@PageSize", request.Amount);
 
         (var whereClause, dynamicParameters) = _currentUserService.UserType switch

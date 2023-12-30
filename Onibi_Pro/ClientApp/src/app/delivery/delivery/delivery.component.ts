@@ -1,89 +1,53 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDeliveryComponent } from '../confirm-delivery/confirm-delivery.component';
 import { RequestSuppliesComponent } from '../request-supplies/request-supplies.component';
 import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
+import { PackageItem, ShipmentsClient } from '../../api/api';
+import { filter, of, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-delivery',
   templateUrl: './delivery.component.html',
   styleUrls: ['./delivery.component.scss'],
 })
-export class DeliveryComponent implements AfterViewInit {
-  delivery: Array<IDeliveryItem> = [
-    {
-      code: 'D001',
-      from: 'Warehouse A',
-      to: 'Customer X',
-      status: 'Shipped',
-    },
-    {
-      code: 'D002',
-      from: 'Warehouse B',
-      to: 'Customer Y',
-      status: 'Delivered',
-    },
-    {
-      code: 'D003',
-      from: 'Warehouse C',
-      to: 'Customer Z',
-      status: 'In Transit',
-    },
-    {
-      code: 'D004',
-      from: 'Warehouse A',
-      to: 'Customer P',
-      status: 'Pending',
-    },
-    {
-      code: 'D005',
-      from: 'Warehouse D',
-      to: 'Customer Q',
-      status: 'Delivered',
-    },
-    {
-      code: 'D006',
-      from: 'Warehouse E',
-      to: 'Customer R',
-      status: 'Shipped',
-    },
-    {
-      code: 'D007',
-      from: 'Warehouse F',
-      to: 'Customer S',
-      status: 'In Transit',
-    },
-    {
-      code: 'D008',
-      from: 'Warehouse G',
-      to: 'Customer T',
-      status: 'Delivered',
-    },
-    {
-      code: 'D009',
-      from: 'Warehouse H',
-      to: 'Customer U',
-      status: 'Pending',
-    },
-    {
-      code: 'D010',
-      from: 'Warehouse I',
-      to: 'Customer V',
-      status: 'Shipped',
-    },
-  ];
+export class DeliveryComponent implements OnInit {
+  private _packageItems: Array<PackageItem> = [];
+  private _expandedItemIds: Array<string> = [];
+  loading = false;
+  totalRecords = 0;
+  pageSize = 10;
+  pageIndex = 0;
 
-  dataSource = new MatTableDataSource<IDeliveryItem>(this.delivery);
+  dataSource = new MatTableDataSource<PackageItem>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  displayedColumns = ['code', 'from', 'to', 'status', 'action'];
+  displayedColumns = [
+    'packageId',
+    'originAddress',
+    'destinationAddress',
+    'status',
+    'until',
+    'isUrgent',
+    'action',
+    'expand',
+  ];
 
-  constructor(private readonly dialog: MatDialog) {}
+  constructor(
+    private readonly dialog: MatDialog,
+    private readonly shipmentClient: ShipmentsClient
+  ) {}
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
+  ngOnInit(): void {
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.getPackages(1, this.pageSize)),
+        tap(() => (this.loading = false))
+      )
+      .subscribe();
   }
 
   openConfirmDeliveryDialog() {
@@ -94,10 +58,22 @@ export class DeliveryComponent implements AfterViewInit {
   }
 
   openRequestSuppliesDialog() {
-    this.dialog.open(RequestSuppliesComponent, {
+    const dialogRef = this.dialog.open(RequestSuppliesComponent, {
       maxWidth: '750px',
       width: '750px',
     });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter(
+          (result): result is { reload: boolean } => !!result && result.reload
+        ),
+        tap(() => (this.loading = true)),
+        switchMap(() => this.getPackages(this.getStartRow(), this.pageSize)),
+        tap(() => (this.loading = false))
+      )
+      .subscribe();
   }
 
   openShowQrCodeDialog(code: string) {
@@ -105,11 +81,63 @@ export class DeliveryComponent implements AfterViewInit {
       data: { code: code },
     });
   }
-}
 
-interface IDeliveryItem {
-  code: string;
-  from: string;
-  to: string;
-  status: string;
+  pageChangeEvent(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.getPackages(this.getStartRow(), this.pageSize)),
+        tap(() => (this.loading = false))
+      )
+      .subscribe();
+  }
+
+  expandOrHideItemDetails(id: string): void {
+    if (this._expandedItemIds.includes(id)) {
+      this._expandedItemIds = this._expandedItemIds.filter(
+        (item) => item !== id
+      );
+    } else {
+      this._expandedItemIds.push(id);
+    }
+  }
+
+  isExpandedItem(id: string): boolean {
+    return this._expandedItemIds.includes(id);
+  }
+
+  private getPackages(
+    startRow: number | undefined,
+    amount: number | undefined
+  ) {
+    return this.shipmentClient.shipmentsGet(startRow, amount).pipe(
+      tap((result) => {
+        this._packageItems = result.packages ?? [];
+
+        for (const item of this._packageItems) {
+          item.status = this.splitCamelCaseToString(item.status);
+        }
+
+        this.totalRecords = result.total ?? 0;
+        this.dataSource.data = this._packageItems;
+      })
+    );
+  }
+
+  private splitCamelCaseToString(input: string | undefined): string {
+    if (!input) {
+      return '';
+    }
+
+    return input
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .replace(/^./, (str) => str.toUpperCase());
+  }
+
+  private getStartRow(): number {
+    return 1 + this.pageIndex * this.pageSize;
+  }
 }

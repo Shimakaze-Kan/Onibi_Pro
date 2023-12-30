@@ -1,4 +1,7 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.Common.ValueObjects;
 using Onibi_Pro.Domain.PackageAggregate.ValueObjects;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
@@ -52,7 +55,7 @@ public sealed class Package : AggregateRoot<PackageId>
         Until = until;
     }
 
-    public static Package Create(ManagerId manager,
+    public static ErrorOr<Package> Create(ManagerId manager,
         RegionalManagerId regionalManager,
         Address destination,
         RestaurantId destinationRestaurant,
@@ -63,10 +66,10 @@ public sealed class Package : AggregateRoot<PackageId>
     {
         if (ingredients?.Any() != true)
         {
-            throw new Exception();
+            return Errors.Package.WrongIngredientAmount;
         }
 
-        return new(PackageId.CreateUnique(),
+        return new Package(PackageId.CreateUnique(),
             manager,
             regionalManager,
             destination,

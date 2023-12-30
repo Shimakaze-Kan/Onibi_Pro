@@ -22,20 +22,34 @@
     </button>
   </div>
   <div class="mat-elevation-z8 container table-responsive">
-    <table mat-table [dataSource]="dataSource">
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef>Code</th>
-        <td mat-cell *matCellDef="let element">{{ element.code }}</td>
+    <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+      <ng-container matColumnDef="packageId">
+        <th mat-header-cell *matHeaderCellDef>Package Id</th>
+        <td mat-cell *matCellDef="let element">{{ element.packageId }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="from">
+      <ng-container matColumnDef="originAddress">
         <th mat-header-cell *matHeaderCellDef>From</th>
-        <td mat-cell *matCellDef="let element">{{ element.from }}</td>
+        <td style="width: 15%" mat-cell *matCellDef="let element">
+          <ng-container
+            *ngTemplateOutlet="
+              address;
+              context: { address: element.originAddress }
+            "
+          ></ng-container>
+        </td>
       </ng-container>
 
-      <ng-container matColumnDef="to">
+      <ng-container matColumnDef="destinationAddress">
         <th mat-header-cell *matHeaderCellDef>To</th>
-        <td mat-cell *matCellDef="let element">{{ element.to }}</td>
+        <td style="width: 15%" mat-cell *matCellDef="let element">
+          <ng-container
+            *ngTemplateOutlet="
+              address;
+              context: { address: element.destinationAddress }
+            "
+          ></ng-container>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="status">
@@ -43,24 +57,108 @@
         <td mat-cell *matCellDef="let element">{{ element.status }}</td>
       </ng-container>
 
+      <ng-container matColumnDef="until">
+        <th mat-header-cell *matHeaderCellDef>Until</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.until | date : "MMM dd, yyyy 'at' hh:mm a" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="isUrgent">
+        <th mat-header-cell *matHeaderCellDef>Is Urgent</th>
+        <td mat-cell *matCellDef="let element">
+          <mat-icon>{{ element.isUrgent ? "check" : "close" }}</mat-icon>
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="action">
         <th mat-header-cell *matHeaderCellDef>QR Code</th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button (click)="openShowQrCodeDialog(element.code)">
+          <button
+            mat-icon-button
+            (click)="openShowQrCodeDialog(element.packageId)"
+            [disabled]="loading"
+          >
             <mat-icon>qr_code_2</mat-icon>
           </button>
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-icon-button
+            (click)="expandOrHideItemDetails(element.packageId)"
+          >
+            <mat-icon
+              >{{
+                isExpandedItem(element.packageId)
+                  ? "expand_less"
+                  : "expand_more"
+              }}
+            </mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td
+          [class.expand]="isExpandedItem(element.packageId)"
+          mat-cell
+          *matCellDef="let element"
+          [attr.colspan]="displayedColumns.length"
+        >
+          <div class="details">
+            <div>
+              <ul>
+                <li>
+                  <b>Regional Manager Id:</b> {{ element.regionalManager }}
+                </li>
+                <li><b>Courier Id:</b> {{ element.courier || "-" }}</li>
+                <li>
+                  <b>Source Restaurant Id:</b>
+                  {{ element.sourceRestaurant || "-" }}
+                </li>
+              </ul>
+            </div>
+            <div>
+              <label><b>Message:</b></label>
+              <span>{{ element.message }}</span>
+            </div>
+          </div>
+        </td></ng-container
+      >
+
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr
+        class="sub-table"
+        mat-row
+        *matRowDef="let row; columns: ['expandedDetail']"
+      ></tr>
     </table>
 
     <mat-paginator
-      [pageSizeOptions]="[5, 10, 20]"
+      (page)="pageChangeEvent($event)"
+      [length]="totalRecords"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="[5, 10, 20, 50]"
       showFirstLastButtons
-      aria-label="Select page of periodic elements"
     >
     </mat-paginator>
   </div>
 </div>
+
+<ng-template #address let-address="address">
+  <ng-container *ngIf="!!address">
+    <span>{{ address.street }}</span
+    ><br />
+    <span>{{ address.city }}</span
+    ><br />
+    <span>{{ address.postalCode }}</span
+    ><br />
+    <span>{{ address.country }}</span>
+  </ng-container>
+</ng-template>

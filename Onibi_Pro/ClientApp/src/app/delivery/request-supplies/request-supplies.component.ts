@@ -17,7 +17,13 @@ import {
   tap,
 } from 'rxjs';
 import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
-import { GetIngredientResponse, MenusClient } from '../../api/api';
+import {
+  CreatePackageRequest,
+  CreatePackageRequest_Ingredient,
+  GetIngredientResponse,
+  MenusClient,
+  ShipmentsClient,
+} from '../../api/api';
 import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
@@ -41,13 +47,14 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   newSupplyForm = this.fb.group({
     until: new FormControl<Date | undefined>(undefined, Validators.required),
     isUrgent: new FormControl<boolean>(false),
+    message: new FormControl<string>(''),
     ingredients: this.fb.array<ISupply>([]),
   });
 
   tmpSupplyForm = this.fb.group({
     name: new FormControl<string>('', Validators.required),
     unit: new FormControl<string>('', Validators.required),
-    amount: new FormControl<string>('', Validators.required),
+    amount: new FormControl<number>(1, Validators.required),
   });
 
   get supplies() {
@@ -55,10 +62,13 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private readonly dialogRef: MatDialogRef<RequestSuppliesComponent>,
+    private readonly dialogRef: MatDialogRef<
+      RequestSuppliesComponent,
+      { reload: boolean }
+    >,
     private readonly fb: FormBuilder,
-    private readonly dialog: MatDialog,
-    private readonly client: MenusClient,
+    private readonly menusClient: MenusClient,
+    private readonly shipmentClient: ShipmentsClient,
     private readonly errorParser: ErrorMessagesParserService,
     private readonly snackBar: MatSnackBar
   ) {}
@@ -88,7 +98,7 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
     of({})
       .pipe(
         tap(() => (this.loading = true)),
-        switchMap(() => this.client.ingredients()),
+        switchMap(() => this.menusClient.ingredients()),
         tap((result) => {
           this.ingredients = result;
           this.filteredIngredients.next(this.ingredients.slice());
@@ -113,14 +123,14 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   }
 
   onClose(): void {
-    this.dialogRef.close();
+    this.dialogRef.close({ reload: false });
   }
 
   addSupplyForm(): void {
     const ingredientForm = this.fb.group({
       name: new FormControl<string>('', Validators.required),
       unit: new FormControl<string>('', Validators.required),
-      amount: new FormControl<string>('', Validators.required),
+      amount: new FormControl<number>(1, Validators.required),
     });
 
     ingredientForm.patchValue(this.tmpSupplyForm.getRawValue());
@@ -130,6 +140,7 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
     }
 
     this.tmpSupplyForm.reset();
+    this.tmpSupplyForm.controls.amount.setValue(1);
 
     this.supplies.push(ingredientForm);
   }
@@ -162,11 +173,41 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
   }
 
   onAccept(): void {
-    this.onClose();
-
-    this.dialog.open(ShowQrCodeComponent, {
-      data: { code: '0a2b90e2-4f29-4a7d-ac71-a64f8e292b56' },
+    const rawValues = this.newSupplyForm.getRawValue();
+    const ingredients = rawValues.ingredients.map(
+      (x) =>
+        new CreatePackageRequest_Ingredient({
+          name: x?.name,
+          quantity: x?.amount || 0,
+          unit: x?.unit,
+        })
+    );
+    const request = new CreatePackageRequest({
+      ingredients: ingredients,
+      isUrgent: rawValues.isUrgent || false,
+      message: rawValues.message || '',
+      until: rawValues.until!,
     });
+
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.shipmentClient.shipmentsPost(request)),
+        tap(() => {
+          this.loading = false;
+          this.dialogRef.close({ reload: true });
+        }),
+        catchError((error) => {
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
   }
 
   populateIngredientToForm(event: MatSelectChange, form: FormGroup): void {
@@ -206,7 +247,7 @@ export class RequestSuppliesComponent implements OnInit, OnDestroy {
 interface ISupply {
   name: string;
   unit: string;
-  amount: string;
+  amount: number;
 }
 
 enum SupplyOperation {

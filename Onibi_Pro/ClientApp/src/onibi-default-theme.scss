@@ -191,3 +191,12 @@ th {
   font-size: 10px;
   color: $gray-text-color;
 }
+
+.sub-table {
+  border-left: 8px solid $logo-color;
+  display: none;
+
+  &:has(td.expand) {
+    display: table-row;
+  }
+}

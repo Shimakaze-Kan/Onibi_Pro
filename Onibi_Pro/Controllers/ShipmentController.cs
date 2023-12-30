@@ -38,11 +38,12 @@ public class ShipmentsController : ApiBaseController
 
         var result = await _mediator.Send(command, cancellationToken);
 
-        return Ok(_mapper.Map<PackageItem>(result));
+        return result.Match(result => Ok(_mapper.Map<PackageItem>(result)), Problem);
     }
 
-    [HttpGet("{packageId}")]
+    [HttpGet("id/{packageId}")]
     [ProducesResponseType(typeof(PackageItem), 200)]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerOrManagerAccess)]
     public async Task<IActionResult> GetPackageById([FromRoute] Guid packageId, CancellationToken cancellationToken)
     {
         var query = new GetPackageByIdQuery(PackageId.Create(packageId));
@@ -53,13 +54,14 @@ public class ShipmentsController : ApiBaseController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyCollection<PackageItem>), 200)]
+    [ProducesResponseType(typeof(GetPackagesResponse), 200)]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerOrManagerAccess)]
     public async Task<IActionResult> GetAllPackages([FromQuery] GetPackagesRequest request, CancellationToken cancellationToken)
     {
         var query = _mapper.Map<GetPackagesQuery>(request);
 
         var result = await _mediator.Send(query, cancellationToken);
 
-        return Ok(_mapper.Map<IReadOnlyCollection<PackageItem>>(result));
+        return Ok(_mapper.Map<GetPackagesResponse>(result));
     }
 }

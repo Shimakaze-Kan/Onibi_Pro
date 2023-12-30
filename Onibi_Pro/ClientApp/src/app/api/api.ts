@@ -1458,6 +1458,209 @@ export class RestaurantsClient implements IRestaurantsClient {
     }
 }
 
+export interface IShipmentsClient {
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    shipmentsPost(body: CreatePackageRequest | undefined): Observable<PackageItem>;
+    /**
+     * @param startRow (optional) 
+     * @param amount (optional) 
+     * @return Success
+     */
+    shipmentsGet(startRow: number | undefined, amount: number | undefined): Observable<GetPackagesResponse>;
+    /**
+     * @return Success
+     */
+    id(packageId: string): Observable<PackageItem>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ShipmentsClient implements IShipmentsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    shipmentsPost(body: CreatePackageRequest | undefined): Observable<PackageItem> {
+        let url_ = this.baseUrl + "/api/Shipments";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processShipmentsPost(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processShipmentsPost(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PackageItem>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PackageItem>;
+        }));
+    }
+
+    protected processShipmentsPost(response: HttpResponseBase): Observable<PackageItem> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PackageItem.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param startRow (optional) 
+     * @param amount (optional) 
+     * @return Success
+     */
+    shipmentsGet(startRow: number | undefined, amount: number | undefined): Observable<GetPackagesResponse> {
+        let url_ = this.baseUrl + "/api/Shipments?";
+        if (startRow === null)
+            throw new Error("The parameter 'startRow' cannot be null.");
+        else if (startRow !== undefined)
+            url_ += "StartRow=" + encodeURIComponent("" + startRow) + "&";
+        if (amount === null)
+            throw new Error("The parameter 'amount' cannot be null.");
+        else if (amount !== undefined)
+            url_ += "Amount=" + encodeURIComponent("" + amount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processShipmentsGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processShipmentsGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetPackagesResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetPackagesResponse>;
+        }));
+    }
+
+    protected processShipmentsGet(response: HttpResponseBase): Observable<GetPackagesResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetPackagesResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    id(packageId: string): Observable<PackageItem> {
+        let url_ = this.baseUrl + "/api/Shipments/id/{packageId}";
+        if (packageId === undefined || packageId === null)
+            throw new Error("The parameter 'packageId' must be defined.");
+        url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PackageItem>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PackageItem>;
+        }));
+    }
+
+    protected processId(response: HttpResponseBase): Observable<PackageItem> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PackageItem.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IWeatherForecastClient {
     /**
      * @return Success
@@ -3695,6 +3898,290 @@ export interface IGetScheduleResponse {
     startDate?: Date;
     endDate?: Date;
     employeeIds?: string[] | undefined;
+}
+
+export class PackageItem implements IPackageItem {
+    packageId?: string;
+    destinationRestaurant?: string | undefined;
+    manager?: string | undefined;
+    regionalManager?: string | undefined;
+    sourceRestaurant?: string | undefined;
+    courier?: string | undefined;
+    originAddress?: Address;
+    destinationAddress?: Address;
+    status?: string | undefined;
+    message?: string | undefined;
+    isUrgent?: boolean;
+    ingredients?: PackageItem_Ingredient[] | undefined;
+    until?: Date | undefined;
+
+    constructor(data?: IPackageItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.packageId = _data["packageId"];
+            this.destinationRestaurant = _data["destinationRestaurant"];
+            this.manager = _data["manager"];
+            this.regionalManager = _data["regionalManager"];
+            this.sourceRestaurant = _data["sourceRestaurant"];
+            this.courier = _data["courier"];
+            this.originAddress = _data["originAddress"] ? Address.fromJS(_data["originAddress"]) : <any>undefined;
+            this.destinationAddress = _data["destinationAddress"] ? Address.fromJS(_data["destinationAddress"]) : <any>undefined;
+            this.status = _data["status"];
+            this.message = _data["message"];
+            this.isUrgent = _data["isUrgent"];
+            if (Array.isArray(_data["ingredients"])) {
+                this.ingredients = [] as any;
+                for (let item of _data["ingredients"])
+                    this.ingredients!.push(PackageItem_Ingredient.fromJS(item));
+            }
+            this.until = _data["until"] ? new Date(_data["until"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): PackageItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new PackageItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["packageId"] = this.packageId;
+        data["destinationRestaurant"] = this.destinationRestaurant;
+        data["manager"] = this.manager;
+        data["regionalManager"] = this.regionalManager;
+        data["sourceRestaurant"] = this.sourceRestaurant;
+        data["courier"] = this.courier;
+        data["originAddress"] = this.originAddress ? this.originAddress.toJSON() : <any>undefined;
+        data["destinationAddress"] = this.destinationAddress ? this.destinationAddress.toJSON() : <any>undefined;
+        data["status"] = this.status;
+        data["message"] = this.message;
+        data["isUrgent"] = this.isUrgent;
+        if (Array.isArray(this.ingredients)) {
+            data["ingredients"] = [];
+            for (let item of this.ingredients)
+                data["ingredients"].push(item.toJSON());
+        }
+        data["until"] = this.until ? this.until.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IPackageItem {
+    packageId?: string;
+    destinationRestaurant?: string | undefined;
+    manager?: string | undefined;
+    regionalManager?: string | undefined;
+    sourceRestaurant?: string | undefined;
+    courier?: string | undefined;
+    originAddress?: Address;
+    destinationAddress?: Address;
+    status?: string | undefined;
+    message?: string | undefined;
+    isUrgent?: boolean;
+    ingredients?: PackageItem_Ingredient[] | undefined;
+    until?: Date | undefined;
+}
+
+export class PackageItem_Ingredient implements IPackageItem_Ingredient {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+
+    constructor(data?: IPackageItem_Ingredient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.unit = _data["unit"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): PackageItem_Ingredient {
+        data = typeof data === 'object' ? data : {};
+        let result = new PackageItem_Ingredient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["unit"] = this.unit;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface IPackageItem_Ingredient {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+}
+
+export class CreatePackageRequest implements ICreatePackageRequest {
+    ingredients?: CreatePackageRequest_Ingredient[] | undefined;
+    until?: Date;
+    isUrgent?: boolean;
+    message?: string | undefined;
+
+    constructor(data?: ICreatePackageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["ingredients"])) {
+                this.ingredients = [] as any;
+                for (let item of _data["ingredients"])
+                    this.ingredients!.push(CreatePackageRequest_Ingredient.fromJS(item));
+            }
+            this.until = _data["until"] ? new Date(_data["until"].toString()) : <any>undefined;
+            this.isUrgent = _data["isUrgent"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CreatePackageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePackageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.ingredients)) {
+            data["ingredients"] = [];
+            for (let item of this.ingredients)
+                data["ingredients"].push(item.toJSON());
+        }
+        data["until"] = this.until ? this.until.toISOString() : <any>undefined;
+        data["isUrgent"] = this.isUrgent;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICreatePackageRequest {
+    ingredients?: CreatePackageRequest_Ingredient[] | undefined;
+    until?: Date;
+    isUrgent?: boolean;
+    message?: string | undefined;
+}
+
+export class CreatePackageRequest_Ingredient implements ICreatePackageRequest_Ingredient {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+
+    constructor(data?: ICreatePackageRequest_Ingredient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.unit = _data["unit"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): CreatePackageRequest_Ingredient {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePackageRequest_Ingredient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["unit"] = this.unit;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface ICreatePackageRequest_Ingredient {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+}
+
+export class GetPackagesResponse implements IGetPackagesResponse {
+    packages?: PackageItem[] | undefined;
+    total?: number;
+
+    constructor(data?: IGetPackagesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["packages"])) {
+                this.packages = [] as any;
+                for (let item of _data["packages"])
+                    this.packages!.push(PackageItem.fromJS(item));
+            }
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): GetPackagesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetPackagesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.packages)) {
+            data["packages"] = [];
+            for (let item of this.packages)
+                data["packages"].push(item.toJSON());
+        }
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IGetPackagesResponse {
+    packages?: PackageItem[] | undefined;
+    total?: number;
 }
 
 export class WeatherForecast implements IWeatherForecast {

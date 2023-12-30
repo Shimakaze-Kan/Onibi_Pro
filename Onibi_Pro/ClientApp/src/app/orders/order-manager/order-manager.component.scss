@@ -13,12 +13,3 @@ td.fill-with-equals {
   background-size: 16px 1px;
   background-repeat: repeat-x;
 }
-
-.sub-table {
-  border-left: 8px solid $logo-color;
-  display: none;
-
-  &:has(td.expand) {
-    display: table-row;
-  }
-}

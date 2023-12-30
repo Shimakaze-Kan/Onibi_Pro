@@ -1,3 +1,7 @@
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
 <h1 mat-dialog-title>Request The Supplies</h1>
 <div mat-dialog-content class="dialog-content">
   <form [formGroup]="newSupplyForm" autocomplete="off">
@@ -86,6 +90,19 @@
         Add
       </button>
     </form>
+    <details>
+      <summary>Add Message</summary>
+      <mat-form-field appearance="outline" class="w-100">
+        <textarea
+          matInput
+          formControlName="message"
+          placeholder="Optional message"
+          #message
+          maxlength="255"
+        ></textarea>
+        <mat-hint align="end">{{ message.value.length }} / 255</mat-hint>
+      </mat-form-field>
+    </details>
   </form>
 </div>
 <div mat-dialog-actions class="justify-content-end">
@@ -93,7 +110,9 @@
   <button
     mat-button
     color="primary"
-    [disabled]="newSupplyForm.invalid || supplies.controls.length === 0"
+    [disabled]="
+      newSupplyForm.invalid || supplies.controls.length === 0 || loading
+    "
     cdkFocusInitial
     (click)="onAccept()"
   >
@@ -159,6 +178,8 @@
         <input
           id="amountInput"
           matInput
+          type="number"
+          min="1"
           formControlName="amount"
           placeholder="Amount"
         />
