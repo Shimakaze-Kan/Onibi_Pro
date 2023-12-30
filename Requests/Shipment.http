@@ -29,3 +29,8 @@ Authorization: Bearer {{token}}
   "IsUrgent": true,
   "Message": "Please deliver ASAP"
 }
+
+### get
+GET {{baseUrl}}/shipments/3de8acaf-8b12-4bbe-8997-b2565156afab
+Content-Type: application/json
+Authorization: Bearer {{token}}
