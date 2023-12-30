@@ -1,21 +1,21 @@
 ﻿using Onibi_Pro.Domain.Common.Models;
 
-namespace Onibi_Pro.Domain.ShipmentAggregate.ValueObjects;
-public sealed class CourierId : ValueObject
+namespace Onibi_Pro.Domain.PackageAggregate.ValueObjects;
+public sealed class PackageId : ValueObject
 {
     public Guid Value { get; }
 
-    private CourierId(Guid id)
+    private PackageId(Guid id)
     {
         Value = id;
     }
 
-    public static CourierId Create(Guid id)
+    public static PackageId Create(Guid id)
     {
         return new(id);
     }
 
-    public static CourierId CreateUnique()
+    public static PackageId CreateUnique()
     {
         return new(Guid.NewGuid());
     }

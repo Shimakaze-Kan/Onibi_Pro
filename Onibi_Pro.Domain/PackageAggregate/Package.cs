@@ -1,11 +1,11 @@
 ﻿using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.Common.ValueObjects;
+using Onibi_Pro.Domain.PackageAggregate.ValueObjects;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
-using Onibi_Pro.Domain.ShipmentAggregate.ValueObjects;
 
-namespace Onibi_Pro.Domain.ShipmentAggregate.Entities;
-public sealed class Package : Entity<PackageId>
+namespace Onibi_Pro.Domain.PackageAggregate;
+public sealed class Package : AggregateRoot<PackageId>
 {
     private readonly List<Ingredient> _ingredients;
     private readonly IReadOnlyCollection<ShipmentStatus> _canRejectStatuses = new List<ShipmentStatus>()
@@ -18,10 +18,11 @@ public sealed class Package : Entity<PackageId>
 
     public ManagerId Manager { get; private set; }
     public RegionalManagerId RegionalManager { get; private set; }
-    public ManagerId? RestaurantSourceManager { get; private set; } = null;
+    public RestaurantId? SourceRestaurant { get; private set; } = null;
     public CourierId? Courier { get; private set; } = null;
     public Address? Origin { get; private set; } = null;
     public Address Destination { get; private set; }
+    public RestaurantId DestinationRestaurant { get; private set; }
     public ShipmentStatus Status { get; private set; }
     public string Message { get; private set; }
     public bool IsUrgent { get; private set; }
@@ -31,6 +32,7 @@ public sealed class Package : Entity<PackageId>
         ManagerId manager,
         RegionalManagerId regionalManager,
         Address destination,
+        RestaurantId destinationRestaurant,
         ShipmentStatus shipmentStatus,
         string message,
         List<Ingredient> ingredients,
@@ -44,12 +46,13 @@ public sealed class Package : Entity<PackageId>
         Message = message;
         _ingredients = ingredients;
         IsUrgent = isUrgent;
-
+        DestinationRestaurant = destinationRestaurant;
     }
 
     public static Package Create(ManagerId manager,
         RegionalManagerId regionalManager,
         Address destination,
+        RestaurantId destinationRestaurant,
         string message,
         List<Ingredient> ingredients,
         bool isUrgent = false)
@@ -63,13 +66,14 @@ public sealed class Package : Entity<PackageId>
             manager,
             regionalManager,
             destination,
+            destinationRestaurant,
             ShipmentStatus.PendingRegionalManagerApproval,
             message,
             ingredients,
             isUrgent);
     }
 
-    internal void AcceptShipmentAndAssignCourier(
+    public void AcceptShipmentAndAssignCourier(
         RegionalManagerId regionalManager, Address origin, CourierId courier)
     {
         if (RegionalManager != regionalManager)
@@ -85,8 +89,8 @@ public sealed class Package : Entity<PackageId>
         }
     }
 
-    internal void AcceptShipmentFromRestaurantAndCourier(RegionalManagerId regionalManager,
-        Address origin, ManagerId restaurantSourceManager, CourierId courier)
+    public void AcceptShipmentFromRestaurantAndCourier(RegionalManagerId regionalManager,
+        Address origin, RestaurantId sourceRestaurant, CourierId courier)
     {
         if (RegionalManager != regionalManager)
         {
@@ -97,14 +101,14 @@ public sealed class Package : Entity<PackageId>
         {
             Origin = origin;
             Courier = courier;
-            RestaurantSourceManager = restaurantSourceManager;
+            SourceRestaurant = sourceRestaurant;
             Status = ShipmentStatus.PendingRestaurantManagerApproval;
         }
     }
 
-    internal void AcceptShipment(ManagerId manager)
+    public void AcceptShipment(ManagerId manager)
     {
-        if (RestaurantSourceManager! != manager)
+        if (SourceRestaurant! != manager)
         {
             return;
         }
@@ -115,7 +119,7 @@ public sealed class Package : Entity<PackageId>
         }
     }
 
-    internal void RejectPackage(RegionalManagerId regionalManager)
+    public void RejectPackage(RegionalManagerId regionalManager)
     {
         if (RegionalManager != regionalManager)
         {
@@ -128,9 +132,9 @@ public sealed class Package : Entity<PackageId>
         }
     }
 
-    internal void RejectPackage(ManagerId manager)
+    public void RejectPackage(ManagerId manager)
     {
-        if (RestaurantSourceManager! != manager)
+        if (SourceRestaurant! != manager)
         {
             return;
         }
@@ -141,7 +145,7 @@ public sealed class Package : Entity<PackageId>
         }
     }
 
-    internal void PickUp(CourierId courier)
+    public void PickUp(CourierId courier)
     {
         if (Courier! != courier)
         {
@@ -154,9 +158,9 @@ public sealed class Package : Entity<PackageId>
         }
     }
 
-    internal void ConfirmDelivery(ManagerId manager)
+    public void ConfirmDelivery(RestaurantId restaurantId)
     {
-        if (Manager != manager)
+        if (DestinationRestaurant != restaurantId)
         {
             return;
         }
@@ -167,7 +171,7 @@ public sealed class Package : Entity<PackageId>
         }
     }
 
-    private bool CanRejectCurrentStatus(ShipmentStatus status)
+    public bool CanRejectCurrentStatus(ShipmentStatus status)
     {
         return _canRejectStatuses.Contains(status);
     }

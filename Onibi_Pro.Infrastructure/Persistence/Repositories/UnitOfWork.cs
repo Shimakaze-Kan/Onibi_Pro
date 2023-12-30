@@ -6,13 +6,14 @@ using Onibi_Pro.Domain.MenuAggregate;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
 using Onibi_Pro.Domain.OrderAggregate;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
+using Onibi_Pro.Domain.PackageAggregate;
+using Onibi_Pro.Domain.PackageAggregate.ValueObjects;
+using Onibi_Pro.Domain.RegionalManagerAggregate;
+using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
-using Onibi_Pro.Domain.ShipmentAggregate;
-using Onibi_Pro.Domain.ShipmentAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
-using Onibi_Pro.Infrastructure.Persistence.Interceptors;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
 internal sealed class UnitOfWork : IUnitOfWork
@@ -21,25 +22,28 @@ internal sealed class UnitOfWork : IUnitOfWork
     private IDbContextTransaction _currentTransaction;
 
     public IDomainRepository<Menu, MenuId> MenuRepository { get; }
-    public IDomainRepository<Shipment, ShipmentId> ShipmentRepository { get; }
     public IDomainRepository<Order, OrderId> OrderRepository { get; }
     public IDomainRepository<Restaurant, RestaurantId> RestaurantRepository { get; }
     public IDomainRepository<User, UserId> UserRepository { get; }
+    public IDomainRepository<RegionalManager, RegionalManagerId> RegionalManagerRepository { get; }
+    public IDomainRepository<Package, PackageId> PackageRepository { get; }
 
     public UnitOfWork(DbContextFactory dbContextFactory,
         ICurrentUserService currentUserService,
         IDomainRepository<Menu, MenuId> menuRepository,
-        IDomainRepository<Shipment, ShipmentId> shipmentRepository,
         IDomainRepository<Order, OrderId> orderRepository,
         IDomainRepository<Restaurant, RestaurantId> restaurantRepository,
-        IDomainRepository<User, UserId> userRepository)
+        IDomainRepository<User, UserId> userRepository,
+        IDomainRepository<RegionalManager, RegionalManagerId> regionalManagerRepository,
+        IDomainRepository<Package, PackageId> packageRepository)
     {
         _dbContext = dbContextFactory.CreateDbContext(currentUserService.ClientName);
         MenuRepository = menuRepository;
-        ShipmentRepository = shipmentRepository;
         OrderRepository = orderRepository;
         RestaurantRepository = restaurantRepository;
         UserRepository = userRepository;
+        RegionalManagerRepository = regionalManagerRepository;
+        PackageRepository = packageRepository;
     }
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)

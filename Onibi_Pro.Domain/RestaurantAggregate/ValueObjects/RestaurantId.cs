@@ -24,4 +24,6 @@ public sealed class RestaurantId : ValueObject
     {
         yield return Value;
     }
+
+    private RestaurantId() {}
 }

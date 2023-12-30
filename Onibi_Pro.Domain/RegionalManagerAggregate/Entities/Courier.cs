@@ -1,7 +1,7 @@
 ﻿using Onibi_Pro.Domain.Common.Models;
-using Onibi_Pro.Domain.ShipmentAggregate.ValueObjects;
+using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 
-namespace Onibi_Pro.Domain.ShipmentAggregate.Entities;
+namespace Onibi_Pro.Domain.RegionalManagerAggregate.Entities;
 public sealed class Courier : Entity<CourierId>
 {
     public string Email { get; private set; }
