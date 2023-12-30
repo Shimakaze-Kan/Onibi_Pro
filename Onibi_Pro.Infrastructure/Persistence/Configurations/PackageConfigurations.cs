@@ -102,6 +102,7 @@ public class PackageConfigurations : IEntityTypeConfiguration<Package>
         builder.Property(x => x.Message)
             .HasMaxLength(250);
         builder.Property(x => x.IsUrgent);
+        builder.Property(x => x.Until);
 
         builder.Property(x => x.Ingredients)
             .HasConversion(

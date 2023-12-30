@@ -23,9 +23,10 @@ internal class ManagerDetailsService : IManagerDetailsService
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
         var query = @"
-            SELECT m.ManagerId, m.RestaurantId, u.FirstName, u.LastName
+            SELECT m.ManagerId, rmri.RegionalManagerId, m.RestaurantId, u.FirstName, u.LastName
             FROM dbo.Managers m
             JOIN dbo.Users u on m.UserId = u.Id
+            JOIN dbo.RegionalManagerRestaurantIds rmri on rmri.RestaurantId = m.RestaurantId
             WHERE m.RestaurantId = (
                 SELECT TOP 1 im.RestaurantId FROM dbo.Managers im WHERE im.UserId = @UserId
             )"
@@ -37,11 +38,11 @@ internal class ManagerDetailsService : IManagerDetailsService
 
         if (managers.Count == 0)
         {
-            return new ManagerDetailsDto(Guid.Empty, Guid.Empty, new List<ManagerNames>());
+            return new ManagerDetailsDto(Guid.Empty, Guid.Empty, Guid.Empty, new List<ManagerNames>());
         }
 
         var details = managerDetails.First();
 
-        return new ManagerDetailsDto(details.ManagerId, details.RestaurantId, managers.AsReadOnly());
+        return new ManagerDetailsDto(details.ManagerId, details.RestaurantId, details.RegionalManagerId, managers.AsReadOnly());
     }
 }

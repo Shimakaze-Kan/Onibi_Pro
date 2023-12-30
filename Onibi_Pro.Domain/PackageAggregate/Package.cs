@@ -26,6 +26,7 @@ public sealed class Package : AggregateRoot<PackageId>
     public ShipmentStatus Status { get; private set; }
     public string Message { get; private set; }
     public bool IsUrgent { get; private set; }
+    public DateTime Until { get; private set; }
     public IReadOnlyList<Ingredient> Ingredients => _ingredients.ToList();
 
     private Package(PackageId id,
@@ -36,7 +37,8 @@ public sealed class Package : AggregateRoot<PackageId>
         ShipmentStatus shipmentStatus,
         string message,
         List<Ingredient> ingredients,
-        bool isUrgent)
+        bool isUrgent,
+        DateTime until)
         : base(id)
     {
         Manager = manager;
@@ -47,6 +49,7 @@ public sealed class Package : AggregateRoot<PackageId>
         _ingredients = ingredients;
         IsUrgent = isUrgent;
         DestinationRestaurant = destinationRestaurant;
+        Until = until;
     }
 
     public static Package Create(ManagerId manager,
@@ -55,6 +58,7 @@ public sealed class Package : AggregateRoot<PackageId>
         RestaurantId destinationRestaurant,
         string message,
         List<Ingredient> ingredients,
+        DateTime until,
         bool isUrgent = false)
     {
         if (ingredients?.Any() != true)
@@ -70,7 +74,8 @@ public sealed class Package : AggregateRoot<PackageId>
             ShipmentStatus.PendingRegionalManagerApproval,
             message,
             ingredients,
-            isUrgent);
+            isUrgent,
+            until);
     }
 
     public void AcceptShipmentAndAssignCourier(

@@ -1,0 +1,31 @@
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
+
+### login
+# @name login
+POST {{baseUrl}}/authentication/login
+Content-Type: application/json
+
+{
+    "email": "john@john.com",
+    "password": "pass123@!"
+}
+
+### token
+@token = {{login.response.body.$.token}}
+
+### create package
+POST {{baseUrl}}/shipments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "Ingredients": [
+    {"Name": "Flour", "Unit": "Grams", "Quantity": 2.5},
+    {"Name": "Sugar", "Unit": "Grams", "Quantity": 500},
+    {"Name": "Eggs", "Unit": "Pieces", "Quantity": 4}
+  ],
+  "Until": "2023-01-01T12:00:00",
+  "IsUrgent": true,
+  "Message": "Please deliver ASAP"
+}
