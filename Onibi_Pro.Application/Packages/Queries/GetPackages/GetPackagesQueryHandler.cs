@@ -2,26 +2,23 @@
 
 using Dapper;
 
-using ErrorOr;
-
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Packages.Queries.Common;
 using Onibi_Pro.Application.Persistence;
-using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
-namespace Onibi_Pro.Application.Packages.Queries.GetPackageById;
-internal sealed class GetPackageByIdQueryHandler : IRequestHandler<GetPackageByIdQuery, ErrorOr<PackageDto>>
+namespace Onibi_Pro.Application.Packages.Queries.GetPackages;
+internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery, GetPackagesDto>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
     private readonly IManagerDetailsService _managerDetailsService;
     private readonly IRegionalManagerDetailsService _regionalManagerDetailsService;
 
-    public GetPackageByIdQueryHandler(IDbConnectionFactory dbConnectionFactory,
+    public GetPackagesQueryHandler(IDbConnectionFactory dbConnectionFactory,
         ICurrentUserService currentUserService,
         IManagerDetailsService managerDetailsService,
         IRegionalManagerDetailsService regionalManagerDetailsService)
@@ -32,33 +29,31 @@ internal sealed class GetPackageByIdQueryHandler : IRequestHandler<GetPackageByI
         _regionalManagerDetailsService = regionalManagerDetailsService;
     }
 
-    public async Task<ErrorOr<PackageDto>> Handle(GetPackageByIdQuery request, CancellationToken cancellationToken)
+    public async Task<GetPackagesDto> Handle(GetPackagesQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
-        DynamicParameters dynamicParameters = new DynamicParameters();
-        dynamicParameters.Add("@PackageId", request.PackageId.Value);
+        DynamicParameters dynamicParameters = new();
+        dynamicParameters.Add("@PageNumber", request.StartRow);
+        dynamicParameters.Add("@PageSize", request.Amount);
 
-        (var andClause, dynamicParameters) = _currentUserService.UserType switch
+        (var whereClause, dynamicParameters) = _currentUserService.UserType switch
         {
-            UserTypes.Manager => await SetupManagerAndClause(dynamicParameters),
-            UserTypes.RegionalManager => await SetupRegionalManagerAndClause(dynamicParameters),
+            UserTypes.Manager => await SetupManagerWhereClause(dynamicParameters),
+            UserTypes.RegionalManager => await SetupRegionalManagerWhereClause(dynamicParameters),
             _ => (string.Empty, dynamicParameters)
         };
-        PackageDto? result = await GetPackage(connection, dynamicParameters, andClause);
 
-        if (result is null)
-        {
-            return Errors.Package.PackageNotFound;
-        }
+        var packages = await GetPackages(connection, whereClause, dynamicParameters);
+        var total = await GetTotalCount(connection, whereClause, dynamicParameters);
 
-        return result;
+        return new([.. packages], total);
     }
 
-    private static async Task<PackageDto?> GetPackage(IDbConnection connection, DynamicParameters dynamicParameters, string andClause)
+    private static async Task<IEnumerable<PackageDto>> GetPackages(IDbConnection connection, string whereClause, DynamicParameters dynamicParameters)
     {
-        return await connection.QueryFirstOrDefaultAsync<PackageDto>(
-                    @$"SELECT [PackageId]
+        var query = @$"
+            SELECT [PackageId]
               ,[DestinationRestaurant] AS {nameof(PackageDto.DestinationRestaurant)}
               ,[Manager] AS {nameof(PackageDto.Manager)}
               ,[RegionalManager] AS {nameof(PackageDto.RegionalManager)}
@@ -77,31 +72,50 @@ internal sealed class GetPackageByIdQueryHandler : IRequestHandler<GetPackageByI
               ,[IsUrgent] AS {nameof(PackageDto.IsUrgent)}
               ,[Ingredients] AS {nameof(PackageDto.Ingredients)}
               ,[Until] AS {nameof(PackageDto.Until)}
-            FROM dbo.Packages WHERE PackageId = @packageId
-            {andClause}", dynamicParameters);
+            FROM 
+              [Onibi_Pro].[dbo].[Packages]
+            {whereClause}
+            ORDER BY 
+              [IsUrgent] DESC,
+              [Until] DESC
+            OFFSET (@PageNumber - 1) * @PageSize ROWS
+            FETCH NEXT @PageSize ROWS ONLY;";
+
+        var result = await connection.QueryAsync<PackageDto>(query, dynamicParameters);
+        return result;
     }
 
-    private async Task<(string, DynamicParameters)> SetupRegionalManagerAndClause(DynamicParameters dynamicParameters)
+    private async Task<(string, DynamicParameters)> SetupRegionalManagerWhereClause(DynamicParameters dynamicParameters)
     {
         var regionalManagerDetails =
             await _regionalManagerDetailsService.GetRegionalManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
         var whereClause = @"
-                AND
+                WHERE
                 [RegionalManager] = @RegionalManagerId";
 
         dynamicParameters.Add("@RegionalManagerId", regionalManagerDetails.RegionalManagerId);
         return (whereClause, dynamicParameters);
     }
 
-    private async Task<(string, DynamicParameters)> SetupManagerAndClause(DynamicParameters dynamicParameters)
+    private async Task<(string, DynamicParameters)> SetupManagerWhereClause(DynamicParameters dynamicParameters)
     {
         var managerDetails = await _managerDetailsService.GetManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
         var whereClause = @"
-                AND
+                WHERE
                 [SourceRestaurant] = @RestaurantId
                 OR [DestinationRestaurant] = @RestaurantId";
 
         dynamicParameters.Add("@RestaurantId", managerDetails.RestaurantId);
         return (whereClause, dynamicParameters);
+    }
+
+    private static async Task<long> GetTotalCount(IDbConnection connection, string whereClause, DynamicParameters dynamicParameters)
+    {
+        var query = @$"
+            SELECT COUNT(1)
+            FROM dbo.Packages WITH (NOLOCK)
+            {whereClause}";
+
+        return await connection.ExecuteScalarAsync<long>(query, dynamicParameters);
     }
 }
