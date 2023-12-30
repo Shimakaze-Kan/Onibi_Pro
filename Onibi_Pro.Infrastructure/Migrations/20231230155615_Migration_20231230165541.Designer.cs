@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Onibi_Pro.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Onibi_Pro.Infrastructure.Persistence;
 namespace Onibi_Pro.Infrastructure.Migrations
 {
     [DbContext(typeof(OnibiProDbContext))]
-    partial class OnibiProDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231230155615_Migration_20231230165541")]
+    partial class Migration_20231230165541
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,7 +110,8 @@ namespace Onibi_Pro.Infrastructure.Migrations
 
                     b.HasIndex("DestinationRestaurant");
 
-                    b.HasIndex("RegionalManager");
+                    b.HasIndex("RegionalManager")
+                        .IsUnique();
 
                     b.ToTable("Packages", (string)null);
                 });
@@ -302,8 +306,8 @@ namespace Onibi_Pro.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Onibi_Pro.Domain.RegionalManagerAggregate.RegionalManager", null)
-                        .WithMany()
-                        .HasForeignKey("RegionalManager")
+                        .WithOne()
+                        .HasForeignKey("Onibi_Pro.Domain.PackageAggregate.Package", "RegionalManager")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 

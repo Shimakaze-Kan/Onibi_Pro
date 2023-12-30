@@ -31,6 +31,7 @@ public static class DependencyInjection
             options.UseSqlServer(configurationManager.GetConnectionString("SqlServerConnection")));
 
         services.AddScoped<IManagerDetailsService, ManagerDetailsService>();
+        services.AddScoped<IRegionalManagerDetailsService, RegionalManagerDetailsService>();
 
         return services;
     }

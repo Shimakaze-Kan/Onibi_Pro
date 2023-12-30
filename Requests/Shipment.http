@@ -21,9 +21,9 @@ Authorization: Bearer {{token}}
 
 {
   "Ingredients": [
-    {"Name": "Flour", "Unit": "Grams", "Quantity": 2.5},
-    {"Name": "Sugar", "Unit": "Grams", "Quantity": 500},
-    {"Name": "Eggs", "Unit": "Pieces", "Quantity": 4}
+    {"Name": "Milk", "Unit": "Milliliters", "Quantity": 1000},
+    {"Name": "Choco", "Unit": "Grams", "Quantity": 2000},
+    {"Name": "Pickles", "Unit": "Pieces", "Quantity": 4}
   ],
   "Until": "2023-01-01T12:00:00",
   "IsUrgent": true,
@@ -32,5 +32,10 @@ Authorization: Bearer {{token}}
 
 ### get
 GET {{baseUrl}}/shipments/3de8acaf-8b12-4bbe-8997-b2565156afab
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### get all
+GET {{baseUrl}}/shipments
 Content-Type: application/json
 Authorization: Bearer {{token}}

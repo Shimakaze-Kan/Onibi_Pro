@@ -84,8 +84,8 @@ public class PackageConfigurations : IEntityTypeConfiguration<Package>
             value => RestaurantId.Create(value));
 
         builder.HasOne<Restaurant>()
-            .WithOne()
-            .HasForeignKey<Package>(x => x.DestinationRestaurant)
+            .WithMany()
+            .HasForeignKey(x => x.DestinationRestaurant)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.Property(x => x.RegionalManager)
@@ -94,8 +94,8 @@ public class PackageConfigurations : IEntityTypeConfiguration<Package>
             value => RegionalManagerId.Create(value));
 
         builder.HasOne<RegionalManager>()
-            .WithOne()
-            .HasForeignKey<Package>(x => x.RegionalManager)
+            .WithMany()
+            .HasForeignKey(x => x.RegionalManager)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.Property(x => x.Status);
