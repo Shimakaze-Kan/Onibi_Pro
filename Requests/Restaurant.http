@@ -1,7 +1,7 @@
 @baseUrl =  https://localhost:7002/api
 #@baseUrl =  http://localhost:8080/api
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6IlJFR0lPTkFMTUFOQUdFUiIsImp0aSI6ImI0ZDNiNjNkLWM0ODItNDM4Yy1hYWZlLTk4NDEwNTU2ZjFhNyIsIkNMSUVOVF9OQU1FIjoiTWNEb3dlbCIsImV4cCI6MTcwMzU1MDE0NywiaXNzIjoiT25pYmlQcm8iLCJhdWQiOiJPbmliaVBybyJ9.T8G_RpQIky3K3ilAUa-tqkxhUSekEZ2eeeyXZ5m_0Dk
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6IkdMT0JBTE1BTkFHRVIiLCJqdGkiOiIzMjM4N2JiMy0yZDkzLTQ1MTctOTk5ZS01MGU1MDkxZGQ2ZjciLCJDTElFTlRfTkFNRSI6Ik1jRG93ZWwiLCJleHAiOjE3MDM5ODE3NjYsImlzcyI6Ik9uaWJpUHJvIiwiYXVkIjoiT25pYmlQcm8ifQ.HgrM7eHY8yl_R4WwDydT8DJ7OusXCWB1ACcwD-a4ogw
 
 ### create
 POST {{baseUrl}}/restaurants
@@ -15,39 +15,7 @@ Authorization: Bearer {{token}}
     "PostalCode": "12345",
     "Country": "USA"
   },
-  "OrderIds": ["2B750804-E65E-43D7-BAC1-B43B6757DC31"],
-  "Employees": [
-    {
-      "FirstName": "John",
-      "LastName": "Doe",
-      "Email": "john.doe@example.com",
-      "EmployeePositions": [
-        { "Position": "Cashier" },
-        { "Position": "Cook" }
-      ]
-    },
-    {
-      "FirstName": "Jane",
-      "LastName": "Smith",
-      "Email": "jane.smith@example.com",
-      "EmployeePositions": [
-        { "Position": "Server" },
-        { "Position": "Cleaner" }
-      ]
-    }
-  ],
-  "Managers": [
-    {
-      "FirstName": "Manager",
-      "LastName": "One",
-      "Email": "manager.one@example.com"
-    },
-    {
-      "FirstName": "Manager",
-      "LastName": "Two",
-      "Email": "manager.two@example.com"
-    }
-  ]
+  "RegionalManagerId": "F3848A49-1D62-4BC9-8B9B-549A3DBD3475"
 }
 
 ### employees

@@ -1,4 +1,7 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.RegionalManagerAggregate.Entities;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
@@ -30,6 +33,18 @@ public sealed class RegionalManager : AggregateRoot<RegionalManagerId>
         string lastName, List<RestaurantId>? restaurants = null)
     {
         return new(RegionalManagerId.CreateUnique(), userId, firstName, lastName, restaurants);
+    }
+
+    public ErrorOr<Success> AssignRestaurant(RestaurantId restaurantId)
+    {
+        if (_restaurants.Contains(restaurantId))
+        {
+            return Errors.RegionalManager.RestaurantAlreadyAssigned;
+        }
+
+        _restaurants.Add(restaurantId);
+
+        return new Success();
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

@@ -3,8 +3,9 @@
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.Common.ValueObjects;
-using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
+using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
+using Onibi_Pro.Domain.RestaurantAggregate.Events;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
@@ -33,10 +34,14 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
     }
 
     public static Restaurant Create(Address address,
+        RegionalManagerId regionalManagerId,
         List<Employee>? employees = null,
         List<Manager>? managers = null)
     {
-        return new(RestaurantId.CreateUnique(), address, employees, managers);
+        var restaurant = new Restaurant(RestaurantId.CreateUnique(), address, employees, managers);
+
+        restaurant.AddDomainEvent(new RestaurantCreated(restaurant, regionalManagerId));
+        return restaurant;
     }
 
     public ErrorOr<Success> RegisterEmployee(UserId userId, Employee employee)

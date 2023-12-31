@@ -9,6 +9,7 @@ using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.EditSchedule;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Contracts.Restaurants;
+using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 
@@ -19,10 +20,8 @@ public class RestaurantMappingConfig : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CreateRestaurantRequest, CreateRestaurantCommand>()
-            .Map(dest => dest, src => src);
-
-        config.NewConfig<CreateRestaurantRequest.Employee, EmployeePositionCommand>()
-            .Map(dest => dest, src => src);
+            .Map(dest => dest, src => src)
+            .Map(dest => dest.RegionalManagerId, src => RegionalManagerId.Create(src.RegionalManagerId));
 
         config.NewConfig<Restaurant, CreateRestaurantResponse>()
             .Map(dest => dest.Id, src => src.Id.Value);
