@@ -10,16 +10,24 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import {
   BehaviorSubject,
+  Observable,
   Subject,
   filter,
+  forkJoin,
   fromEvent,
+  map,
+  of,
   takeUntil,
   tap,
 } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { ROUTES } from '../app.module';
+import { PermissionChecker } from '../auth/permission-checker.service';
+import { IdentityService } from '../utils/services/identity.service';
+import { TextHelperService } from '../utils/services/text-helper.service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -70,22 +78,31 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   currentPageUrl = '/';
   showFullScreenMenu = false;
   scrollStrategy: ScrollStrategy;
+  currentUserData$: Observable<ICurrentUser>;
   showLeftScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   showRightScrollButton$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   historyRoutes: IHistoryRouteRecord[] = [];
 
-  pages = [
-    { name: 'Main Page', id: 1, url: '/welcome' },
-    { name: 'Delivery', id: 2, url: '/delivery' },
-    { name: 'Schedule', id: 3, url: '/schedule' },
-    { name: 'Personel Management', id: 4, url: '/personel-management' },
-    { name: 'fetch-data', id: 4, url: '/fetch-data' },
-    { name: 'Order', id: 4, url: '/order' },
+  private _pages: Array<IPage> = [
+    { name: 'Main Page', id: 1, url: '/welcome', canActivate: false },
+    { name: 'Delivery', id: 2, url: '/delivery', canActivate: false },
+    { name: 'Schedule', id: 3, url: '/schedule', canActivate: false },
+    {
+      name: 'Personel Management',
+      id: 4,
+      url: '/personel-management',
+      canActivate: false,
+    },
+    { name: 'Order', id: 5, url: '/order', canActivate: false },
   ];
 
+  get pages(): Array<IPage> {
+    return this._pages.filter((page) => !!page.canActivate);
+  }
+
   get currentPageName(): string {
-    return this.pages.find((x) => x?.url === this.currentPageUrl)?.name || '';
+    return this._pages.find((x) => x?.url === this.currentPageUrl)?.name || '';
   }
 
   get showBack(): boolean {
@@ -146,9 +163,18 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly titleService: Title,
     private readonly scrollStrategyOptions: ScrollStrategyOptions,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly permissionChecker: PermissionChecker,
+    private readonly identityService: IdentityService,
+    private readonly textHelper: TextHelperService
   ) {
     this.scrollStrategy = this.scrollStrategyOptions.block();
+    this.currentUserData$ = this.identityService.getUserData().pipe(
+      map((result) => ({
+        email: result.email || '',
+        userType: textHelper.splitCamelCaseToString(result.userType),
+      }))
+    );
   }
 
   ngAfterViewInit(): void {
@@ -156,7 +182,15 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       this.navContainer.nativeElement.getBoundingClientRect().height;
     this.placeholder.nativeElement.style.height = `${navContainerHeight}px`;
 
-    this.observeScrollContainer();
+    this.updatePagesAccess()
+      .pipe(
+        tap(() => {
+          setTimeout(() => {
+            this.observeScrollContainer();
+          }, 0);
+        })
+      )
+      .subscribe();
   }
 
   ngOnInit(): void {
@@ -300,6 +334,36 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     this._observer.observe(lastButton!);
     this._observer.observe(firstButton!);
   }
+
+  updatePagesAccess() {
+    const accessChecks$ = this._pages.map((page) => {
+      const routeConfig = ROUTES[0].children?.find(
+        (r) => r.path === page.url.replace('/', '')
+      );
+      if (routeConfig) {
+        if (routeConfig.data) {
+          const routeSnapshot = new ActivatedRouteSnapshot();
+          routeSnapshot.data = routeConfig.data;
+
+          return this.permissionChecker
+            .canActivateUserTypes(routeSnapshot)
+            .pipe(map((canActivate) => ({ page, canActivate })));
+        } else {
+          return of({ page, canActivate: true });
+        }
+      } else {
+        return of({ page, canActivate: false });
+      }
+    });
+
+    return forkJoin(accessChecks$).pipe(
+      tap((results) => {
+        results.forEach((result) => {
+          result.page.canActivate = result.canActivate;
+        });
+      })
+    );
+  }
 }
 
 interface IHistoryRouteRecord {
@@ -310,4 +374,16 @@ interface IHistoryRouteRecord {
 enum CommunicationPanelContentType {
   Messages = 'messages',
   Notifications = 'notifications',
+}
+
+interface IPage {
+  name: string;
+  id: number;
+  url: string;
+  canActivate: boolean;
+}
+
+interface ICurrentUser {
+  email: string;
+  userType: string;
 }

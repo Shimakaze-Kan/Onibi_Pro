@@ -5,6 +5,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import {
   ActivatedRouteSnapshot,
   CanActivateChildFn,
+  CanActivateFn,
   Route,
   RouterModule,
   RouterStateSnapshot,
@@ -12,8 +13,6 @@ import {
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { CounterComponent } from './counter/counter.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -56,6 +55,7 @@ import { RequiredStarDirective } from './directives/required-star.directive';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { OrderManagerComponent } from './orders/order-manager/order-manager.component';
+import { UserTypes } from './utils/UserTypes';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -88,19 +88,44 @@ const canActivateAnything: CanActivateChildFn = (
   return inject(PermissionChecker).canActivateAnything();
 };
 
-const ROUTES: Array<Route> = [
+const canActivateUserTypes: CanActivateFn = (
+  next: ActivatedRouteSnapshot,
+  _state: RouterStateSnapshot
+): Observable<boolean> => {
+  return inject(PermissionChecker).canActivateUserTypes(next);
+};
+
+export const ROUTES: Array<Route> = [
   {
     path: '',
     canActivateChild: [canActivateAnything],
     children: [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
-      // { path: 'counter', component: CounterComponent },
-      { path: 'fetch-data', component: FetchDataComponent },
-      { path: 'schedule', component: ScheduleComponent },
-      { path: 'personel-management', component: PersonelManagementComponent },
-      { path: 'delivery', component: DeliveryComponent },
-      { path: 'order', component: OrderManagerComponent },
+      {
+        path: 'schedule',
+        component: ScheduleComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.manager] },
+      },
+      {
+        path: 'personel-management',
+        component: PersonelManagementComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.manager] },
+      },
+      {
+        path: 'delivery',
+        component: DeliveryComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.manager, UserTypes.regionalManager] },
+      },
+      {
+        path: 'order',
+        component: OrderManagerComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.manager] },
+      },
     ],
   },
   { path: '**', redirectTo: '' },
@@ -110,8 +135,6 @@ const ROUTES: Array<Route> = [
   declarations: [
     AppComponent,
     NavMenuComponent,
-    CounterComponent,
-    FetchDataComponent,
     ScheduleComponent,
     PersonelManagementComponent,
     TakeSpaceDirective,

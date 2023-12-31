@@ -35,6 +35,14 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #logOutMenu="matMenu">
+                <div
+                  class="current-user-menu"
+                  *ngIf="currentUserData$ | async as user"
+                >
+                  <b>Logged In As:</b> <span>{{ user.email }}</span>
+                  <b>User Type:</b> <span>{{ user.userType }}</span>
+                </div>
+                <mat-divider></mat-divider>
                 <button
                   (click)="logout()"
                   style="border-radius: 5px !important"

@@ -6,6 +6,7 @@ using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Orders.Commands.CancelOrder;
@@ -15,21 +16,18 @@ internal sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderCom
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IManagerDetailsService _managerDetailsService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IAccessService _accessService;
     private readonly IDbConnectionFactory _dbConnectionFactory;
 
     public CancelOrderCommandHandler(IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider,
         IManagerDetailsService managerDetailsService,
         ICurrentUserService currentUserService,
-        IAccessService accessService,
         IDbConnectionFactory dbConnectionFactory)
     {
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
         _managerDetailsService = managerDetailsService;
         _currentUserService = currentUserService;
-        _accessService = accessService;
         _dbConnectionFactory = dbConnectionFactory;
     }
 
@@ -45,14 +43,9 @@ internal sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderCom
         var managerDetails = await _managerDetailsService.GetManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
 
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
-        var canCancel = await _accessService.CanManagerCancelOrder(managerDetails.ManagerId, request.OrderId.Value, connection);
 
-        if (!canCancel)
-        {
-            return Errors.Order.OperationForbidden;
-        }
-
-        var result = order.Cancel(_dateTimeProvider.UtcNow);
+        var managersRestaurant = RestaurantId.Create(managerDetails.RestaurantId);
+        var result = order.CancelByManager(managersRestaurant, _dateTimeProvider.UtcNow);
 
         if (result.IsError)
         {

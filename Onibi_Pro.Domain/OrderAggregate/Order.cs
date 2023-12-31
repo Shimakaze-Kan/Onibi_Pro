@@ -41,8 +41,13 @@ public sealed class Order : AggregateRoot<OrderId>
         _orderItems.Add(item);
     }
 
-    public ErrorOr<Success> Cancel(DateTime currentTime)
+    public ErrorOr<Success> CancelByManager(RestaurantId managersRestaurant, DateTime currentTime)
     {
+        if (managersRestaurant != RestaurantId)
+        {
+            return Errors.Order.OperationForbidden;
+        }
+
         if (IsCancelled)
         {
             return Errors.Order.AlreadyCancelled;

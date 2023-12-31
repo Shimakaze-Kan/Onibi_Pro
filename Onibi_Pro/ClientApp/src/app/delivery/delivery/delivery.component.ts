@@ -7,6 +7,7 @@ import { RequestSuppliesComponent } from '../request-supplies/request-supplies.c
 import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
 import { PackageItem, ShipmentsClient } from '../../api/api';
 import { filter, of, switchMap, tap } from 'rxjs';
+import { TextHelperService } from '../../utils/services/text-helper.service';
 
 @Component({
   selector: 'app-delivery',
@@ -37,7 +38,8 @@ export class DeliveryComponent implements OnInit {
 
   constructor(
     private readonly dialog: MatDialog,
-    private readonly shipmentClient: ShipmentsClient
+    private readonly shipmentClient: ShipmentsClient,
+    private readonly textHelper: TextHelperService
   ) {}
 
   ngOnInit(): void {
@@ -117,24 +119,13 @@ export class DeliveryComponent implements OnInit {
         this._packageItems = result.packages ?? [];
 
         for (const item of this._packageItems) {
-          item.status = this.splitCamelCaseToString(item.status);
+          item.status = this.textHelper.splitCamelCaseToString(item.status);
         }
 
         this.totalRecords = result.total ?? 0;
         this.dataSource.data = this._packageItems;
       })
     );
-  }
-
-  private splitCamelCaseToString(input: string | undefined): string {
-    if (!input) {
-      return '';
-    }
-
-    return input
-      .replace(/([A-Z])/g, ' $1')
-      .trim()
-      .replace(/^./, (str) => str.toUpperCase());
   }
 
   private getStartRow(): number {

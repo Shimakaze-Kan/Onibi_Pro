@@ -272,3 +272,18 @@ nav > .container {
     }
   }
 }
+
+.current-user-menu {
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 0.5rem 0.5rem;
+
+  span {
+    line-height: 0.5rem;
+
+    &:first-of-type {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
