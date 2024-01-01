@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
-using Onibi_Pro.Domain.UserAggregate;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 using User = Onibi_Pro.Domain.UserAggregate.User;
 
@@ -26,11 +26,11 @@ internal sealed class RegisterService : IRegisterService
     }
 
     public async Task<ErrorOr<Success>> RegisterAsync(string firstName, string lastName,
-        string email, string password, UserTypes userType, CancellationToken cancellationToken = default)
+        string email, string password, CreatorUserType currentCreatorType, CancellationToken cancellationToken = default)
     {
-        User? user = await GetUserByEmailAsync(email, cancellationToken);
+        User? existingUser = await GetUserByEmailAsync(email, cancellationToken);
 
-        if (user is not null)
+        if (existingUser is not null)
         {
             _logger.LogWarning("User already exists: {email}", email);
             return Errors.User.DuplicateEmail;
@@ -38,13 +38,18 @@ internal sealed class RegisterService : IRegisterService
 
         var hashedPassword = _passwordService.HashPassword(password);
 
-        user = User.CreateUnique(firstName, lastName, email, hashedPassword, userType);
+        var user = User.Create(firstName, lastName, email, hashedPassword, currentCreatorType);
+
+        if (user.IsError)
+        {
+            return user.Errors;
+        }
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            await _unitOfWork.UserRepository.AddAsync(user, cancellationToken);
+            await _unitOfWork.UserRepository.AddAsync(user.Value, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);
         }
         catch (Exception ex)

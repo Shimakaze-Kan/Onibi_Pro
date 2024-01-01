@@ -1,14 +1,17 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.UserAggregate.Events;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.UserAggregate;
 public sealed class User : AggregateRoot<UserId>
 {
-    public string FirstName { get; }
-    public string LastName { get; }
-    public string Email { get; }
-    public UserTypes UserType { get; }
+    public string FirstName { get; private set; }
+    public string LastName { get; private set; }
+    public string Email { get; private set; }
+    public UserTypes UserType { get; private set; }
 
     private User(UserId userId, string firstName, string lastName,
         string email, UserTypes userType)
@@ -20,16 +23,22 @@ public sealed class User : AggregateRoot<UserId>
         UserType = userType;
     }
 
-    public static User Create(UserId userId, string firstName,
-        string lastName, string email, UserTypes userType)
+    public static ErrorOr<User> Create(string firstName, string lastName,
+        string email, string hashedPassword, CreatorUserType currentCreatorType)
     {
-        return new(userId, firstName, lastName, email, userType);
-    }
+        ErrorOr<UserTypes> userType = currentCreatorType.Value switch
+        {
+            UserTypes.GlobalManager => UserTypes.RegionalManager,
+            UserTypes.RegionalManager => UserTypes.Manager,
+            _ => Errors.User.UnsupportedCreatorUserType
+        };
 
-    public static User CreateUnique(string firstName, string lastName,
-        string email, string hashedPassword, UserTypes userType)
-    {
-        var user = new User(UserId.CreateUnique(), firstName, lastName, email, userType);
+        if (userType.IsError)
+        {
+            return userType.Errors;
+        }
+
+        var user = new User(UserId.CreateUnique(), firstName, lastName, email, userType.Value);
         user.AddDomainEvent(new UserCreated(user.Id, user.Email, hashedPassword));
 
         return user;

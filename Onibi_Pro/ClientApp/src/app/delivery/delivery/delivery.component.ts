@@ -5,9 +5,26 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDeliveryComponent } from '../confirm-delivery/confirm-delivery.component';
 import { RequestSuppliesComponent } from '../request-supplies/request-supplies.component';
 import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
-import { PackageItem, ShipmentsClient } from '../../api/api';
-import { filter, of, switchMap, tap } from 'rxjs';
+import {
+  GetManagerDetailsResponse,
+  GetRegionalManagerDetailsResponse,
+  IdentityClient,
+  PackageItem,
+  ShipmentsClient,
+} from '../../api/api';
+import {
+  Subject,
+  filter,
+  forkJoin,
+  map,
+  mergeMap,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { TextHelperService } from '../../utils/services/text-helper.service';
+import { IdentityService } from '../../utils/services/identity.service';
+import { UserTypes } from '../../utils/UserTypes';
 
 @Component({
   selector: 'app-delivery',
@@ -17,6 +34,11 @@ import { TextHelperService } from '../../utils/services/text-helper.service';
 export class DeliveryComponent implements OnInit {
   private _packageItems: Array<PackageItem> = [];
   private _expandedItemIds: Array<string> = [];
+  regionalManagerDetails$ = new Subject<GetRegionalManagerDetailsResponse>();
+  managerDetails$ = new Subject<GetManagerDetailsResponse>();
+  shipmentStatus = ShipmentStatus;
+  isRegionalManager = false;
+  loadingUserType = false;
   loading = false;
   totalRecords = 0;
   pageSize = 10;
@@ -39,15 +61,47 @@ export class DeliveryComponent implements OnInit {
   constructor(
     private readonly dialog: MatDialog,
     private readonly shipmentClient: ShipmentsClient,
-    private readonly textHelper: TextHelperService
+    private readonly identityService: IdentityService,
+    private readonly textHelper: TextHelperService,
+    private readonly identityClient: IdentityClient
   ) {}
 
   ngOnInit(): void {
     of({})
       .pipe(
-        tap(() => (this.loading = true)),
-        switchMap(() => this.getPackages(1, this.pageSize)),
-        tap(() => (this.loading = false))
+        tap(() => {
+          this.loading = true;
+          this.loadingUserType = true;
+        }),
+        mergeMap(() =>
+          forkJoin({
+            packages: this.getPackages(1, this.pageSize),
+            identity: this.identityService.getUserData(),
+          })
+        ),
+        map(({ identity }) => {
+          this.isRegionalManager =
+            identity.userType === UserTypes.regionalManager;
+          return {
+            isRegionalManager: this.isRegionalManager,
+            userId: identity.userId,
+          };
+        }),
+        switchMap(({ isRegionalManager, userId }) => {
+          if (isRegionalManager) {
+            return this.identityClient
+              .regionalManagerDetails(userId!)
+              .pipe(tap((result) => this.regionalManagerDetails$.next(result)));
+          } else {
+            return this.identityClient
+              .managerDetails(userId!)
+              .pipe(tap((result) => this.managerDetails$.next(result)));
+          }
+        }),
+        tap(() => {
+          this.loading = false;
+          this.loadingUserType = false;
+        })
       )
       .subscribe();
   }
@@ -110,6 +164,13 @@ export class DeliveryComponent implements OnInit {
     return this._expandedItemIds.includes(id);
   }
 
+  containsNextStatus(
+    availableTransitions: Array<string>,
+    nextStatus: ShipmentStatus
+  ): boolean {
+    return availableTransitions.includes(nextStatus);
+  }
+
   private getPackages(
     startRow: number | undefined,
     amount: number | undefined
@@ -131,4 +192,13 @@ export class DeliveryComponent implements OnInit {
   private getStartRow(): number {
     return 1 + this.pageIndex * this.pageSize;
   }
+}
+
+enum ShipmentStatus {
+  PendingRegionalManagerApproval = 'PendingRegionalManagerApproval',
+  PendingRestaurantManagerApproval = 'PendingRestaurantManagerApproval',
+  AssignedToCourier = 'AssignedToCourier',
+  CourierPickedUp = 'CourierPickedUp',
+  Delivered = 'Delivered',
+  Rejected = 'Rejected',
 }

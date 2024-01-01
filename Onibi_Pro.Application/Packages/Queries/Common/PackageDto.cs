@@ -29,6 +29,11 @@ public class PackageDto
         => JsonSerializer.Deserialize<List<IngredientJson>>(Ingredients)?
             .Select(ingredient => Ingredient.Create(ingredient.Name, ingredient.Unit, ingredient.Quantity)).ToList() ?? [];
 
+    public string AvailableTransitions { get; set; } = "";
+
+    public List<ShipmentStatus> AvailableTransitionsList
+        => JsonSerializer.Deserialize<List<ShipmentStatus>>(string.IsNullOrEmpty(AvailableTransitions) ? "[]" : AvailableTransitions) ?? [];
+
     public DateTime? Until { get; set; }
 }
 

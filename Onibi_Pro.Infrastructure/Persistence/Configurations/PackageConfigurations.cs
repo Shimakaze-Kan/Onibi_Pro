@@ -53,30 +53,15 @@ public class PackageConfigurations : IEntityTypeConfiguration<Package>
             id => id.Value,
             value => ManagerId.Create(value));
 
-        //builder.HasOne<Manager>()
-        //    .WithOne()
-        //    .HasForeignKey<Package>(x => x.Manager)
-        //    .OnDelete(DeleteBehavior.NoAction);
-
         builder.Property(x => x.SourceRestaurant)
             .HasConversion(
             id => id.Value,
             value => RestaurantId.Create(value));
 
-        //builder.HasOne<Manager>()
-        //    .WithOne()
-        //    .HasForeignKey<Package>(x => x.RestaurantSourceManager)
-        //    .OnDelete(DeleteBehavior.NoAction);
-
         builder.Property(x => x.Courier)
             .HasConversion(
             id => id.Value,
             value => CourierId.Create(value));
-
-        //builder.HasOne<Courier>()
-        //    .WithOne()
-        //    .HasForeignKey<Package>(x => x.Courier)
-        //    .OnDelete(DeleteBehavior.NoAction);
 
         builder.Property(x => x.DestinationRestaurant)
             .HasConversion(
@@ -108,5 +93,10 @@ public class PackageConfigurations : IEntityTypeConfiguration<Package>
             .HasConversion(
              i => JsonSerializer.Serialize(i, new JsonSerializerOptions()),
              i => JsonSerializer.Deserialize<List<Ingredient>>(i, new JsonSerializerOptions()) ?? new());
+
+        builder.Property(x => x.AvailableTransitions)
+            .HasConversion(
+             i => JsonSerializer.Serialize(i, new JsonSerializerOptions()),
+             i => JsonSerializer.Deserialize<List<ShipmentStatus>>(i, new JsonSerializerOptions()) ?? new());
     }
 }

@@ -78,6 +78,7 @@ internal sealed class GetPackageByIdQueryHandler : IRequestHandler<GetPackageByI
               ,[IsUrgent] AS {nameof(PackageDto.IsUrgent)}
               ,[Ingredients] AS {nameof(PackageDto.Ingredients)}
               ,[Until] AS {nameof(PackageDto.Until)}
+              ,[AvailableTransitions] AS {nameof(PackageDto.AvailableTransitions)}
             FROM dbo.Packages WHERE PackageId = @packageId
             {andClause}", dynamicParameters);
     }

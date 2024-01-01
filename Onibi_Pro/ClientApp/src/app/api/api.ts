@@ -257,7 +257,11 @@ export interface IIdentityClient {
     /**
      * @return Success
      */
-    managerDetails(managerId: string): Observable<GetManagerDetailsResponse>;
+    managerDetails(userId: string): Observable<GetManagerDetailsResponse>;
+    /**
+     * @return Success
+     */
+    regionalManagerDetails(userId: string): Observable<GetRegionalManagerDetailsResponse>;
     /**
      * @return Success
      */
@@ -280,11 +284,11 @@ export class IdentityClient implements IIdentityClient {
     /**
      * @return Success
      */
-    managerDetails(managerId: string): Observable<GetManagerDetailsResponse> {
-        let url_ = this.baseUrl + "/api/Identity/managerDetails/{managerId}";
-        if (managerId === undefined || managerId === null)
-            throw new Error("The parameter 'managerId' must be defined.");
-        url_ = url_.replace("{managerId}", encodeURIComponent("" + managerId));
+    managerDetails(userId: string): Observable<GetManagerDetailsResponse> {
+        let url_ = this.baseUrl + "/api/Identity/managerDetails/{userId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -321,6 +325,60 @@ export class IdentityClient implements IIdentityClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = GetManagerDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    regionalManagerDetails(userId: string): Observable<GetRegionalManagerDetailsResponse> {
+        let url_ = this.baseUrl + "/api/Identity/regionalManagerDetails/{userId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRegionalManagerDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRegionalManagerDetails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetRegionalManagerDetailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetRegionalManagerDetailsResponse>;
+        }));
+    }
+
+    protected processRegionalManagerDetails(response: HttpResponseBase): Observable<GetRegionalManagerDetailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetRegionalManagerDetailsResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1474,6 +1532,11 @@ export interface IShipmentsClient {
      * @return Success
      */
     id(packageId: string): Observable<PackageItem>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    approveShipment(packageId: string, body: AcceptPackageRequest | undefined): Observable<void>;
 }
 
 @Injectable({
@@ -1651,6 +1714,61 @@ export class ShipmentsClient implements IShipmentsClient {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = PackageItem.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    approveShipment(packageId: string, body: AcceptPackageRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Shipments/approveShipment/{packageId}";
+        if (packageId === undefined || packageId === null)
+            throw new Error("The parameter 'packageId' must be defined.");
+        url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processApproveShipment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processApproveShipment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processApproveShipment(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2082,6 +2200,66 @@ export class GetManagerDetailsResponse_ManagerName implements IGetManagerDetails
 export interface IGetManagerDetailsResponse_ManagerName {
     firstName?: string | undefined;
     lastName?: string | undefined;
+}
+
+export class GetRegionalManagerDetailsResponse implements IGetRegionalManagerDetailsResponse {
+    regionalManagerId?: string;
+    restaurantIds?: string[] | undefined;
+    managerIds?: string[] | undefined;
+
+    constructor(data?: IGetRegionalManagerDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.regionalManagerId = _data["regionalManagerId"];
+            if (Array.isArray(_data["restaurantIds"])) {
+                this.restaurantIds = [] as any;
+                for (let item of _data["restaurantIds"])
+                    this.restaurantIds!.push(item);
+            }
+            if (Array.isArray(_data["managerIds"])) {
+                this.managerIds = [] as any;
+                for (let item of _data["managerIds"])
+                    this.managerIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetRegionalManagerDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetRegionalManagerDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["regionalManagerId"] = this.regionalManagerId;
+        if (Array.isArray(this.restaurantIds)) {
+            data["restaurantIds"] = [];
+            for (let item of this.restaurantIds)
+                data["restaurantIds"].push(item);
+        }
+        if (Array.isArray(this.managerIds)) {
+            data["managerIds"] = [];
+            for (let item of this.managerIds)
+                data["managerIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetRegionalManagerDetailsResponse {
+    regionalManagerId?: string;
+    restaurantIds?: string[] | undefined;
+    managerIds?: string[] | undefined;
 }
 
 export class GetWhoamiResponse implements IGetWhoamiResponse {
@@ -3178,7 +3356,7 @@ export interface ICreateEmployeeResponse {
 
 export class CreateRestaurantRequest implements ICreateRestaurantRequest {
     address?: Address;
-    employees?: CreateRestaurantRequest_Employee[] | undefined;
+    regionalManagerId?: string;
 
     constructor(data?: ICreateRestaurantRequest) {
         if (data) {
@@ -3192,11 +3370,7 @@ export class CreateRestaurantRequest implements ICreateRestaurantRequest {
     init(_data?: any) {
         if (_data) {
             this.address = _data["address"] ? Address.fromJS(_data["address"]) : <any>undefined;
-            if (Array.isArray(_data["employees"])) {
-                this.employees = [] as any;
-                for (let item of _data["employees"])
-                    this.employees!.push(CreateRestaurantRequest_Employee.fromJS(item));
-            }
+            this.regionalManagerId = _data["regionalManagerId"];
         }
     }
 
@@ -3210,114 +3384,14 @@ export class CreateRestaurantRequest implements ICreateRestaurantRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["address"] = this.address ? this.address.toJSON() : <any>undefined;
-        if (Array.isArray(this.employees)) {
-            data["employees"] = [];
-            for (let item of this.employees)
-                data["employees"].push(item.toJSON());
-        }
+        data["regionalManagerId"] = this.regionalManagerId;
         return data;
     }
 }
 
 export interface ICreateRestaurantRequest {
     address?: Address;
-    employees?: CreateRestaurantRequest_Employee[] | undefined;
-}
-
-export class CreateRestaurantRequest_Employee implements ICreateRestaurantRequest_Employee {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    email?: string | undefined;
-    city?: string | undefined;
-    employeePositions?: CreateRestaurantRequest_EmployeePosition[] | undefined;
-
-    constructor(data?: ICreateRestaurantRequest_Employee) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.email = _data["email"];
-            this.city = _data["city"];
-            if (Array.isArray(_data["employeePositions"])) {
-                this.employeePositions = [] as any;
-                for (let item of _data["employeePositions"])
-                    this.employeePositions!.push(CreateRestaurantRequest_EmployeePosition.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CreateRestaurantRequest_Employee {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateRestaurantRequest_Employee();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["email"] = this.email;
-        data["city"] = this.city;
-        if (Array.isArray(this.employeePositions)) {
-            data["employeePositions"] = [];
-            for (let item of this.employeePositions)
-                data["employeePositions"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ICreateRestaurantRequest_Employee {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    email?: string | undefined;
-    city?: string | undefined;
-    employeePositions?: CreateRestaurantRequest_EmployeePosition[] | undefined;
-}
-
-export class CreateRestaurantRequest_EmployeePosition implements ICreateRestaurantRequest_EmployeePosition {
-    position?: string | undefined;
-
-    constructor(data?: ICreateRestaurantRequest_EmployeePosition) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.position = _data["position"];
-        }
-    }
-
-    static fromJS(data: any): CreateRestaurantRequest_EmployeePosition {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateRestaurantRequest_EmployeePosition();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["position"] = this.position;
-        return data;
-    }
-}
-
-export interface ICreateRestaurantRequest_EmployeePosition {
-    position?: string | undefined;
+    regionalManagerId?: string;
 }
 
 export class CreateRestaurantResponse implements ICreateRestaurantResponse {
@@ -3900,6 +3974,46 @@ export interface IGetScheduleResponse {
     employeeIds?: string[] | undefined;
 }
 
+export class AcceptPackageRequest implements IAcceptPackageRequest {
+    origin?: Address;
+    sourceRestaurantId?: string | undefined;
+
+    constructor(data?: IAcceptPackageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.origin = _data["origin"] ? Address.fromJS(_data["origin"]) : <any>undefined;
+            this.sourceRestaurantId = _data["sourceRestaurantId"];
+        }
+    }
+
+    static fromJS(data: any): AcceptPackageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AcceptPackageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["origin"] = this.origin ? this.origin.toJSON() : <any>undefined;
+        data["sourceRestaurantId"] = this.sourceRestaurantId;
+        return data;
+    }
+}
+
+export interface IAcceptPackageRequest {
+    origin?: Address;
+    sourceRestaurantId?: string | undefined;
+}
+
 export class PackageItem implements IPackageItem {
     packageId?: string;
     destinationRestaurant?: string | undefined;
@@ -3913,6 +4027,7 @@ export class PackageItem implements IPackageItem {
     message?: string | undefined;
     isUrgent?: boolean;
     ingredients?: PackageItem_Ingredient[] | undefined;
+    availableTransitions?: string[] | undefined;
     until?: Date | undefined;
 
     constructor(data?: IPackageItem) {
@@ -3941,6 +4056,11 @@ export class PackageItem implements IPackageItem {
                 this.ingredients = [] as any;
                 for (let item of _data["ingredients"])
                     this.ingredients!.push(PackageItem_Ingredient.fromJS(item));
+            }
+            if (Array.isArray(_data["availableTransitions"])) {
+                this.availableTransitions = [] as any;
+                for (let item of _data["availableTransitions"])
+                    this.availableTransitions!.push(item);
             }
             this.until = _data["until"] ? new Date(_data["until"].toString()) : <any>undefined;
         }
@@ -3971,6 +4091,11 @@ export class PackageItem implements IPackageItem {
             for (let item of this.ingredients)
                 data["ingredients"].push(item.toJSON());
         }
+        if (Array.isArray(this.availableTransitions)) {
+            data["availableTransitions"] = [];
+            for (let item of this.availableTransitions)
+                data["availableTransitions"].push(item);
+        }
         data["until"] = this.until ? this.until.toISOString() : <any>undefined;
         return data;
     }
@@ -3989,6 +4114,7 @@ export interface IPackageItem {
     message?: string | undefined;
     isUrgent?: boolean;
     ingredients?: PackageItem_Ingredient[] | undefined;
+    availableTransitions?: string[] | undefined;
     until?: Date | undefined;
 }
 

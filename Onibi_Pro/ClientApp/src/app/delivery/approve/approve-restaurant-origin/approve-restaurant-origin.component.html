@@ -1,0 +1,28 @@
+<form [formGroup]="approveForm" autocomplete="off">
+  <fieldset [disabled]="loading" class="row mt-3">
+    <div class="row">
+      <label class="mb-1" for="restaurantIdSelect">RestaurantId</label>
+      <mat-form-field appearance="outline">
+        <mat-select
+          id="restaurantIdSelect"
+          formControlName="restaurantId"
+          placeholder="RestaurantId"
+        >
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="restaurantIdFilterCtrl"
+              placeholderLabel="Type to search"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <mat-option style="color: gray">-- None --</mat-option>
+          <mat-option
+            *ngFor="let restaurantId of filteredRestaurantIds | async"
+            [value]="restaurantId"
+          >
+            {{ restaurantId }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </fieldset>
+</form>

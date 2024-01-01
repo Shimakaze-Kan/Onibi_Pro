@@ -11,12 +11,22 @@ namespace Onibi_Pro.Domain.PackageAggregate;
 public sealed class Package : AggregateRoot<PackageId>
 {
     private readonly List<Ingredient> _ingredients;
-    private readonly IReadOnlyCollection<ShipmentStatus> _canRejectStatuses = new List<ShipmentStatus>()
+
+    private readonly IReadOnlyCollection<ShipmentStateTransition> _transitions = new List<ShipmentStateTransition>
     {
-        ShipmentStatus.PendingRegionalManagerApproval,
-        ShipmentStatus.PendingRestaurantManagerApproval,
-        ShipmentStatus.AssignedToCourier,
-        ShipmentStatus.CourierPickedUp
+        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.AssignedToCourier,
+            (package) => package.Courier is not null && package.Origin is not null),
+        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.Rejected),
+        new(ShipmentStatus.AssignedToCourier, ShipmentStatus.CourierPickedUp),
+        new(ShipmentStatus.AssignedToCourier, ShipmentStatus.Rejected),
+        new(ShipmentStatus.CourierPickedUp, ShipmentStatus.Delivered),
+        new(ShipmentStatus.CourierPickedUp, ShipmentStatus.Rejected),
+
+        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.PendingRestaurantManagerApproval,
+            (package) => package.SourceRestaurant is not null && package.Courier is not null && package.Origin is not null),
+        new(ShipmentStatus.PendingRestaurantManagerApproval, ShipmentStatus.AssignedToCourier,
+            (package) => package.Courier is not null && package.Origin is not null),
+        new(ShipmentStatus.PendingRestaurantManagerApproval, ShipmentStatus.Rejected),
     };
 
     public ManagerId Manager { get; private set; }
@@ -31,6 +41,15 @@ public sealed class Package : AggregateRoot<PackageId>
     public bool IsUrgent { get; private set; }
     public DateTime Until { get; private set; }
     public IReadOnlyList<Ingredient> Ingredients => _ingredients.ToList();
+    public IReadOnlyList<ShipmentStatus> AvailableTransitions
+    {
+        get
+        {
+            return _transitions.Where(transition => transition.StartState == Status)
+                .Select(transition => transition.EndState).ToList();
+        }
+        private set { } // required by ef core
+    }
 
     private Package(PackageId id,
         ManagerId manager,
@@ -81,112 +100,170 @@ public sealed class Package : AggregateRoot<PackageId>
             until);
     }
 
-    public void AcceptShipmentAndAssignCourier(
-        RegionalManagerId regionalManager, Address origin, CourierId courier)
+    public ErrorOr<Success> AssignCourier(RegionalManagerId regionalManager, CourierId courier)
     {
         if (RegionalManager != regionalManager)
         {
-            return;
+            return Errors.Package.WrongRegionalManager;
         }
 
-        if (Status == ShipmentStatus.PendingRegionalManagerApproval)
-        {
-            Origin = origin;
-            Courier = courier;
-            Status = ShipmentStatus.AssignedToCourier;
-        }
+        Courier = courier;
+        // fire event
+
+        return new Success();
     }
 
-    public void AcceptShipmentFromRestaurantAndCourier(RegionalManagerId regionalManager,
-        Address origin, RestaurantId sourceRestaurant, CourierId courier)
+    public ErrorOr<Success> AcceptShipmentByRegionalManager(RegionalManagerId regionalManager, Address origin)
     {
         if (RegionalManager != regionalManager)
         {
-            return;
+            return Errors.Package.WrongRegionalManager;
         }
 
-        if (Status == ShipmentStatus.PendingRegionalManagerApproval)
+        Origin = origin;
+
+        if (!TryChangeStatus(ShipmentStatus.AssignedToCourier))
         {
-            Origin = origin;
-            Courier = courier;
-            SourceRestaurant = sourceRestaurant;
-            Status = ShipmentStatus.PendingRestaurantManagerApproval;
+            return Errors.Package.StatusChangeFailed;
         }
+
+        return new Success();
     }
 
-    public void AcceptShipment(ManagerId manager)
-    {
-        if (SourceRestaurant! != manager)
-        {
-            return;
-        }
-
-        if (Status == ShipmentStatus.PendingRestaurantManagerApproval)
-        {
-            Status = ShipmentStatus.AssignedToCourier;
-        }
-    }
-
-    public void RejectPackage(RegionalManagerId regionalManager)
+    public ErrorOr<Success> AcceptShipmentFromRestaurant(RegionalManagerId regionalManager,
+        Address origin, RestaurantId sourceRestaurant)
     {
         if (RegionalManager != regionalManager)
         {
-            return;
+            return Errors.Package.WrongRegionalManager;
         }
 
-        if (CanRejectCurrentStatus(Status))
+        if (sourceRestaurant == DestinationRestaurant)
         {
-            Status = ShipmentStatus.Rejected;
+            return Errors.Package.WrongSourceRestaurant;
         }
+
+        Origin = origin;
+        SourceRestaurant = sourceRestaurant;
+
+        if (!TryChangeStatus(ShipmentStatus.PendingRestaurantManagerApproval))
+        {
+            return Errors.Package.StatusChangeFailed;
+        }
+
+        //fire event
+        return new Success();
     }
 
-    public void RejectPackage(ManagerId manager)
+    public ErrorOr<Success> AcceptShipmentBySourceManager(RestaurantId sourceManagerRestaurant)
     {
-        if (SourceRestaurant! != manager)
+        if (SourceRestaurant! != sourceManagerRestaurant)
         {
-            return;
+            return Errors.Package.WrongSourceRestaurantManager;
         }
 
-        if (Status == ShipmentStatus.PendingRestaurantManagerApproval)
+        if (!TryChangeStatus(ShipmentStatus.AssignedToCourier))
         {
-            Status = ShipmentStatus.Rejected;
+            return Errors.Package.StatusChangeFailed;
         }
+
+        return new Success();
     }
 
-    public void PickUp(CourierId courier)
+    public ErrorOr<Success> RejectShipmentByRegionalManager(RegionalManagerId regionalManager)
+    {
+        if (RegionalManager != regionalManager)
+        {
+            return Errors.Package.WrongRegionalManager;
+        }
+
+        if (!TryChangeStatus(ShipmentStatus.Rejected))
+        {
+            return Errors.Package.StatusChangeFailed;
+        }
+
+        return new Success();
+    }
+
+    public ErrorOr<Success> RejectPackageBySourceRestaurantManager(RestaurantId sourceManagerRestaurant)
+    {
+        if (SourceRestaurant! != sourceManagerRestaurant)
+        {
+            return Errors.Package.WrongSourceRestaurantManager;
+        }
+
+        if (!TryChangeStatus(ShipmentStatus.Rejected))
+        {
+            return Errors.Package.StatusChangeFailed;
+        }
+
+        return new Success();
+    }
+
+    public ErrorOr<Success> PickUp(CourierId courier)
     {
         if (Courier! != courier)
         {
-            return;
+            return Errors.Package.WrongCourier;
         }
 
-        if (Status == ShipmentStatus.AssignedToCourier)
+        if (!TryChangeStatus(ShipmentStatus.CourierPickedUp))
         {
-            Status = ShipmentStatus.CourierPickedUp;
+            return Errors.Package.StatusChangeFailed;
         }
+
+        return new Success();
     }
 
-    public void ConfirmDelivery(RestaurantId restaurantId)
+    public ErrorOr<Success> ConfirmDelivery(RestaurantId destinationRestaurantId)
     {
-        if (DestinationRestaurant != restaurantId)
+        if (DestinationRestaurant != destinationRestaurantId)
         {
-            return;
+            return Errors.Package.WrongDestinationRestaurant;
         }
 
-        if (Status == ShipmentStatus.CourierPickedUp)
+        if (!TryChangeStatus(ShipmentStatus.Delivered))
         {
-            Status = ShipmentStatus.Delivered;
+            return Errors.Package.StatusChangeFailed;
         }
+
+        return new Success();
     }
 
-    public bool CanRejectCurrentStatus(ShipmentStatus status)
+    private bool TryChangeStatus(ShipmentStatus newStatus)
     {
-        return _canRejectStatuses.Contains(status);
+        var transition = _transitions.SingleOrDefault(t => t.StartState == Status && t.EndState == newStatus);
+        if (transition?.CanTransition(this) ?? false)
+        {
+            Status = newStatus;
+            return true;
+        }
+
+        return false;
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private Package() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+    private class ShipmentStateTransition
+    {
+        public ShipmentStatus StartState { get; }
+        public ShipmentStatus EndState { get; }
+        public Func<Package, bool> Condition { get; }
+
+        public ShipmentStateTransition(ShipmentStatus startState, ShipmentStatus endState, Func<Package, bool> condition = null!)
+        {
+            StartState = startState;
+            EndState = endState;
+            Condition = condition ?? ((_) => true);
+        }
+
+        public bool CanTransition(Package package)
+        {
+            return Condition(package);
+        }
+    }
 }
 
 public enum ShipmentStatus

@@ -16,6 +16,7 @@ public record PackageItem(
     string Message,
     bool IsUrgent,
     List<Ingredient> Ingredients,
+    List<string> AvailableTransitions,
     DateTime? Until)
 {
     public record Ingredient(string Name, string Unit, decimal Quantity);

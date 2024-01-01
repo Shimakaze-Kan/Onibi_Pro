@@ -1,9 +1,10 @@
 ﻿using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Services.Authentication;
-using Onibi_Pro.Domain.UserAggregate;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Authentication.Commands;
 internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<Success>>
@@ -20,18 +21,11 @@ internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, 
 
     public async Task<ErrorOr<Success>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var newUserType = _currentUserService.UserType switch
-        {
-            UserTypes.GlobalManager => UserTypes.RegionalManager,
-            UserTypes.RegionalManager => UserTypes.Manager,
-            _ => throw new NotImplementedException()
-        };
-
         return await _registerService.RegisterAsync(request.FirstName,
             request.LastName,
             request.Email,
             request.Password,
-            newUserType,
+            currentCreatorType: CreatorUserType.Create(_currentUserService.UserType),
             cancellationToken);
     }
 }

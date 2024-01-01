@@ -72,6 +72,7 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
               ,[IsUrgent] AS {nameof(PackageDto.IsUrgent)}
               ,[Ingredients] AS {nameof(PackageDto.Ingredients)}
               ,[Until] AS {nameof(PackageDto.Until)}
+              ,[AvailableTransitions] AS {nameof(PackageDto.AvailableTransitions)}
             FROM 
               [Onibi_Pro].[dbo].[Packages]
             {whereClause}

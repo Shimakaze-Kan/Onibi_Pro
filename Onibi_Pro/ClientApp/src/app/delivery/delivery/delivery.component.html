@@ -1,5 +1,9 @@
 <div class="container">
-  <div class="d-flex flex-column mt-2 mb-4">
+  <div
+    class="d-flex flex-column mt-2 mb-4"
+    *ngIf="!isRegionalManager"
+    [ngStyle]="{ visibility: loadingUserType ? 'hidden' : 'visible' }"
+  >
     <button
       type="button"
       class="ms-auto"
@@ -110,25 +114,51 @@
           [attr.colspan]="displayedColumns.length"
         >
           <div class="details">
-            <div>
-              <ul>
-                <li>
-                  <b>Regional Manager Id:</b> {{ element.regionalManager }}
-                </li>
-                <li><b>Courier Id:</b> {{ element.courier || "-" }}</li>
-                <li>
-                  <b>Source Restaurant Id:</b>
-                  {{ element.sourceRestaurant || "-" }}
-                </li>
-              </ul>
+            <div class="common-content">
+              <div>
+                <ul>
+                  <li>
+                    <ng-container
+                      *ngIf="!isRegionalManager; else restaurantIdContainer"
+                    >
+                      <b>Regional Manager Id:</b> {{ element.regionalManager }}
+                    </ng-container>
+                    <ng-template #restaurantIdContainer>
+                      <b>Destination Restaurant Id:</b>
+                      {{ element.destinationRestaurant }}
+                    </ng-template>
+                  </li>
+                  <li><b>Courier Id:</b> {{ element.courier || "-" }}</li>
+                  <li>
+                    <b>Source Restaurant Id:</b>
+                    {{ element.sourceRestaurant || "-" }}
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <label><b>Message:</b></label>
+                <span>{{ element.message }}</span>
+              </div>
             </div>
-            <div>
-              <label><b>Message:</b></label>
-              <span>{{ element.message }}</span>
+            <div *ngIf="!!element.availableTransitions">
+              <mat-divider class="mt-1 mb-1"></mat-divider>
+              <ng-container
+                *ngIf="
+                  containsNextStatus(
+                    element.availableTransitions,
+                    shipmentStatus.PendingRestaurantManagerApproval
+                  )
+                "
+              >
+                <app-approve-restaurant-origin
+                  *ngIf="regionalManagerDetails$ | async; let data"
+                  [packageId]="element.packageId"
+                  [regionalManager]="data"
+                ></app-approve-restaurant-origin>
+              </ng-container>
             </div>
-          </div>
-        </td></ng-container
-      >
+          </div></td
+      ></ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>

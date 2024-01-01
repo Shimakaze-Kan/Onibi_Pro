@@ -30,6 +30,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { QRCodeModule } from 'angularx-qrcode';
 import { ShowQrCodeComponent } from './show-qr-code/show-qr-code.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ApproveRestaurantOriginComponent } from './approve/approve-restaurant-origin/approve-restaurant-origin.component';
+import { ApproveNotRestaurantOriginComponent } from './approve/approve-not-restaurant-origin/approve-not-restaurant-origin.component';
+import { ApproveAtSourceRestaurantComponent } from './approve/approve-at-source-restaurant/approve-at-source-restaurant.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +40,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     ConfirmDeliveryComponent,
     RequestSuppliesComponent,
     ShowQrCodeComponent,
+    ApproveRestaurantOriginComponent,
+    ApproveNotRestaurantOriginComponent,
+    ApproveAtSourceRestaurantComponent,
   ],
   imports: [
     CommonModule,
