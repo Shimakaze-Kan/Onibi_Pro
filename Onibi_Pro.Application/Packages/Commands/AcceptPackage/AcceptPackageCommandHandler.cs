@@ -43,7 +43,7 @@ internal sealed class AcceptPackageCommandHandler : IRequestHandler<AcceptPackag
 
         var regionalManagerDetails = await _regionalManagerDetailsService.GetRegionalManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
         var regionalManagerId = RegionalManagerId.Create(regionalManagerDetails.RegionalManagerId);
-        var regionalManager = await _unitOfWork.RegionalManagerRepository.GetByIdAsync(regionalManagerId, cancellationToken, nameof(RegionalManager.Couriers));
+        var regionalManager = await _unitOfWork.RegionalManagerRepository.GetByIdAsync(regionalManagerId, cancellationToken);
 
         if (regionalManager?.HasCourier(request.CourierId) != true)
         {

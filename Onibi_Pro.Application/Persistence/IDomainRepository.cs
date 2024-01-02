@@ -7,7 +7,7 @@ public interface IDomainRepository<TAggregateRoot, TId>
     where TAggregateRoot : AggregateRoot<TId>
     where TId : ValueObject
 {
-    Task<TAggregateRoot?> GetByIdAsync(TId id, CancellationToken cancellationToken = default, params string[] includes);
+    Task<TAggregateRoot?> GetByIdAsync(TId id, CancellationToken cancellationToken = default);
     Task AddAsync(TAggregateRoot aggregateRoot, CancellationToken cancellationToken = default);
     Task UpdateAsync(TAggregateRoot aggregateRoot, CancellationToken cancellationToken = default);
     Task RemoveAsync(TAggregateRoot aggregateRoot, CancellationToken cancellationToken = default);

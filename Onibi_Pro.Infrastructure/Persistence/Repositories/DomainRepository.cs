@@ -5,29 +5,34 @@ using Microsoft.EntityFrameworkCore;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Models;
+using Onibi_Pro.Infrastructure.Persistence.Repositories.Specifications;
 
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
-internal sealed class DomainRepository<TAggregateRoot, TId> : IDomainRepository<TAggregateRoot, TId>
+internal class DomainRepository<TAggregateRoot, TId> : IDomainRepository<TAggregateRoot, TId>
     where TAggregateRoot : AggregateRoot<TId>
     where TId : ValueObject
 {
     private readonly OnibiProDbContext _dbContext;
     private readonly DbSet<TAggregateRoot> _dbSet;
+    private readonly ISpecificationProvider<TAggregateRoot, TId>? _specificationProvider;
 
     public DomainRepository(DbContextFactory dbContextFactory,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ISpecificationProvider<TAggregateRoot, TId>? specificationProvider = null)
     {
         _dbContext = dbContextFactory.CreateDbContext(currentUserService.ClientName);
         _dbSet = _dbContext.Set<TAggregateRoot>();
+        _specificationProvider = specificationProvider;
     }
 
-    public async Task<TAggregateRoot?> GetByIdAsync(TId id, CancellationToken cancellationToken, params string[] includes)
+    public async Task<TAggregateRoot?> GetByIdAsync(TId id, CancellationToken cancellationToken)
     {
-        var query = _dbSet.AsQueryable();
+        IQueryable<TAggregateRoot> query = _dbSet;
 
-        if (includes != null)
+        var includeSpecification = _specificationProvider?.GetIncludeSpecification();
+        if (includeSpecification != null)
         {
-            query = query.IncludeProperties(includes);
+            query = includeSpecification.Include(query);
         }
 
         return await query.SingleOrDefaultAsync(entity => entity.Id.Equals(id), cancellationToken);
