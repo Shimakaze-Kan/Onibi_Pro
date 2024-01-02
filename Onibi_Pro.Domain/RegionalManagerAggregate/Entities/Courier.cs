@@ -1,28 +1,37 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.RegionalManagerAggregate.Entities;
 public sealed class Courier : Entity<CourierId>
 {
-    public string Email { get; private set; }
+    public UserId UserId { get; private set; }
     public string Phone { get; private set; }
 
-    private Courier(CourierId id, string email, string phone)
+    private Courier(CourierId id, UserId userId, string phone)
         : base(id)
     {
-        Email = email;
         Phone = phone;
-
+        UserId = userId;
     }
 
-    public static Courier Create(CourierId id, string email, string phone)
+    public static ErrorOr<Courier> CreateUnique(UserId userId, string phone, UserTypes userType)
     {
-        return new(id, email, phone);
-    }
+        if (userType != UserTypes.Courier)
+        {
+            return Errors.RegionalManager.WrongUserCourierType;
+        }
 
-    public static Courier CreateUnique(string email, string phone)
-    {
-        return new(CourierId.CreateUnique(), email, phone);
+        if (string.IsNullOrEmpty(phone) && phone is { Length: > 10 })
+        {
+            return Errors.RegionalManager.InvalidPhoneNumber;
+        }
+
+        return new Courier(CourierId.CreateUnique(), userId, phone);
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

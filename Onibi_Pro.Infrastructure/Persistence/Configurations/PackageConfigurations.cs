@@ -92,11 +92,26 @@ public class PackageConfigurations : IEntityTypeConfiguration<Package>
         builder.Property(x => x.Ingredients)
             .HasConversion(
              i => JsonSerializer.Serialize(i, new JsonSerializerOptions()),
-             i => JsonSerializer.Deserialize<List<Ingredient>>(i, new JsonSerializerOptions()) ?? new());
+             i => ConvertDtoToIngredientList(JsonSerializer.Deserialize<List<IngredientJson>>(i, new JsonSerializerOptions())));
 
         builder.Property(x => x.AvailableTransitions)
             .HasConversion(
              i => JsonSerializer.Serialize(i, new JsonSerializerOptions()),
              i => JsonSerializer.Deserialize<List<ShipmentStatus>>(i, new JsonSerializerOptions()) ?? new());
+    }
+
+    private static List<Ingredient> ConvertDtoToIngredientList(List<IngredientJson>? ingredientJsons)
+    {
+        if (ingredientJsons is null)
+            return new();
+
+        return ingredientJsons.ConvertAll(json => Ingredient.Create(json.Name, json.Unit, json.Quantity));
+    }
+
+    private class IngredientJson
+    {
+        public string Name { get; set; } = "";
+        public UnitType Unit { get; set; }
+        public decimal Quantity { get; set; }
     }
 }

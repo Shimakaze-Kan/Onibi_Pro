@@ -13,26 +13,20 @@ public sealed class RegionalManager : AggregateRoot<RegionalManagerId>
     private readonly List<RestaurantId> _restaurants = [];
     private readonly List<Courier> _couriers = [];
 
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
     public UserId UserId { get; private set; }
     public IReadOnlyList<RestaurantId> Restaurants => _restaurants.ToList();
     public IReadOnlyList<Courier> Couriers => _couriers.ToList();
 
-    private RegionalManager(RegionalManagerId id, UserId userId, string firstName,
-        string lastName, List<RestaurantId>? restaurants)
+    private RegionalManager(RegionalManagerId id, UserId userId, List<RestaurantId>? restaurants)
         : base(id)
     {
-        FirstName = firstName;
-        LastName = lastName;
         _restaurants = restaurants ?? [];
         UserId = userId;
     }
 
-    public static RegionalManager Create(UserId userId, string firstName,
-        string lastName, List<RestaurantId>? restaurants = null)
+    public static RegionalManager Create(UserId userId, List<RestaurantId>? restaurants = null)
     {
-        return new(RegionalManagerId.CreateUnique(), userId, firstName, lastName, restaurants);
+        return new(RegionalManagerId.CreateUnique(), userId, restaurants);
     }
 
     public ErrorOr<Success> AssignRestaurant(RestaurantId restaurantId)
@@ -45,6 +39,39 @@ public sealed class RegionalManager : AggregateRoot<RegionalManagerId>
         _restaurants.Add(restaurantId);
 
         return new Success();
+    }
+
+    public ErrorOr<Success> AssignCourier(Courier courier, RegionalManagerId regionalManagerId)
+    {
+        if (regionalManagerId != Id)
+        {
+            return Errors.RegionalManager.WrongRegionalManager;
+        }
+
+        _couriers.Add(courier);
+
+        return new Success();
+    }
+
+    public ErrorOr<Success> UnassignCourier(Courier courier, RegionalManagerId regionalManagerId)
+    {
+        if (regionalManagerId != Id)
+        {
+            return Errors.RegionalManager.WrongRegionalManager;
+        }
+
+        var indexOfCourier = _couriers.FindIndex(existingCourier => existingCourier == courier);
+        if (indexOfCourier == -1)
+        {
+            return Errors.RegionalManager.CourierNotFound;
+        }
+
+        return new Success();
+    }
+
+    public bool HasCourier(CourierId courierId)
+    {
+        return _couriers.Any(courier => courier.Id == courierId);
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

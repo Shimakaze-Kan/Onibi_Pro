@@ -910,12 +910,152 @@ export class OrdersClient implements IOrdersClient {
     }
 }
 
+export interface IRegionalManagersClient {
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    courierPost(body: CreateCourierRequest | undefined): Observable<void>;
+    /**
+     * @return Success
+     */
+    courierGet(): Observable<GetCouriersResponse[]>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RegionalManagersClient implements IRegionalManagersClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    courierPost(body: CreateCourierRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/RegionalManagers/courier";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCourierPost(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCourierPost(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCourierPost(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    courierGet(): Observable<GetCouriersResponse[]> {
+        let url_ = this.baseUrl + "/api/RegionalManagers/courier";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCourierGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCourierGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetCouriersResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetCouriersResponse[]>;
+        }));
+    }
+
+    protected processCourierGet(response: HttpResponseBase): Observable<GetCouriersResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetCouriersResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IRestaurantsClient {
     /**
      * @param body (optional) 
      * @return Success
      */
     restaurants(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse>;
+    /**
+     * @return Success
+     */
+    address(restaurantId: string): Observable<Address>;
     /**
      * @param firstNameFilter (optional) 
      * @param lastNameFilter (optional) 
@@ -1020,6 +1160,60 @@ export class RestaurantsClient implements IRestaurantsClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CreateRestaurantResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    address(restaurantId: string): Observable<Address> {
+        let url_ = this.baseUrl + "/api/Restaurants/{restaurantId}/address";
+        if (restaurantId === undefined || restaurantId === null)
+            throw new Error("The parameter 'restaurantId' must be defined.");
+        url_ = url_.replace("{restaurantId}", encodeURIComponent("" + restaurantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddress(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddress(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Address>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Address>;
+        }));
+    }
+
+    protected processAddress(response: HttpResponseBase): Observable<Address> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Address.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3194,6 +3388,98 @@ export interface IGetOrdersResponse_OrderItem {
     sum?: number;
 }
 
+export class CreateCourierRequest implements ICreateCourierRequest {
+    phone?: string | undefined;
+    userId?: string;
+
+    constructor(data?: ICreateCourierRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.phone = _data["phone"];
+            this.userId = _data["userId"];
+        }
+    }
+
+    static fromJS(data: any): CreateCourierRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCourierRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["phone"] = this.phone;
+        data["userId"] = this.userId;
+        return data;
+    }
+}
+
+export interface ICreateCourierRequest {
+    phone?: string | undefined;
+    userId?: string;
+}
+
+export class GetCouriersResponse implements IGetCouriersResponse {
+    courierId?: string;
+    phone?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+
+    constructor(data?: IGetCouriersResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courierId = _data["courierId"];
+            this.phone = _data["phone"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): GetCouriersResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCouriersResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courierId"] = this.courierId;
+        data["phone"] = this.phone;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IGetCouriersResponse {
+    courierId?: string;
+    phone?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+}
+
 export class AssignManagerRequest implements IAssignManagerRequest {
     userId?: string;
 
@@ -3975,6 +4261,7 @@ export interface IGetScheduleResponse {
 }
 
 export class AcceptPackageRequest implements IAcceptPackageRequest {
+    courierId?: string;
     origin?: Address;
     sourceRestaurantId?: string | undefined;
 
@@ -3989,6 +4276,7 @@ export class AcceptPackageRequest implements IAcceptPackageRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.courierId = _data["courierId"];
             this.origin = _data["origin"] ? Address.fromJS(_data["origin"]) : <any>undefined;
             this.sourceRestaurantId = _data["sourceRestaurantId"];
         }
@@ -4003,6 +4291,7 @@ export class AcceptPackageRequest implements IAcceptPackageRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["courierId"] = this.courierId;
         data["origin"] = this.origin ? this.origin.toJSON() : <any>undefined;
         data["sourceRestaurantId"] = this.sourceRestaurantId;
         return data;
@@ -4010,6 +4299,7 @@ export class AcceptPackageRequest implements IAcceptPackageRequest {
 }
 
 export interface IAcceptPackageRequest {
+    courierId?: string;
     origin?: Address;
     sourceRestaurantId?: string | undefined;
 }

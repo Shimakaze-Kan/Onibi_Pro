@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Onibi_Pro.Domain.RegionalManagerAggregate;
+using Onibi_Pro.Domain.RegionalManagerAggregate.Entities;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
@@ -38,30 +39,16 @@ public class RegionalManagerConfigurations : IEntityTypeConfiguration<RegionalMa
         builder.Property(x => x.UserId)
             .HasConversion(c => c.Value, value => UserId.Create(value));
         builder.HasOne<User>()
-                .WithOne()
-                .HasForeignKey<RegionalManager>(x => x.UserId)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Property(x => x.FirstName);
-        builder.Property(x => x.LastName);
     }
 
     private static void ConfigureCouriersTable(EntityTypeBuilder<RegionalManager> builder)
     {
-        builder.OwnsMany(x => x.Couriers, cb =>
-        {
-            cb.ToTable("Couriers");
-
-            cb.WithOwner().HasForeignKey("RegionalManagerId");
-            cb.HasKey("Id", "RegionalManagerId");
-
-            cb.Property(x => x.Id)
-                .HasColumnName("CourierId")
-                .ValueGeneratedNever()
-                .HasConversion(
-                id => id.Value,
-                value => CourierId.Create(value));
-        });
+        builder.HasMany<Courier>(nameof(RegionalManager.Couriers))
+            .WithOne()
+            .HasForeignKey("RegionalManagerId");
     }
 
     private static void ConfigureRestaurantIdsTable(EntityTypeBuilder<RegionalManager> builder)

@@ -27,7 +27,7 @@ internal sealed class RegionalManagerDetailsService : IRegionalManagerDetailsSer
             FROM dbo.RegionalManagers rm
             JOIN dbo.RegionalManagerRestaurantIds rmri ON rmri.RegionalManagerId = rm.RegionalManagerId
             JOIN dbo.Restaurants r ON r.Id = rmri.RestaurantId
-            JOIN dbo.Managers m ON m.RestaurantId = r.Id
+            LEFT JOIN dbo.Managers m ON m.RestaurantId = r.Id
             JOIN dbo.Users u ON u.Id = rm.UserId
             WHERE u.Id = @UserId";
 
@@ -37,8 +37,8 @@ internal sealed class RegionalManagerDetailsService : IRegionalManagerDetailsSer
             r => r.RegionalManagerId,
             (key, g) => new RegionalManagerDetailsDto(
                 key,
-                g.Select(x => (Guid)x.RestaurantId).Distinct().ToList().AsReadOnly(),
-                g.Select(x => (Guid)x.ManagerId).Distinct().ToList().AsReadOnly()
+                g.Select(x => (Guid)x.RestaurantId).Distinct().ToList(),
+                g.Select(x => (Guid?)x.ManagerId).OfType<Guid>().Distinct().ToList()
             )
         );
 

@@ -12,9 +12,12 @@ using Onibi_Pro.Application.Restaurants.Commands.CreateSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.DeleteSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.EditSchedule;
+using Onibi_Pro.Application.Restaurants.Queries.GetAddress;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Application.Restaurants.Queries.GetSchedules;
+using Onibi_Pro.Contracts.Common;
 using Onibi_Pro.Contracts.Restaurants;
+using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Controllers;
@@ -42,6 +45,15 @@ public class RestaurantsController : ApiBaseController
 
         return result.Match(result
             => Ok(_mapper.Map<CreateRestaurantResponse>(result)), Problem);
+    }
+
+    [HttpGet("{restaurantId}/address")]
+    [ProducesResponseType(typeof(Address), 200)]
+    public async Task<IActionResult> GetRestaurantAddress([FromRoute] Guid restaurantId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetAddressQuery(RestaurantId.Create(restaurantId)), cancellationToken);
+
+        return Ok(result);
     }
 
     [HttpGet("{restaurantId}/employees")]

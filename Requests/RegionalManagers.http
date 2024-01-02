@@ -1,0 +1,31 @@
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
+@baseUrlWithoutApi = https://localhost:7002
+
+### login
+# @name login
+POST {{baseUrl}}/authentication/login
+Content-Type: application/json
+
+{
+    "email": "john@john.com",
+    "password": "pass123@!"
+}
+
+### token
+@token = {{login.response.body.$.token}}
+
+### create courier
+POST {{baseUrl}}/RegionalManagers/courier
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "userId": "e7a4344b-6141-422d-9f61-5421958ed8b4",
+    "Phone": "twoja stara"
+}
+
+### get couriers
+GET {{baseUrl}}/RegionalManagers/courier
+Content-Type: application/json
+Authorization: Bearer {{token}}

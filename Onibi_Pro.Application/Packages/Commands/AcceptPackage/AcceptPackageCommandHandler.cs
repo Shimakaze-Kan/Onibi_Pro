@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.RegionalManagerAggregate;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
@@ -42,7 +43,16 @@ internal sealed class AcceptPackageCommandHandler : IRequestHandler<AcceptPackag
 
         var regionalManagerDetails = await _regionalManagerDetailsService.GetRegionalManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
         var regionalManagerId = RegionalManagerId.Create(regionalManagerDetails.RegionalManagerId);
+        var regionalManager = await _unitOfWork.RegionalManagerRepository.GetByIdAsync(regionalManagerId, cancellationToken, nameof(RegionalManager.Couriers));
+
+        if (regionalManager?.HasCourier(request.CourierId) != true)
+        {
+            return Errors.RegionalManager.CourierNotFound;
+        }
+
         var isOriginRestaurant = IsOriginRestaurant(request);
+
+        package.AssignCourier(regionalManagerId, request.CourierId);
 
         ErrorOr<Success> result;
         if (isOriginRestaurant)

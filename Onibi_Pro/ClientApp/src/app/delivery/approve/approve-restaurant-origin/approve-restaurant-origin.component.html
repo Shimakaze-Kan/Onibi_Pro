@@ -1,12 +1,12 @@
 <form [formGroup]="approveForm" autocomplete="off">
   <fieldset [disabled]="loading" class="row mt-3">
     <div class="row">
-      <label class="mb-1" for="restaurantIdSelect">RestaurantId</label>
+      <label class="mb-1" for="restaurantIdSelect">Restaurant Id</label>
       <mat-form-field appearance="outline">
         <mat-select
           id="restaurantIdSelect"
           formControlName="restaurantId"
-          placeholder="RestaurantId"
+          placeholder="Restaurant Id"
         >
           <mat-option>
             <ngx-mat-select-search
@@ -24,5 +24,54 @@
         </mat-select>
       </mat-form-field>
     </div>
+    <div class="row">
+      <label class="mb-1" for="courierSelect">Courier</label>
+      <mat-form-field appearance="outline">
+        <mat-select
+          id="courierSelect"
+          formControlName="courierId"
+          placeholder="Courier"
+        >
+          <mat-select-trigger>
+            <div *ngIf="!!currentlySelectedCourier">
+              {{ currentlySelectedCourier.email }}<br />
+              <span class="small-gray-text"
+                >{{ currentlySelectedCourier.firstName }}
+                {{ currentlySelectedCourier.lastName }}</span
+              ><br />
+              <span class="small-gray-text">{{
+                currentlySelectedCourier.phone
+              }}</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="courierFilterCtrl"
+              placeholderLabel="Type to search"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <mat-option style="color: gray">-- None --</mat-option>
+          <mat-option
+            *ngFor="let courier of filteredCouriers | async"
+            [value]="courier.courierId"
+          >
+            {{ courier.email }}<br />
+            <span class="small-gray-text"
+              >{{ courier.firstName }} {{ courier.lastName }}</span
+            ><br />
+            <span class="small-gray-text">{{ courier.phone }}</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
   </fieldset>
+  <button
+    type="submit"
+    [disabled]="approveForm.invalid"
+    mat-flat-button
+    color="primary"
+    (click)="approve()"
+  >
+    Approve
+  </button>
 </form>

@@ -21,9 +21,16 @@ internal sealed class DomainRepository<TAggregateRoot, TId> : IDomainRepository<
         _dbSet = _dbContext.Set<TAggregateRoot>();
     }
 
-    public async Task<TAggregateRoot?> GetByIdAsync(TId id, CancellationToken cancellationToken)
+    public async Task<TAggregateRoot?> GetByIdAsync(TId id, CancellationToken cancellationToken, params string[] includes)
     {
-        return await _dbSet.SingleOrDefaultAsync(entity => entity.Id == id, cancellationToken);
+        var query = _dbSet.AsQueryable();
+
+        if (includes != null)
+        {
+            query = query.IncludeProperties(includes);
+        }
+
+        return await query.SingleOrDefaultAsync(entity => entity.Id.Equals(id), cancellationToken);
     }
 
     public async Task AddAsync(TAggregateRoot aggregateRoot, CancellationToken cancellationToken)

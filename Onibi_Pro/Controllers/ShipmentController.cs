@@ -69,7 +69,7 @@ public class ShipmentsController : ApiBaseController
     }
 
     [HttpPut("approveShipment/{packageId}")]
-    [Authorize(Policy = AuthorizationPolicies.RegionalManagerOrManagerAccess)]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerAccess)]
     public async Task<IActionResult> ApprovePackage([FromRoute] Guid packageId,
         [FromBody] AcceptPackageRequest request, CancellationToken cancellationToken)
     {

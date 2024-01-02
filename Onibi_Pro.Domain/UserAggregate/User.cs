@@ -53,5 +53,6 @@ public enum UserTypes
 {
     Manager,
     RegionalManager,
-    GlobalManager
+    GlobalManager,
+    Courier
 }

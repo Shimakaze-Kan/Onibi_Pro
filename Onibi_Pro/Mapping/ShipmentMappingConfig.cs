@@ -8,6 +8,7 @@ using Onibi_Pro.Contracts.Shipments.Common;
 using Onibi_Pro.Domain.Common.ValueObjects;
 using Onibi_Pro.Domain.PackageAggregate;
 using Onibi_Pro.Domain.PackageAggregate.ValueObjects;
+using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 
 using Ingredient = Onibi_Pro.Domain.Common.ValueObjects.Ingredient;
@@ -30,6 +31,9 @@ public class ShipmentMappingConfig : IRegister
 
         TypeAdapterConfig<ShipmentStatus, string>.NewConfig()
             .ConstructUsing(src => Enum.GetName(src)!);
+
+        TypeAdapterConfig<Contracts.Common.Address, Address>.NewConfig()
+            .ConstructUsing(src => Address.Create(src.Street, src.City, src.PostalCode, src.Country));
 
         config.NewConfig<Package, PackageItem>()
             .Map(dest => dest.Manager, src => src.Manager.Value)
@@ -70,6 +74,8 @@ public class ShipmentMappingConfig : IRegister
         config.NewConfig<(Guid PackageId, AcceptPackageRequest Request), AcceptPackageCommand>()
             .Map(dest => dest, src => src.Request)
             .Map(dest => dest.PackageId, src => PackageId.Create(src.PackageId))
-            .Map(dest => dest.SourceRestaurantId, src => RestaurantId.Create(src.Request.SourceRestaurantId.Value), x => x.Request.SourceRestaurantId != null);
+            .Map(dest => dest.SourceRestaurantId, src => RestaurantId.Create(src.Request.SourceRestaurantId.Value), x => x.Request.SourceRestaurantId != null)
+            .Map(dest => dest.CourierId, src => CourierId.Create(src.Request.CourierId))
+            .Map(dest => dest.Origin, src => src.Request.Origin);
     }
 }
