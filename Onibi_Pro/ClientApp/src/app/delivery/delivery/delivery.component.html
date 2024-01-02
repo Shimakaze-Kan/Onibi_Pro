@@ -115,7 +115,7 @@
         >
           <div class="details">
             <div class="common-content">
-              <div>
+              <div class="col-4">
                 <ul>
                   <li>
                     <ng-container
@@ -135,30 +135,66 @@
                   </li>
                 </ul>
               </div>
-              <div>
+              <div class="col-3">
                 <label><b>Message:</b></label>
                 <span>{{ element.message }}</span>
+              </div>
+              <div class="ingredients col-4">
+                <ul>
+                  <li *ngFor="let ingredient of element.ingredients">
+                    <span
+                      >{{ ingredient.quantity }}x {{ ingredient.name }}
+                      {{ ingredient.unit }}</span
+                    >
+                  </li>
+                </ul>
               </div>
             </div>
             <div *ngIf="!!element.availableTransitions">
               <mat-divider class="mt-1 mb-1"></mat-divider>
-              <ng-container
-                *ngIf="
-                  containsNextStatus(
-                    element.availableTransitions,
-                    shipmentStatus.PendingRestaurantManagerApproval
-                  )
-                "
-              >
-                <app-approve-restaurant-origin
-                  *ngIf="regionalManagerDetails$ | async; let data"
-                  [packageId]="element.packageId"
-                  [regionalManager]="data"
-                ></app-approve-restaurant-origin>
-              </ng-container>
+              <div class="d-flex flex-row">
+                <div
+                  class="d-flex"
+                  style="max-width: 50%"
+                  *ngIf="
+                    containsNextStatus(
+                      element.availableTransitions,
+                      shipmentStatus.PendingRestaurantManagerApproval
+                    ) && isRegionalManager
+                  "
+                >
+                  <app-approve-restaurant-origin
+                    *ngIf="regionalManagerDetails$ | async; let data"
+                    [packageId]="element.packageId"
+                    [regionalManager]="data"
+                    (udpatedStatus)="updateRow(element.packageId)"
+                  ></app-approve-restaurant-origin>
+                </div>
+                <div
+                  class="m-auto pt-5 pb-5"
+                  *ngIf="
+                    containsNextStatus(
+                      element.availableTransitions,
+                      shipmentStatus.Rejected
+                    )
+                  "
+                >
+                  <button
+                    type="button"
+                    class="m-auto"
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="loading"
+                    (click)="rejectPackage(element.packageId)"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
             </div>
-          </div></td
-      ></ng-container>
+          </div>
+        </td></ng-container
+      >
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>

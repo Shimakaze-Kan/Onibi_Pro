@@ -14,18 +14,20 @@ public sealed class Package : AggregateRoot<PackageId>
 
     private readonly IReadOnlyCollection<ShipmentStateTransition> _transitions = new List<ShipmentStateTransition>
     {
-        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.AssignedToCourier,
+        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.ApprovedToPickupWarehouse,
             (package) => package.Courier is not null && package.Origin is not null),
         new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.Rejected),
-        new(ShipmentStatus.AssignedToCourier, ShipmentStatus.CourierPickedUp),
-        new(ShipmentStatus.AssignedToCourier, ShipmentStatus.Rejected),
+        new(ShipmentStatus.ApprovedToPickupWarehouse, ShipmentStatus.CourierPickedUp),
+        new(ShipmentStatus.ApprovedToPickupWarehouse, ShipmentStatus.Rejected),
         new(ShipmentStatus.CourierPickedUp, ShipmentStatus.Delivered),
         new(ShipmentStatus.CourierPickedUp, ShipmentStatus.Rejected),
 
         new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.PendingRestaurantManagerApproval,
             (package) => package.SourceRestaurant is not null && package.Courier is not null && package.Origin is not null),
-        new(ShipmentStatus.PendingRestaurantManagerApproval, ShipmentStatus.AssignedToCourier,
+        new(ShipmentStatus.PendingRestaurantManagerApproval, ShipmentStatus.ApprovedToPickupFromRestaurant,
             (package) => package.Courier is not null && package.Origin is not null),
+        new(ShipmentStatus.ApprovedToPickupFromRestaurant, ShipmentStatus.Rejected),
+        new(ShipmentStatus.ApprovedToPickupFromRestaurant, ShipmentStatus.CourierPickedUp),
         new(ShipmentStatus.PendingRestaurantManagerApproval, ShipmentStatus.Rejected),
     };
 
@@ -122,7 +124,7 @@ public sealed class Package : AggregateRoot<PackageId>
 
         Origin = origin;
 
-        if (!TryChangeStatus(ShipmentStatus.AssignedToCourier))
+        if (!TryChangeStatus(ShipmentStatus.ApprovedToPickupWarehouse))
         {
             return Errors.Package.StatusChangeFailed;
         }
@@ -162,7 +164,7 @@ public sealed class Package : AggregateRoot<PackageId>
             return Errors.Package.WrongSourceRestaurantManager;
         }
 
-        if (!TryChangeStatus(ShipmentStatus.AssignedToCourier))
+        if (!TryChangeStatus(ShipmentStatus.ApprovedToPickupWarehouse))
         {
             return Errors.Package.StatusChangeFailed;
         }
@@ -270,7 +272,8 @@ public enum ShipmentStatus
 {
     PendingRegionalManagerApproval,
     PendingRestaurantManagerApproval,
-    AssignedToCourier,
+    ApprovedToPickupWarehouse,
+    ApprovedToPickupFromRestaurant,
     CourierPickedUp,
     Delivered,
     Rejected

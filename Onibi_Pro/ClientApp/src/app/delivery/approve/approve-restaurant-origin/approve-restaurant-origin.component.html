@@ -1,5 +1,9 @@
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
 <form [formGroup]="approveForm" autocomplete="off">
-  <fieldset [disabled]="loading" class="row mt-3">
+  <fieldset [disabled]="loading" class="row mt-2">
     <div class="row">
       <label class="mb-1" for="restaurantIdSelect">Restaurant Id</label>
       <mat-form-field appearance="outline">

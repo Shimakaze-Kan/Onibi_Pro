@@ -14,6 +14,7 @@ import {
 } from '../../api/api';
 import {
   Subject,
+  catchError,
   filter,
   forkJoin,
   map,
@@ -25,6 +26,8 @@ import {
 import { TextHelperService } from '../../utils/services/text-helper.service';
 import { IdentityService } from '../../utils/services/identity.service';
 import { UserTypes } from '../../utils/UserTypes';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
 
 @Component({
   selector: 'app-delivery',
@@ -63,7 +66,9 @@ export class DeliveryComponent implements OnInit {
     private readonly shipmentClient: ShipmentsClient,
     private readonly identityService: IdentityService,
     private readonly textHelper: TextHelperService,
-    private readonly identityClient: IdentityClient
+    private readonly identityClient: IdentityClient,
+    private readonly snackBar: MatSnackBar,
+    private readonly errorParser: ErrorMessagesParserService
   ) {}
 
   ngOnInit(): void {
@@ -171,6 +176,50 @@ export class DeliveryComponent implements OnInit {
     return availableTransitions.includes(nextStatus);
   }
 
+  updateRow(packageId: string) {
+    this.replaceRow(packageId).subscribe();
+  }
+
+  rejectPackage(packageId: string): void {
+    of({})
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() => this.shipmentClient.rejectShipment(packageId)),
+        switchMap(() => this.replaceRow(packageId)),
+        tap(() => (this.loading = false)),
+        catchError((error) => {
+          const description = this.errorParser.extractErrorMessage(
+            JSON.parse(error.response)
+          );
+          this.snackBar.open(description, 'close', { duration: 5000 });
+          this.loading = false;
+
+          return of(error);
+        })
+      )
+      .subscribe();
+  }
+
+  private replaceRow(packageId: string) {
+    return of({}).pipe(
+      tap(() => (this.loading = true)),
+      switchMap(() => this.shipmentClient.id(packageId)),
+      tap((result) => {
+        const indexOfPackage = this._packageItems.findIndex(
+          (x) => x.packageId === result.packageId
+        );
+        this._packageItems[indexOfPackage] = result;
+        this.dataSource.data = this._packageItems;
+        this.snackBar.open(
+          'Updated the status of the package successfully.',
+          'close',
+          { duration: 5000 }
+        );
+        this.loading = false;
+      })
+    );
+  }
+
   private getPackages(
     startRow: number | undefined,
     amount: number | undefined
@@ -197,7 +246,8 @@ export class DeliveryComponent implements OnInit {
 enum ShipmentStatus {
   PendingRegionalManagerApproval = 'PendingRegionalManagerApproval',
   PendingRestaurantManagerApproval = 'PendingRestaurantManagerApproval',
-  AssignedToCourier = 'AssignedToCourier',
+  ApprovedToPickupWarehouse = 'ApprovedToPickupWarehouse',
+  ApprovedToPickupFromRestaurant = 'ApprovedToPickupFromRestaurant',
   CourierPickedUp = 'CourierPickedUp',
   Delivered = 'Delivered',
   Rejected = 'Rejected',

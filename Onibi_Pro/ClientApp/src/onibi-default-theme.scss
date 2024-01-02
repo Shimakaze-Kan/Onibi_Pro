@@ -200,3 +200,9 @@ th {
     display: table-row;
   }
 }
+
+.fill-with-equals {
+  background: linear-gradient(to right, black 50%, transparent 50%);
+  background-size: 16px 1px;
+  background-repeat: repeat-x;
+}

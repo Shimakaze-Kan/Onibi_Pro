@@ -1,4 +1,11 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
   AcceptPackageRequest,
@@ -29,6 +36,7 @@ export class ApproveRestaurantOriginComponent implements OnInit, OnDestroy {
   @Input({ required: true }) packageId!: string;
   @Input({ required: true })
   regionalManager!: GetRegionalManagerDetailsResponse;
+  @Output() udpatedStatus = new EventEmitter<void>();
   private _onDestroy$ = new Subject<void>();
   couriers: Array<GetCouriersResponse> = [];
   restaurantIds: Array<string> = [];
@@ -107,7 +115,10 @@ export class ApproveRestaurantOriginComponent implements OnInit, OnDestroy {
           });
           return this.shipmentClient.approveShipment(this.packageId, request);
         }),
-        tap(() => (this.loading = false)),
+        tap(() => {
+          this.loading = false;
+          this.udpatedStatus.next();
+        }),
         catchError((error) => {
           const description = this.errorParser.extractErrorMessage(
             JSON.parse(error.response)

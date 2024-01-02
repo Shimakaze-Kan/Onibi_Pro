@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Packages.Commands.AcceptPackage;
 using Onibi_Pro.Application.Packages.Commands.CreatePackage;
+using Onibi_Pro.Application.Packages.Commands.RejectPackage;
 using Onibi_Pro.Application.Packages.Queries.GetPackageById;
 using Onibi_Pro.Application.Packages.Queries.GetPackages;
 using Onibi_Pro.Contracts.Shipments;
@@ -76,6 +77,15 @@ public class ShipmentsController : ApiBaseController
         var command = _mapper.Map<AcceptPackageCommand>((packageId, request));
 
         var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPut("rejectShipment/{packageId}")]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerOrManagerAccess)]
+    public async Task<IActionResult> RejectPackage([FromRoute] Guid packageId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RejectPackageCommand(PackageId.Create(packageId)), cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
     }

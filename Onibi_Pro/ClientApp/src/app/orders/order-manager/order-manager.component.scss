@@ -1,15 +1,7 @@
-@import "../../../colors.scss";
-
 .bill {
   font-family: "CourierPrime";
   margin-top: 1rem;
   margin-bottom: 1rem;
   width: 85%;
   margin-left: auto;
-}
-
-td.fill-with-equals {
-  background: linear-gradient(to right, black 50%, transparent 50%);
-  background-size: 16px 1px;
-  background-repeat: repeat-x;
 }
