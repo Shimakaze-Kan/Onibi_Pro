@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
-using Onibi_Pro.Domain.RegionalManagerAggregate;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 

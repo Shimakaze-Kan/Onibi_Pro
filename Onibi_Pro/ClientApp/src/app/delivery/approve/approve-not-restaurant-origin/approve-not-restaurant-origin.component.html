@@ -1,1 +1,110 @@
-<p>approve-not-restaurant-origin works!</p>
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
+<form [formGroup]="approveForm" autocomplete="off">
+  <fieldset [disabled]="loading" class="row mt-2">
+    <label class="text-center fw-bold mb-2">Pickup Point</label>
+    <div class="col">
+      <div class="row">
+        <label class="mb-1" for="streetInput">Street</label>
+        <mat-form-field appearance="outline">
+          <input
+            id="streetInput"
+            matInput
+            type="text"
+            formControlName="street"
+            placeholder="Street"
+          />
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <label class="mb-1" for="cityInput">City</label>
+        <mat-form-field appearance="outline">
+          <input
+            id="cityInput"
+            matInput
+            type="text"
+            formControlName="city"
+            placeholder="City"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="d-flex flex-row gap-3">
+      <div class="row">
+        <label class="mb-1" for="postalCodeInput">Postal Code</label>
+        <mat-form-field appearance="outline">
+          <input
+            id="postalCodeInput"
+            matInput
+            type="text"
+            formControlName="postalCode"
+            placeholder="Postal Code"
+          />
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <label class="mb-1" for="countryInput">Country</label>
+        <mat-form-field appearance="outline">
+          <input
+            id="countryInput"
+            matInput
+            type="text"
+            formControlName="country"
+            placeholder="Country"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="d-flex flex-column">
+      <label class="mb-1" for="courierSelect">Courier</label>
+      <mat-form-field appearance="outline">
+        <mat-select
+          id="courierSelect"
+          formControlName="courierId"
+          placeholder="Courier"
+        >
+          <mat-select-trigger>
+            <div *ngIf="!!currentlySelectedCourier">
+              {{ currentlySelectedCourier.email }}<br />
+              <span class="small-gray-text"
+                >{{ currentlySelectedCourier.firstName }}
+                {{ currentlySelectedCourier.lastName }}</span
+              ><br />
+              <span class="small-gray-text">{{
+                currentlySelectedCourier.phone
+              }}</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="courierFilterCtrl"
+              placeholderLabel="Type to search"
+            ></ngx-mat-select-search>
+          </mat-option>
+          <mat-option style="color: gray">-- None --</mat-option>
+          <mat-option
+            *ngFor="let courier of filteredCouriers | async"
+            [value]="courier.courierId"
+          >
+            {{ courier.email }}<br />
+            <span class="small-gray-text"
+              >{{ courier.firstName }} {{ courier.lastName }}</span
+            ><br />
+            <span class="small-gray-text">{{ courier.phone }}</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </fieldset>
+  <button
+    type="submit"
+    [disabled]="approveForm.invalid"
+    mat-flat-button
+    color="primary"
+    (click)="approve()"
+  >
+    Approve
+  </button>
+</form>

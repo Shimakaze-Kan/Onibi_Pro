@@ -246,7 +246,7 @@ export class DeliveryComponent implements OnInit {
 enum ShipmentStatus {
   PendingRegionalManagerApproval = 'PendingRegionalManagerApproval',
   PendingRestaurantManagerApproval = 'PendingRestaurantManagerApproval',
-  ApprovedToPickupWarehouse = 'ApprovedToPickupWarehouse',
+  ApprovedToPickupFromWarehouse = 'ApprovedToPickupFromWarehouse',
   ApprovedToPickupFromRestaurant = 'ApprovedToPickupFromRestaurant',
   CourierPickedUp = 'CourierPickedUp',
   Delivered = 'Delivered',

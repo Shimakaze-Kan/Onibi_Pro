@@ -157,18 +157,33 @@
                   class="d-flex"
                   style="max-width: 50%"
                   *ngIf="
-                    containsNextStatus(
+                    (containsNextStatus(
                       element.availableTransitions,
                       shipmentStatus.PendingRestaurantManagerApproval
-                    ) && isRegionalManager
+                    ) ||
+                      containsNextStatus(
+                        element.availableTransitions,
+                        shipmentStatus.ApprovedToPickupFromWarehouse
+                      )) &&
+                    isRegionalManager
                   "
                 >
-                  <app-approve-restaurant-origin
-                    *ngIf="regionalManagerDetails$ | async; let data"
-                    [packageId]="element.packageId"
-                    [regionalManager]="data"
-                    (udpatedStatus)="updateRow(element.packageId)"
-                  ></app-approve-restaurant-origin>
+                  <mat-tab-group dynamicHeight>
+                    <mat-tab label="Restaurant Pickup">
+                      <app-approve-restaurant-origin
+                        *ngIf="regionalManagerDetails$ | async; let data"
+                        [packageId]="element.packageId"
+                        [regionalManager]="data"
+                        (udpatedStatus)="updateRow(element.packageId)"
+                      ></app-approve-restaurant-origin>
+                    </mat-tab>
+                    <mat-tab label="Custom Delivery">
+                      <app-approve-not-restaurant-origin
+                        [packageId]="element.packageId"
+                        (udpatedStatus)="updateRow(element.packageId)"
+                      ></app-approve-not-restaurant-origin>
+                    </mat-tab>
+                  </mat-tab-group>
                 </div>
                 <div
                   class="m-auto pt-5 pb-5"

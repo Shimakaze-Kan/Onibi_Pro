@@ -14,11 +14,11 @@ public sealed class Package : AggregateRoot<PackageId>
 
     private readonly IReadOnlyCollection<ShipmentStateTransition> _transitions = new List<ShipmentStateTransition>
     {
-        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.ApprovedToPickupWarehouse,
+        new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.ApprovedToPickupFromWarehouse,
             (package) => package.Courier is not null && package.Origin is not null),
         new(ShipmentStatus.PendingRegionalManagerApproval, ShipmentStatus.Rejected),
-        new(ShipmentStatus.ApprovedToPickupWarehouse, ShipmentStatus.CourierPickedUp),
-        new(ShipmentStatus.ApprovedToPickupWarehouse, ShipmentStatus.Rejected),
+        new(ShipmentStatus.ApprovedToPickupFromWarehouse, ShipmentStatus.CourierPickedUp),
+        new(ShipmentStatus.ApprovedToPickupFromWarehouse, ShipmentStatus.Rejected),
         new(ShipmentStatus.CourierPickedUp, ShipmentStatus.Delivered),
         new(ShipmentStatus.CourierPickedUp, ShipmentStatus.Rejected),
 
@@ -124,7 +124,7 @@ public sealed class Package : AggregateRoot<PackageId>
 
         Origin = origin;
 
-        if (!TryChangeStatus(ShipmentStatus.ApprovedToPickupWarehouse))
+        if (!TryChangeStatus(ShipmentStatus.ApprovedToPickupFromWarehouse))
         {
             return Errors.Package.StatusChangeFailed;
         }
@@ -164,7 +164,7 @@ public sealed class Package : AggregateRoot<PackageId>
             return Errors.Package.WrongSourceRestaurantManager;
         }
 
-        if (!TryChangeStatus(ShipmentStatus.ApprovedToPickupWarehouse))
+        if (!TryChangeStatus(ShipmentStatus.ApprovedToPickupFromWarehouse))
         {
             return Errors.Package.StatusChangeFailed;
         }
@@ -272,7 +272,7 @@ public enum ShipmentStatus
 {
     PendingRegionalManagerApproval,
     PendingRestaurantManagerApproval,
-    ApprovedToPickupWarehouse,
+    ApprovedToPickupFromWarehouse,
     ApprovedToPickupFromRestaurant,
     CourierPickedUp,
     Delivered,
