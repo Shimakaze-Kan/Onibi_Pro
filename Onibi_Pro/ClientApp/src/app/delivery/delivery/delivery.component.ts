@@ -1,17 +1,8 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmDeliveryComponent } from '../confirm-delivery/confirm-delivery.component';
-import { RequestSuppliesComponent } from '../request-supplies/request-supplies.component';
-import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
-import {
-  GetManagerDetailsResponse,
-  GetRegionalManagerDetailsResponse,
-  IdentityClient,
-  PackageItem,
-  ShipmentsClient,
-} from '../../api/api';
 import {
   Subject,
   catchError,
@@ -23,11 +14,20 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { TextHelperService } from '../../utils/services/text-helper.service';
-import { IdentityService } from '../../utils/services/identity.service';
+import {
+  GetManagerDetailsResponse,
+  GetRegionalManagerDetailsResponse,
+  IdentityClient,
+  PackageItem,
+  ShipmentsClient,
+} from '../../api/api';
 import { UserTypes } from '../../utils/UserTypes';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
+import { IdentityService } from '../../utils/services/identity.service';
+import { TextHelperService } from '../../utils/services/text-helper.service';
+import { ConfirmDeliveryComponent } from '../confirm-delivery/confirm-delivery.component';
+import { RequestSuppliesComponent } from '../request-supplies/request-supplies.component';
+import { ShowQrCodeComponent } from '../show-qr-code/show-qr-code.component';
 
 @Component({
   selector: 'app-delivery',
@@ -39,8 +39,13 @@ export class DeliveryComponent implements OnInit {
   private _expandedItemIds: Array<string> = [];
   regionalManagerDetails$ = new Subject<GetRegionalManagerDetailsResponse>();
   managerDetails$ = new Subject<GetManagerDetailsResponse>();
+  currentManagerRestaurantId = '';
   shipmentStatus = ShipmentStatus;
-  isRegionalManager = false;
+  userType: IUserType = {
+    isRegionalManager: false,
+    isManager: false,
+    isCourier: false,
+  };
   loadingUserType = false;
   loading = false;
   totalRecords = 0;
@@ -85,37 +90,76 @@ export class DeliveryComponent implements OnInit {
           })
         ),
         map(({ identity }) => {
-          this.isRegionalManager =
-            identity.userType === UserTypes.regionalManager;
+          this.userType = {
+            isRegionalManager: identity.userType === UserTypes.regionalManager,
+            isManager: identity.userType === UserTypes.manager,
+            isCourier: identity.userType === UserTypes.courier,
+          };
+
           return {
-            isRegionalManager: this.isRegionalManager,
+            userType: this.userType,
             userId: identity.userId,
           };
         }),
-        switchMap(({ isRegionalManager, userId }) => {
-          if (isRegionalManager) {
+        switchMap(({ userType, userId }) => {
+          if (userType.isRegionalManager) {
             return this.identityClient
               .regionalManagerDetails(userId!)
               .pipe(tap((result) => this.regionalManagerDetails$.next(result)));
-          } else {
-            return this.identityClient
-              .managerDetails(userId!)
-              .pipe(tap((result) => this.managerDetails$.next(result)));
+          } else if (userType.isManager) {
+            return this.identityClient.managerDetails(userId!).pipe(
+              tap((result) => {
+                this.managerDetails$.next(result);
+                this.currentManagerRestaurantId = result.restaurantId!;
+              })
+            );
           }
+
+          return of(null);
         }),
         tap(() => {
           this.loading = false;
           this.loadingUserType = false;
+
+          if (this.userType.isCourier) {
+            this.displayedColumns = this.displayedColumns.filter(
+              (col) => col !== 'action'
+            );
+          }
         })
       )
       .subscribe();
   }
 
   openConfirmDeliveryDialog() {
-    this.dialog.open(ConfirmDeliveryComponent, {
+    const dialogRef = this.dialog.open(ConfirmDeliveryComponent, {
       maxWidth: '750px',
       width: '600px',
+      data: this.userType,
     });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter(
+          (result): result is { reload: boolean } => !!result && result.reload
+        ),
+        tap(() => {
+          this.loading = true;
+          let message = 'Success.';
+
+          if (this.userType.isCourier) {
+            message = 'Picked up package successfully.';
+          } else if (this.userType.isManager) {
+            message = 'Confirmed delivery successfully.';
+          }
+
+          this.snackBar.open(message, 'close', { duration: 5000 });
+        }),
+        switchMap(() => this.getPackages(this.getStartRow(), this.pageSize)),
+        tap(() => (this.loading = false))
+      )
+      .subscribe();
   }
 
   openRequestSuppliesDialog() {
@@ -130,7 +174,12 @@ export class DeliveryComponent implements OnInit {
         filter(
           (result): result is { reload: boolean } => !!result && result.reload
         ),
-        tap(() => (this.loading = true)),
+        tap(() => {
+          this.loading = true;
+          this.snackBar.open('Requested package successfully.', 'close', {
+            duration: 5000,
+          });
+        }),
         switchMap(() => this.getPackages(this.getStartRow(), this.pageSize)),
         tap(() => (this.loading = false))
       )
@@ -209,6 +258,10 @@ export class DeliveryComponent implements OnInit {
           (x) => x.packageId === result.packageId
         );
         this._packageItems[indexOfPackage] = result;
+        this._packageItems[indexOfPackage].status =
+          this.textHelper.splitCamelCaseToString(
+            this._packageItems[indexOfPackage].status
+          );
         this.dataSource.data = this._packageItems;
         this.snackBar.open(
           'Updated the status of the package successfully.',
@@ -251,4 +304,10 @@ enum ShipmentStatus {
   CourierPickedUp = 'CourierPickedUp',
   Delivered = 'Delivered',
   Rejected = 'Rejected',
+}
+
+export interface IUserType {
+  isRegionalManager: boolean;
+  isManager: boolean;
+  isCourier: boolean;
 }

@@ -15,6 +15,7 @@ public record PackageItem(
     string Status,
     string Message,
     bool IsUrgent,
+    string? CourierPhone,
     List<Ingredient> Ingredients,
     List<string> AvailableTransitions,
     DateTime? Until)

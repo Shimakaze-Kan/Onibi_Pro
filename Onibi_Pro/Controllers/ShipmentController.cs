@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Packages.Commands.AcceptPackage;
+using Onibi_Pro.Application.Packages.Commands.ConfirmDelivery;
 using Onibi_Pro.Application.Packages.Commands.CreatePackage;
+using Onibi_Pro.Application.Packages.Commands.PickUpPackage;
 using Onibi_Pro.Application.Packages.Commands.RejectPackage;
 using Onibi_Pro.Application.Packages.Queries.GetPackageById;
 using Onibi_Pro.Application.Packages.Queries.GetPackages;
@@ -14,8 +16,6 @@ using Onibi_Pro.Contracts.Shipments;
 using Onibi_Pro.Contracts.Shipments.Common;
 using Onibi_Pro.Domain.PackageAggregate.ValueObjects;
 using Onibi_Pro.Shared;
-
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Onibi_Pro.Controllers;
 [Route("api/[controller]")]
@@ -47,7 +47,7 @@ public class ShipmentsController : ApiBaseController
 
     [HttpGet("id/{packageId}")]
     [ProducesResponseType(typeof(PackageItem), 200)]
-    [Authorize(Policy = AuthorizationPolicies.RegionalManagerOrManagerAccess)]
+    [Authorize(Policy = AuthorizationPolicies.RegionalOrCourierOrManagerAccess)]
     public async Task<IActionResult> GetPackageById([FromRoute] Guid packageId, CancellationToken cancellationToken)
     {
         var query = new GetPackageByIdQuery(PackageId.Create(packageId));
@@ -59,7 +59,7 @@ public class ShipmentsController : ApiBaseController
 
     [HttpGet]
     [ProducesResponseType(typeof(GetPackagesResponse), 200)]
-    [Authorize(Policy = AuthorizationPolicies.RegionalManagerOrManagerAccess)]
+    [Authorize(Policy = AuthorizationPolicies.RegionalOrCourierOrManagerAccess)]
     public async Task<IActionResult> GetAllPackages([FromQuery] GetPackagesRequest request, CancellationToken cancellationToken)
     {
         var query = _mapper.Map<GetPackagesQuery>(request);
@@ -86,6 +86,24 @@ public class ShipmentsController : ApiBaseController
     public async Task<IActionResult> RejectPackage([FromRoute] Guid packageId, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new RejectPackageCommand(PackageId.Create(packageId)), cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPut("pickupShipment/{packageId}")]
+    [Authorize(Policy = AuthorizationPolicies.CourierAccess)]
+    public async Task<IActionResult> PickUpPackage([FromRoute] Guid packageId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new PickUpPackageCommand(PackageId.Create(packageId)), cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPut("confirmDelivery/{packageId}")]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
+    public async Task<IActionResult> ConfirmPackageDelivery([FromRoute] Guid packageId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ConfirmDeliveryCommand(PackageId.Create(packageId)), cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
     }

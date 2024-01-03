@@ -118,7 +118,13 @@ export const ROUTES: Array<Route> = [
         path: 'delivery',
         component: DeliveryComponent,
         canActivate: [canActivateUserTypes],
-        data: { userTypes: [UserTypes.manager, UserTypes.regionalManager] },
+        data: {
+          userTypes: [
+            UserTypes.manager,
+            UserTypes.regionalManager,
+            UserTypes.courier,
+          ],
+        },
       },
       {
         path: 'order',

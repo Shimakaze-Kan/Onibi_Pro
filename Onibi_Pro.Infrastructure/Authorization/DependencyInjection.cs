@@ -14,8 +14,10 @@ internal static class DependencyInjection
             .AddGlobalManagerPolicy()
             .AddRegionalManagerPolicy()
             .AddManagerPolicy()
+            .AddCourierPolicy()
             .AddGlobalOrRegionalManagerPolicy()
             .AddRegionalManagerOrManagerPolicy()
+            .AddRegionalOrCourierOrManagerPolicy()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build());
@@ -35,6 +37,10 @@ internal static class DependencyInjection
         => builder.AddPolicy(AuthorizationPolicies.ManagerAccess,
                 policy => policy.RequireClaim(JwtKeys.UserTypeKey, UserTypes.Manager.ToString().ToUpper()));
 
+    private static AuthorizationBuilder AddCourierPolicy(this AuthorizationBuilder builder)
+        => builder.AddPolicy(AuthorizationPolicies.CourierAccess,
+                policy => policy.RequireClaim(JwtKeys.UserTypeKey, UserTypes.Courier.ToString().ToUpper()));
+
     private static AuthorizationBuilder AddGlobalOrRegionalManagerPolicy(this AuthorizationBuilder builder)
         => builder.AddPolicy(AuthorizationPolicies.GlobalOrRegionalManagerAccess,
                 policy => policy.RequireAssertion(context =>
@@ -46,4 +52,11 @@ internal static class DependencyInjection
                 policy => policy.RequireAssertion(context =>
                     context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.RegionalManager.ToString().ToUpper()) ||
                     context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.Manager.ToString().ToUpper())));
+
+    private static AuthorizationBuilder AddRegionalOrCourierOrManagerPolicy(this AuthorizationBuilder builder)
+        => builder.AddPolicy(AuthorizationPolicies.RegionalOrCourierOrManagerAccess,
+                policy => policy.RequireAssertion(context =>
+                    context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.RegionalManager.ToString().ToUpper()) ||
+                    context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.Manager.ToString().ToUpper()) ||
+                    context.User.HasClaim(JwtKeys.UserTypeKey, UserTypes.Courier.ToString().ToUpper())));
 }

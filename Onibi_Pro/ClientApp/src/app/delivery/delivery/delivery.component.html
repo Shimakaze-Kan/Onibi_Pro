@@ -1,10 +1,11 @@
 <div class="container">
   <div
     class="d-flex flex-column mt-2 mb-4"
-    *ngIf="!isRegionalManager"
+    *ngIf="userType.isManager || userType.isCourier"
     [ngStyle]="{ visibility: loadingUserType ? 'hidden' : 'visible' }"
   >
     <button
+      *ngIf="userType.isManager"
       type="button"
       class="ms-auto"
       style="width: fit-content"
@@ -22,7 +23,7 @@
       color="primary"
       (click)="openConfirmDeliveryDialog()"
     >
-      Confirm Delivery
+      {{ userType.isManager ? "Confirm Delivery" : "Pick Up Package" }}
     </button>
   </div>
   <div class="mat-elevation-z8 container table-responsive">
@@ -81,7 +82,11 @@
           <button
             mat-icon-button
             (click)="openShowQrCodeDialog(element.packageId)"
-            [disabled]="loading"
+            [disabled]="
+              loading ||
+              element.status === shipmentStatus.Delivered ||
+              element.status === shipmentStatus.Rejected
+            "
           >
             <mat-icon>qr_code_2</mat-icon>
           </button>
@@ -119,7 +124,10 @@
                 <ul>
                   <li>
                     <ng-container
-                      *ngIf="!isRegionalManager; else restaurantIdContainer"
+                      *ngIf="
+                        !userType.isRegionalManager;
+                        else restaurantIdContainer
+                      "
                     >
                       <b>Regional Manager Id:</b> {{ element.regionalManager }}
                     </ng-container>
@@ -129,6 +137,9 @@
                     </ng-template>
                   </li>
                   <li><b>Courier Id:</b> {{ element.courier || "-" }}</li>
+                  <li>
+                    <b>Courier Phone:</b> {{ element.courierPhone || "-" }}
+                  </li>
                   <li>
                     <b>Source Restaurant Id:</b>
                     {{ element.sourceRestaurant || "-" }}
@@ -150,7 +161,14 @@
                 </ul>
               </div>
             </div>
-            <div *ngIf="!!element.availableTransitions">
+            <div
+              *ngIf="
+                (element.availableTransitions?.length > 0 &&
+                  userType.isRegionalManager) ||
+                (userType.isManager &&
+                  currentManagerRestaurantId === element.sourceRestaurant)
+              "
+            >
               <mat-divider class="mt-1 mb-1"></mat-divider>
               <div class="d-flex flex-row">
                 <div
@@ -165,7 +183,7 @@
                         element.availableTransitions,
                         shipmentStatus.ApprovedToPickupFromWarehouse
                       )) &&
-                    isRegionalManager
+                    userType.isRegionalManager
                   "
                 >
                   <mat-tab-group dynamicHeight>
@@ -191,7 +209,11 @@
                     containsNextStatus(
                       element.availableTransitions,
                       shipmentStatus.Rejected
-                    )
+                    ) &&
+                    (userType.isRegionalManager ||
+                      (userType.isManager &&
+                        currentManagerRestaurantId ===
+                          element.sourceRestaurant))
                   "
                 >
                   <button

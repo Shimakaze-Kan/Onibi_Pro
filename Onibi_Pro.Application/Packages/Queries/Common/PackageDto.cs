@@ -23,6 +23,7 @@ public class PackageDto
     public ShipmentStatus Status { get; set; }
     public string Message { get; set; } = "";
     public bool IsUrgent { get; set; }
+    public string? CourierPhone { get; set; }
     public string Ingredients { get; set; } = "";
 
     public List<Ingredient> IngredientsList

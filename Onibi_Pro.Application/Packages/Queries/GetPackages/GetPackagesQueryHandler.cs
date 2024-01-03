@@ -17,16 +17,19 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
     private readonly ICurrentUserService _currentUserService;
     private readonly IManagerDetailsService _managerDetailsService;
     private readonly IRegionalManagerDetailsService _regionalManagerDetailsService;
+    private readonly ICourierDetailsService _courierDetailsService;
 
     public GetPackagesQueryHandler(IDbConnectionFactory dbConnectionFactory,
         ICurrentUserService currentUserService,
         IManagerDetailsService managerDetailsService,
-        IRegionalManagerDetailsService regionalManagerDetailsService)
+        IRegionalManagerDetailsService regionalManagerDetailsService,
+        ICourierDetailsService courierDetailsService)
     {
         _dbConnectionFactory = dbConnectionFactory;
         _currentUserService = currentUserService;
         _managerDetailsService = managerDetailsService;
         _regionalManagerDetailsService = regionalManagerDetailsService;
+        _courierDetailsService = courierDetailsService;
     }
 
     public async Task<GetPackagesDto> Handle(GetPackagesQuery request, CancellationToken cancellationToken)
@@ -41,6 +44,7 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
         {
             UserTypes.Manager => await SetupManagerWhereClause(dynamicParameters),
             UserTypes.RegionalManager => await SetupRegionalManagerWhereClause(dynamicParameters),
+            UserTypes.Courier => await SetupCourierWhereClause(dynamicParameters),
             _ => (string.Empty, dynamicParameters)
         };
 
@@ -53,28 +57,30 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
     private static async Task<IEnumerable<PackageDto>> GetPackages(IDbConnection connection, string whereClause, DynamicParameters dynamicParameters)
     {
         var query = @$"
-            SELECT [PackageId]
-              ,[DestinationRestaurant] AS {nameof(PackageDto.DestinationRestaurant)}
-              ,[Manager] AS {nameof(PackageDto.Manager)}
-              ,[RegionalManager] AS {nameof(PackageDto.RegionalManager)}
-              ,[SourceRestaurant] AS {nameof(PackageDto.SourceRestaurant)}
-              ,[Courier] AS {nameof(PackageDto.Courier)}
-              ,[Origin_Street] AS {nameof(PackageDto.OriginStreet)}
-              ,[Origin_City] AS {nameof(PackageDto.OriginCity)}
-              ,[Origin_PostalCode] AS {nameof(PackageDto.OriginPostalCode)}
-              ,[Origin_Country] AS {nameof(PackageDto.OriginCountry)}
-              ,[Destination_Street] AS {nameof(PackageDto.DestinationStreet)}
-              ,[Destination_City] AS {nameof(PackageDto.DestinationCity)}
-              ,[Destination_PostalCode] AS {nameof(PackageDto.DestinationPostalCode)}
-              ,[Destination_Country] AS {nameof(PackageDto.DestinationCountry)}
-              ,[Status] AS {nameof(PackageDto.Status)}
-              ,[Message] AS {nameof(PackageDto.Message)}
-              ,[IsUrgent] AS {nameof(PackageDto.IsUrgent)}
-              ,[Ingredients] AS {nameof(PackageDto.Ingredients)}
-              ,[Until] AS {nameof(PackageDto.Until)}
-              ,[AvailableTransitions] AS {nameof(PackageDto.AvailableTransitions)}
+            SELECT p.[PackageId]
+              ,p.[DestinationRestaurant] AS {nameof(PackageDto.DestinationRestaurant)}
+              ,p.[Manager] AS {nameof(PackageDto.Manager)}
+              ,p.[RegionalManager] AS {nameof(PackageDto.RegionalManager)}
+              ,p.[SourceRestaurant] AS {nameof(PackageDto.SourceRestaurant)}
+              ,p.[Courier] AS {nameof(PackageDto.Courier)}
+              ,p.[Origin_Street] AS {nameof(PackageDto.OriginStreet)}
+              ,p.[Origin_City] AS {nameof(PackageDto.OriginCity)}
+              ,p.[Origin_PostalCode] AS {nameof(PackageDto.OriginPostalCode)}
+              ,p.[Origin_Country] AS {nameof(PackageDto.OriginCountry)}
+              ,p.[Destination_Street] AS {nameof(PackageDto.DestinationStreet)}
+              ,p.[Destination_City] AS {nameof(PackageDto.DestinationCity)}
+              ,p.[Destination_PostalCode] AS {nameof(PackageDto.DestinationPostalCode)}
+              ,p.[Destination_Country] AS {nameof(PackageDto.DestinationCountry)}
+              ,p.[Status] AS {nameof(PackageDto.Status)}
+              ,p.[Message] AS {nameof(PackageDto.Message)}
+              ,p.[IsUrgent] AS {nameof(PackageDto.IsUrgent)}
+              ,c.[Phone] AS {nameof(PackageDto.CourierPhone)}
+              ,p.[Ingredients] AS {nameof(PackageDto.Ingredients)}
+              ,p.[Until] AS {nameof(PackageDto.Until)}
+              ,p.[AvailableTransitions] AS {nameof(PackageDto.AvailableTransitions)}
             FROM 
-              [Onibi_Pro].[dbo].[Packages]
+              [Onibi_Pro].[dbo].[Packages] p
+            LEFT JOIN dbo.Couriers c on c.CourierId = p.Courier
             {whereClause}
             ORDER BY 
               [IsUrgent] DESC,
@@ -107,6 +113,16 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
                 OR [DestinationRestaurant] = @RestaurantId";
 
         dynamicParameters.Add("@RestaurantId", managerDetails.RestaurantId);
+        return (whereClause, dynamicParameters);
+    }
+
+    private async Task<(string, DynamicParameters)> SetupCourierWhereClause(DynamicParameters dynamicParameters)
+    {
+        var courierDetails = await _courierDetailsService.GetCourierDetailsAsync(UserId.Create(_currentUserService.UserId));
+        var whereClause = @"
+            WHERE Courier = @CourierId";
+
+        dynamicParameters.Add("@CourierId", courierDetails.CourierId);
         return (whereClause, dynamicParameters);
     }
 

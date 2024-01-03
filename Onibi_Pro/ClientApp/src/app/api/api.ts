@@ -1735,6 +1735,14 @@ export interface IShipmentsClient {
      * @return Success
      */
     rejectShipment(packageId: string): Observable<void>;
+    /**
+     * @return Success
+     */
+    pickupShipment(packageId: string): Observable<void>;
+    /**
+     * @return Success
+     */
+    confirmDelivery(packageId: string): Observable<void>;
 }
 
 @Injectable({
@@ -2008,6 +2016,106 @@ export class ShipmentsClient implements IShipmentsClient {
     }
 
     protected processRejectShipment(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    pickupShipment(packageId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Shipments/pickupShipment/{packageId}";
+        if (packageId === undefined || packageId === null)
+            throw new Error("The parameter 'packageId' must be defined.");
+        url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPickupShipment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPickupShipment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPickupShipment(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    confirmDelivery(packageId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Shipments/confirmDelivery/{packageId}";
+        if (packageId === undefined || packageId === null)
+            throw new Error("The parameter 'packageId' must be defined.");
+        url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processConfirmDelivery(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processConfirmDelivery(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processConfirmDelivery(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4370,6 +4478,7 @@ export class PackageItem implements IPackageItem {
     status?: string | undefined;
     message?: string | undefined;
     isUrgent?: boolean;
+    courierPhone?: string | undefined;
     ingredients?: PackageItem_Ingredient[] | undefined;
     availableTransitions?: string[] | undefined;
     until?: Date | undefined;
@@ -4396,6 +4505,7 @@ export class PackageItem implements IPackageItem {
             this.status = _data["status"];
             this.message = _data["message"];
             this.isUrgent = _data["isUrgent"];
+            this.courierPhone = _data["courierPhone"];
             if (Array.isArray(_data["ingredients"])) {
                 this.ingredients = [] as any;
                 for (let item of _data["ingredients"])
@@ -4430,6 +4540,7 @@ export class PackageItem implements IPackageItem {
         data["status"] = this.status;
         data["message"] = this.message;
         data["isUrgent"] = this.isUrgent;
+        data["courierPhone"] = this.courierPhone;
         if (Array.isArray(this.ingredients)) {
             data["ingredients"] = [];
             for (let item of this.ingredients)
@@ -4457,6 +4568,7 @@ export interface IPackageItem {
     status?: string | undefined;
     message?: string | undefined;
     isUrgent?: boolean;
+    courierPhone?: string | undefined;
     ingredients?: PackageItem_Ingredient[] | undefined;
     availableTransitions?: string[] | undefined;
     until?: Date | undefined;
