@@ -25,5 +25,5 @@ public class RecipientStatus
 {
     public Guid UserId { get; set; }
 
-    public bool IsRead { get; set; } = false;
+    public bool IsViewed { get; set; } = false;
 }

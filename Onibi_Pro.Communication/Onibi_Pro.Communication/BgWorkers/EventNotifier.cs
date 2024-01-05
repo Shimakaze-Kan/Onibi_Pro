@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 
 using Onibi_Pro.Communication.Hubs;
+using Onibi_Pro.Communication.Models;
 using Onibi_Pro.Communication.Repositories;
 
 namespace Onibi_Pro.Communication.BgWorkers;
@@ -44,7 +45,8 @@ public sealed class EventNotifier : BackgroundService
                 {
                     foreach (var recipient in notification.Recipients)
                     {
-                        await _hubContext.Clients.Group(recipient.UserId.ToString()).SendAsync("ReceiveNotification", notification.Text);
+                        NewNotification data = new(notification.Id, notification.Text, notification.SentAt, recipient.IsViewed);
+                        await _hubContext.Clients.Group(recipient.UserId.ToString()).SendAsync("ReceiveNotification", data);
                     }
 
                     _logger.LogInformation("Executing {Service} {Time}: sent message '{message}'", nameof(EventNotifier), dateTime, notification.Text);

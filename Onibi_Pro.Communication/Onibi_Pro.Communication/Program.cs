@@ -55,7 +55,7 @@ internal class Program
 
         app.MapControllers();
 
-        app.MapHub<NotificationsHub>("notifications");
+        app.MapHub<NotificationsHub>("NotificationsHub");
 
         app.Run();
     }

@@ -28,6 +28,7 @@ import { ROUTES } from '../app.module';
 import { PermissionChecker } from '../auth/permission-checker.service';
 import { IdentityService } from '../utils/services/identity.service';
 import { TextHelperService } from '../utils/services/text-helper.service';
+import { SignalrService } from '../communication/signalr/signalr.service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -61,6 +62,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
   @ViewChild('communicationPanel', { static: false })
   communicationPanel!: ElementRef;
+  private _numberOfNotifications = 0;
   private readonly _destroy$ = new Subject<void>();
   private _observer!: IntersectionObserver;
   private _title = (name: string) => `${name} :: Onibi Pro`;
@@ -149,9 +151,11 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get numberOfNotifications(): number {
-    return this.numberOfPanelElements(
-      CommunicationPanelContentType.Notifications
-    );
+    return this._numberOfNotifications;
+  }
+
+  set numberOfNotifications(value: number) {
+    this._numberOfNotifications = value;
   }
 
   get numberOfMessages(): number {
@@ -166,7 +170,8 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
     private readonly authService: AuthService,
     private readonly permissionChecker: PermissionChecker,
     private readonly identityService: IdentityService,
-    private readonly textHelper: TextHelperService
+    private readonly textHelper: TextHelperService,
+    private readonly signalRService: SignalrService
   ) {
     this.scrollStrategy = this.scrollStrategyOptions.block();
     this.currentUserData$ = this.identityService.getUserData().pipe(
@@ -194,6 +199,13 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.signalRService.amountOfNotifications
+      .pipe(
+        takeUntil(this._destroy$),
+        tap((num) => (this._numberOfNotifications = num))
+      )
+      .subscribe();
+
     this.router.events
       .pipe(
         takeUntil(this._destroy$),
