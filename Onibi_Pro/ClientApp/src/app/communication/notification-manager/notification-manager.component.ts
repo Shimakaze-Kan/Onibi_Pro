@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil, tap } from 'rxjs';
-import { INewNotification, SignalrService } from '../signalr/signalr.service';
+import { Subject, of, switchMap, takeUntil, tap } from 'rxjs';
+import { INewNotification, SignalrService } from '../services/signalr.service';
+import { NotificationsService } from '../services/notifications.service';
 
 @Component({
   selector: 'app-notification-manager',
@@ -13,15 +14,29 @@ export class NotificationManagerComponent implements OnInit, OnDestroy {
 
   isLoadingList = false;
 
-  constructor(private readonly signalRService: SignalrService) {}
+  constructor(
+    private readonly signalRService: SignalrService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
   ngOnInit(): void {
+    of({})
+      .pipe(
+        tap(() => (this.isLoadingList = true)),
+        switchMap(() => this.notificationsService.notifications),
+        tap((result) => {
+          this.isLoadingList = false;
+          this.notifications = result;
+        })
+      )
+      .subscribe();
+
     this.signalRService.amountOfNotifications.next(0);
     this.signalRService.notifications
       .pipe(
         takeUntil(this._destroy$),
         tap((data) => {
-          this.notifications.push(data);
+          this.notifications = [data, ...this.notifications];
         })
       )
       .subscribe();

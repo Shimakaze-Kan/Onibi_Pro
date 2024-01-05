@@ -10,6 +10,7 @@ internal static class DependencyInjection
 {
     private const string ReverseProxyConfigurationKey = "ReverseProxy";
     private const string NotificationsSignalRClusterId = "notification-signalR-cluster";
+    private const string NotificationApi = "notifications-route-api";
     private const string ClientIdHeader = "X-ClientId";
 
     public static IServiceCollection AddReverseProxy(
@@ -19,7 +20,8 @@ internal static class DependencyInjection
             .LoadFromConfig(configurationManager.GetSection(ReverseProxyConfigurationKey))
             .AddTransforms(transform =>
             {
-                if (transform.Route.ClusterId == NotificationsSignalRClusterId)
+                if (transform.Route.ClusterId == NotificationsSignalRClusterId
+                    || transform.Route.ClusterId == NotificationApi)
                 {
                     transform.AddRequestTransform(async context =>
                     {

@@ -19,21 +19,41 @@ public sealed class NotificationRepository : INotificationRepository
         _notificationCollection = database.GetCollection<Notification>(communicationDatabaseSettings.Value.NotificationsCollectionName);
     }
 
-    public async Task<Notification?> Create(Notification notification)
+    public async Task<Notification?> CreateAsync(Notification notification, CancellationToken cancellationToken = default)
     {
         notification.Id = ObjectId.GenerateNewId().ToString();
 
-        await _notificationCollection.InsertOneAsync(notification);
+        await _notificationCollection.InsertOneAsync(notification, cancellationToken: cancellationToken);
 
         return notification;
     }
 
-    public async Task<Notification?> GetById(string id)
+    public async Task<List<NotificationDto>> GetAllForUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _notificationCollection.Find(n => n.Id == id).FirstOrDefaultAsync();
+        var filter = Builders<Notification>.Filter.ElemMatch(n => n.Recipients, r => r.UserId == userId);
+        var notifications = await _notificationCollection.Find(filter)
+            .SortByDescending(n => n.SentAt).ToListAsync(cancellationToken);
+
+        var notificationDtos = notifications.Select(n => {
+            var recipientStatus = n.Recipients.FirstOrDefault(r => r.UserId == userId);
+            return new NotificationDto(
+                NotificationId: n.Id,
+                Text: n.Text,
+                Date: n.SentAt,
+                IsViewed: recipientStatus?.IsViewed ?? false
+            );
+        }).ToList();
+
+        return notificationDtos;
     }
 
-    public async Task<List<Notification>> GetChunk(DateTime startDateTime, DateTime? endDateTime = null)
+    public async Task<Notification?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    {
+        return await _notificationCollection.Find(n => n.Id == id).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<Notification>> GetChunkAsync(DateTime startDateTime,
+        DateTime? endDateTime = null, CancellationToken cancellationToken = default)
     {
         var toDate = endDateTime ?? DateTime.UtcNow;
 
@@ -44,13 +64,14 @@ public sealed class NotificationRepository : INotificationRepository
 
         var filter = dateFilter & isReadFilter;
 
-        var notifications = await _notificationCollection.Find(filter).ToListAsync();
+        var notifications = await _notificationCollection.Find(filter)
+            .SortByDescending(n => n.SentAt).ToListAsync(cancellationToken);
 
         return notifications;
     }
 
-    public async Task<ReplaceOneResult> Update(string id, Notification notification)
+    public async Task<ReplaceOneResult> UpdateAsync(string id, Notification notification, CancellationToken cancellationToken = default)
     {
-        return await _notificationCollection.ReplaceOneAsync(n => n.Id == id, notification);
+        return await _notificationCollection.ReplaceOneAsync(n => n.Id == id, notification, cancellationToken: cancellationToken);
     }
 }

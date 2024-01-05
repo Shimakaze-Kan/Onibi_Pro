@@ -16,6 +16,8 @@ import { MessageManagerComponent } from './message-manager/message-manager.compo
 import { MessageViewComponent } from './message-view/message-view.component';
 import { NewMessageComponent } from './new-message/new-message.component';
 import { NotificationManagerComponent } from './notification-manager/notification-manager.component';
+import { HttpClient } from '@microsoft/signalr';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -40,6 +42,7 @@ import { NotificationManagerComponent } from './notification-manager/notificatio
     NgxMatSelectSearchModule,
     NgxSkeletonLoaderModule,
     MatTabsModule,
+    HttpClientModule,
   ],
   exports: [MessageManagerComponent, NotificationManagerComponent],
   providers: [DatePipe],

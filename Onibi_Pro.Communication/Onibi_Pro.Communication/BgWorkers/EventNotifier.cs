@@ -33,7 +33,7 @@ public sealed class EventNotifier : BackgroundService
 
             _logger.LogInformation("Executing {Service} {Time}", nameof(EventNotifier), dateTime);
 
-            var notifications = await _notificationRepository.GetChunk(DateTime.UtcNow.AddDays(-1));
+            var notifications = await _notificationRepository.GetChunkAsync(DateTime.UtcNow.AddDays(-1));
 
             if (notifications == null)
             {
@@ -45,14 +45,14 @@ public sealed class EventNotifier : BackgroundService
                 {
                     foreach (var recipient in notification.Recipients)
                     {
-                        NewNotification data = new(notification.Id, notification.Text, notification.SentAt, recipient.IsViewed);
+                        NotificationDto data = new(notification.Id, notification.Text, notification.SentAt, recipient.IsViewed);
                         await _hubContext.Clients.Group(recipient.UserId.ToString()).SendAsync("ReceiveNotification", data);
                     }
 
                     _logger.LogInformation("Executing {Service} {Time}: sent message '{message}'", nameof(EventNotifier), dateTime, notification.Text);
 
                     notification.IsRead = true;
-                    await _notificationRepository.Update(notification.Id, notification);
+                    await _notificationRepository.UpdateAsync(notification.Id, notification);
                 }
             }
         }

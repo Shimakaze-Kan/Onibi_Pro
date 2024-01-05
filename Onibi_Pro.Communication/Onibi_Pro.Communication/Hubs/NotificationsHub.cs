@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-using Onibi_Pro.Communication.Exceptions;
+using Onibi_Pro.Communication.Common;
 
 namespace Onibi_Pro.Communication.Hubs;
 
 public class NotificationsHub : Hub
 {
-    private const string ClientIdHeader = "X-ClientId";
-
     public override async Task OnConnectedAsync()
     {
-        Guid userId = GetUserId();
+        Guid userId = UserIdProvider.GetUserId(Context.GetHttpContext());
 
         await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
 
@@ -19,23 +17,10 @@ public class NotificationsHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        Guid userId = GetUserId();
+        Guid userId = UserIdProvider.GetUserId(Context.GetHttpContext());
 
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId.ToString());
 
         await base.OnDisconnectedAsync(exception);
-    }
-
-    private Guid GetUserId()
-    {
-        var httpContext = Context.GetHttpContext();
-        if (httpContext is null ||
-            !httpContext.Request.Headers.TryGetValue(ClientIdHeader, out var clientId)
-            || !Guid.TryParse(clientId, out var userId))
-        {
-            throw new ClientIdNotFoundException();
-        }
-
-        return userId;
     }
 }

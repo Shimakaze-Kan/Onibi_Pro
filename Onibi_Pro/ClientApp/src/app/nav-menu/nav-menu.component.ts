@@ -28,7 +28,7 @@ import { ROUTES } from '../app.module';
 import { PermissionChecker } from '../auth/permission-checker.service';
 import { IdentityService } from '../utils/services/identity.service';
 import { TextHelperService } from '../utils/services/text-helper.service';
-import { SignalrService } from '../communication/signalr/signalr.service';
+import { SignalrService } from '../communication/services/signalr.service';
 
 @Component({
   selector: 'app-nav-menu',

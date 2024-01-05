@@ -52,7 +52,10 @@
 </ng-template>
 
 <ng-template #notificationElement let-notification="notification">
-  <div class="notification-list-element" [class.viewed]="notification.isViewed">
+  <div
+    class="notification-list-element"
+    [class.viewed]="!notification.isViewed"
+  >
     <div class="d-flex">
       <span class="ms-auto">{{
         notification.date | date : "MMM dd, yyyy 'at' hh:mm a"

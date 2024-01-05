@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using Onibi_Pro.Communication.Common;
 using Onibi_Pro.Communication.Models;
 using Onibi_Pro.Communication.Repositories;
 
@@ -16,38 +17,39 @@ public class NotificationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Notification notification)
+    public async Task<IActionResult> Create(Notification notification, CancellationToken cancellationToken)
     {
-        await _notificationsRepository.Create(notification);
+        await _notificationsRepository.CreateAsync(notification, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = notification.Id }, notification);
     }
 
     [HttpPut("{id:length(24)}")]
-    public async Task<IActionResult> Update(string id, Notification notificationIn)
+    public async Task<IActionResult> Update(string id, Notification notificationIn, CancellationToken cancellationToken)
     {
-        var notification = await _notificationsRepository.GetById(id);
+        var notification = await _notificationsRepository.GetByIdAsync(id, cancellationToken);
 
         if (notification == null)
         {
             return NotFound();
         }
 
-        await _notificationsRepository.Update(id, notificationIn);
+        await _notificationsRepository.UpdateAsync(id, notificationIn, cancellationToken);
 
         return NoContent();
     }
 
     [HttpGet("{startDateTime}/{endDateTime?}")]
-    public async Task<ActionResult<List<Notification>>> GetChunk(DateTime startDateTime, DateTime? endDateTime = null)
+    public async Task<ActionResult<List<Notification>>> GetChunk(DateTime startDateTime, 
+        DateTime? endDateTime = null, CancellationToken cancellationToken = default)
     {
-        var notifications = await _notificationsRepository.GetChunk(startDateTime, endDateTime);
+        var notifications = await _notificationsRepository.GetChunkAsync(startDateTime, endDateTime, cancellationToken);
         return notifications;
     }
 
     [HttpGet("{id:length(24)}", Name = "GetById")]
-    public async Task<ActionResult<Notification>> GetById(string id)
+    public async Task<ActionResult<Notification>> GetById(string id, CancellationToken cancellationToken)
     {
-        var notification = await _notificationsRepository.GetById(id);
+        var notification = await _notificationsRepository.GetByIdAsync(id, cancellationToken);
 
         if (notification == null)
         {
@@ -55,5 +57,13 @@ public class NotificationsController : ControllerBase
         }
 
         return notification;
+    }
+
+    [HttpGet("GetAll")]
+    public async Task<ActionResult<IReadOnlyCollection<NotificationDto>>> GetAllNotificationsForUser(CancellationToken cancellationToken)
+    {
+        var userId = UserIdProvider.GetUserId(HttpContext);
+
+        return await _notificationsRepository.GetAllForUserAsync(userId, cancellationToken);
     }
 }
