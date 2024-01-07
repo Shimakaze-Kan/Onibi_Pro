@@ -62,7 +62,7 @@ public class NotificationsController : ControllerBase
     [HttpGet("GetAll")]
     public async Task<ActionResult<IReadOnlyCollection<NotificationDto>>> GetAllNotificationsForUser(CancellationToken cancellationToken)
     {
-        var userId = UserIdProvider.GetUserId(HttpContext);
+        var userId = HeadersProvider.GetUserId(HttpContext);
 
         return await _notificationsRepository.GetAllForUserAsync(userId, cancellationToken);
     }

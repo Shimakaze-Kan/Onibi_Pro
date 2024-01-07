@@ -63,6 +63,7 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('communicationPanel', { static: false })
   communicationPanel!: ElementRef;
   private _numberOfNotifications = 0;
+  private _numberOfMessages = 0;
   private readonly _destroy$ = new Subject<void>();
   private _observer!: IntersectionObserver;
   private _title = (name: string) => `${name} :: Onibi Pro`;
@@ -159,7 +160,11 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get numberOfMessages(): number {
-    return this.numberOfPanelElements(CommunicationPanelContentType.Messages);
+    return this._numberOfMessages;
+  }
+
+  set numberOfMessages(value: number) {
+    this._numberOfMessages = value;
   }
 
   constructor(
@@ -203,6 +208,13 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         takeUntil(this._destroy$),
         tap((num) => (this._numberOfNotifications = num))
+      )
+      .subscribe();
+
+    this.signalRService.amountOfMessages
+      .pipe(
+        takeUntil(this._destroy$),
+        tap((num) => (this._numberOfMessages = num))
       )
       .subscribe();
 
@@ -287,10 +299,6 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       this.changeDetectorRef.detectChanges();
       this.resizeMessagePanel();
     }
-  }
-
-  private numberOfPanelElements(type: CommunicationPanelContentType): number {
-    return this._communicationPanelApperance[type].elements;
   }
 
   private resetCommunicationPanelShow(): void {

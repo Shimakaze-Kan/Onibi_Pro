@@ -3,4 +3,5 @@
 public sealed class HeaderKeys
 {
     public const string ClientId = "X-ClientId";
+    public const string ClientName = "X-ClientName";
 }

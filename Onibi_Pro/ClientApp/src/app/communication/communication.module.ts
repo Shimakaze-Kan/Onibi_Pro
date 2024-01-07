@@ -1,4 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +17,6 @@ import { MessageManagerComponent } from './message-manager/message-manager.compo
 import { MessageViewComponent } from './message-view/message-view.component';
 import { NewMessageComponent } from './new-message/new-message.component';
 import { NotificationManagerComponent } from './notification-manager/notification-manager.component';
-import { HttpClient } from '@microsoft/signalr';
-import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [

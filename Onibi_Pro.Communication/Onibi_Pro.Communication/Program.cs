@@ -11,8 +11,8 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-        builder.Services.AddSingleton<INotificationRepository,  NotificationRepository>();
+        builder.Services.AddSingleton<INotificationRepository, NotificationRepository>();
+        builder.Services.AddSingleton<IMessageRepository, MessageRepository>();
 
         builder.Services.AddSignalR();
         builder.Services.AddControllers();
@@ -20,6 +20,8 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddHostedService<EventNotifier>();
+        builder.Services.Configure<NotificationBgWorkerConfig>(
+            builder.Configuration.GetSection(NotificationBgWorkerConfig.Key));
 
         builder
           .Services
@@ -56,6 +58,7 @@ internal class Program
         app.MapControllers();
 
         app.MapHub<NotificationsHub>("NotificationsHub");
+        app.MapHub<ChatsHub>("ChatsHub");
 
         app.Run();
     }

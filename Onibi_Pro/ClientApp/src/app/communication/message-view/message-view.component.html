@@ -1,31 +1,25 @@
 <div class="d-flex">
-  <button
-    class="ms-auto"
-    (click)="reply()"
-    [disabled]="isLoadingMessage"
-    mat-flat-button
-    color="primary"
-  >
+  <button class="ms-auto" (click)="reply()" mat-flat-button color="primary">
     Reply
   </button>
 </div>
 <div class="mt-2">
-  <ng-container *ngIf="!isLoadingMessage; else headerPlaceholder">
+  <ng-container>
     <span class="mt-b"><b>Title:</b> {{ message.title }}</span>
     <div class="d-flex justify-content-between">
-      <span><b>Sender:</b> {{ message.sender }}</span>
-      <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+      <span><b>Sender:</b> {{ message.authorName }}</span>
+      <span>{{ message.sentTime | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
     </div>
   </ng-container>
   <mat-divider></mat-divider>
   <div class="d-flex flex-column mt-2">
-    <ng-container *ngIf="!isLoadingMessage; else messageBodyPlaceholder">
+    <ng-container>
       <span *ngFor="let line of message.text.split('\n')">{{ line }}</span>
     </ng-container>
   </div>
 </div>
 
-<ng-template #headerPlaceholder>
+<!-- <ng-template #headerPlaceholder>
   <div class="wrapper">
     <ngx-skeleton-loader
       [theme]="{
@@ -64,4 +58,4 @@
   <ngx-skeleton-loader
     [theme]="{ width: '70%', height: '100px' }"
   ></ngx-skeleton-loader>
-</ng-template>
+</ng-template> -->

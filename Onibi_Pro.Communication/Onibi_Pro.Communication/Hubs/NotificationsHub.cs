@@ -8,7 +8,7 @@ public class NotificationsHub : Hub
 {
     public override async Task OnConnectedAsync()
     {
-        Guid userId = UserIdProvider.GetUserId(Context.GetHttpContext());
+        Guid userId = HeadersProvider.GetUserId(Context.GetHttpContext());
 
         await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
 
@@ -17,7 +17,7 @@ public class NotificationsHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        Guid userId = UserIdProvider.GetUserId(Context.GetHttpContext());
+        Guid userId = HeadersProvider.GetUserId(Context.GetHttpContext());
 
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId.ToString());
 

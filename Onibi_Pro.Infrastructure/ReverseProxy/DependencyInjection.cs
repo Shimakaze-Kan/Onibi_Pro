@@ -9,9 +9,9 @@ namespace Onibi_Pro.Infrastructure.ReverseProxy;
 internal static class DependencyInjection
 {
     private const string ReverseProxyConfigurationKey = "ReverseProxy";
-    private const string NotificationsSignalRClusterId = "notification-signalR-cluster";
-    private const string NotificationApi = "notifications-route-api";
     private const string ClientIdHeader = "X-ClientId";
+    private const string ClientNameHeader = "X-ClientName";
+    private const string CommunicationServicePrefix = "communication-";
 
     public static IServiceCollection AddReverseProxy(
         this IServiceCollection services, ConfigurationManager configurationManager)
@@ -20,8 +20,7 @@ internal static class DependencyInjection
             .LoadFromConfig(configurationManager.GetSection(ReverseProxyConfigurationKey))
             .AddTransforms(transform =>
             {
-                if (transform.Route.ClusterId == NotificationsSignalRClusterId
-                    || transform.Route.ClusterId == NotificationApi)
+                if (transform.Route.ClusterId?.StartsWith(CommunicationServicePrefix) == true)
                 {
                     transform.AddRequestTransform(async context =>
                     {
@@ -29,7 +28,13 @@ internal static class DependencyInjection
 
                         if (currentUserService?.CanGetCurrentUser == true)
                         {
+                            var clientName = $"{currentUserService.FirstName} {currentUserService.LastName}";
+
+                            context.ProxyRequest.Headers.Remove(ClientNameHeader);
+                            context.ProxyRequest.Headers.Remove(ClientIdHeader);
+
                             context.ProxyRequest.Headers.Add(ClientIdHeader, currentUserService.UserId.ToString());
+                            context.ProxyRequest.Headers.Add(ClientNameHeader, clientName);
                         }
 
                         await Task.CompletedTask;

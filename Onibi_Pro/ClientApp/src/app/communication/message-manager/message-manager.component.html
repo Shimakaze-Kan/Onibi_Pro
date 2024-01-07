@@ -15,15 +15,15 @@
   </div>
 
   <ul *ngIf="showMessageList">
-    <mat-tab-group>
+    <mat-tab-group (selectedTabChange)="onTabChange($event)">
       <mat-tab label="Inbox">
         <ng-container
-          *ngTemplateOutlet="messageList; context: { messages: messages }"
+          *ngTemplateOutlet="messageList; context: { messages: inboxMessages }"
         ></ng-container>
       </mat-tab>
       <mat-tab label="Outbox">
         <ng-container
-          *ngTemplateOutlet="messageList; context: { messages: outBoxMessages }"
+          *ngTemplateOutlet="messageList; context: { messages: outboxMessages }"
         ></ng-container>
       </mat-tab>
     </mat-tab-group>
@@ -33,7 +33,7 @@
     <app-message-view
       (replyMessage)="onReply($event)"
       class="mt-1"
-      [messageId]="viewMessageId!"
+      [message]="viewedMessage"
     ></app-message-view>
   </div>
 
@@ -43,7 +43,7 @@
       [title]="replyMessage.title"
       [receiverId]="replyMessage.receiverId"
       [text]="replyMessage.text"
-      (messageSent)="backToMessageList()"
+      (messageSent)="onMessageSent($event)"
     ></app-new-message>
   </div>
 </div>
@@ -86,12 +86,12 @@
 <ng-template #messageElement let-message="message">
   <div
     class="message-list-element cursor-pointer"
-    [class.viewed]="message.isViewed"
-    (click)="viewMessage(message.messageId)"
+    [class.viewed]="!message.isViewed"
+    (click)="viewMessage(message.id)"
   >
     <div class="d-flex justify-content-between">
-      <span>{{ message.sender }}</span>
-      <span>{{ message.date | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+      <span>{{ message.authorName }}</span>
+      <span>{{ message.sentTime | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
     </div>
     <span class="mt-2">{{ message.title }}</span>
   </div>

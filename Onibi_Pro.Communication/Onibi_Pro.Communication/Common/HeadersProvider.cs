@@ -2,7 +2,7 @@
 
 namespace Onibi_Pro.Communication.Common;
 
-public class UserIdProvider
+public class HeadersProvider
 {
     public static Guid GetUserId(HttpContext? context)
     {
@@ -14,5 +14,17 @@ public class UserIdProvider
         }
 
         return userId;
+    }
+
+    public static string GetUserName(HttpContext? context)
+    {
+        if (context is null ||
+            !context.Request.Headers.TryGetValue(HeaderKeys.ClientName, out var clientName)
+            || string.IsNullOrEmpty(clientName))
+        {
+            throw new ClientNameNotFoundException();
+        }
+
+        return clientName!;
     }
 }

@@ -1,59 +1,32 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { IMessage } from '../services/message.service';
 
 @Component({
   selector: 'app-message-view',
   templateUrl: './message-view.component.html',
   styleUrls: ['./message-view.component.scss'],
 })
-export class MessageViewComponent implements OnInit {
-  @Input({ required: true }) messageId!: number;
+export class MessageViewComponent {
+  @Input({ required: true }) message!: IMessage;
   @Output() replyMessage = new EventEmitter<IReplyMessage>();
-  message!: IMessage;
-  isLoadingMessage = true;
 
   constructor(private readonly datePipe: DatePipe) {}
-
-  ngOnInit(): void {
-    //get messages
-    const dummyMessage = {
-      title: 'Message with Replies',
-      sender: 'Bob',
-      date: new Date(),
-      text: `This is the main message text.
-  
-  > This is a reply to the main message.
-  >> This is a reply to the first reply.
-  >>> This is a reply to the second reply.
-  
-  > Another reply to the main message.`,
-    };
-
-    this.message = dummyMessage;
-    setTimeout(() => (this.isLoadingMessage = false), 1000);
-  }
 
   reply(): void {
     this.replyMessage.emit({
       title: this.message.title,
       text: this.message.text,
-      receiverId: 2,
-      date: this.datePipe.transform(this.message.date, 'short') || '',
-      sender: this.message.sender,
+      receiverId: this.message.authorId,
+      date: this.datePipe.transform(this.message.sentTime, 'short') || '',
+      sender: this.message.authorName,
     });
   }
 }
 
-interface IMessage {
-  title: string;
-  sender: string;
-  date: Date;
-  text: string;
-}
-
 export interface IReplyMessage {
   title: string;
-  receiverId: number | undefined;
+  receiverId: string;
   text: string;
   date: string;
   sender: string;

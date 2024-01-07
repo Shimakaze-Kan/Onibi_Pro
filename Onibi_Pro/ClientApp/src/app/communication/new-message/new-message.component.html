@@ -50,7 +50,7 @@
         </div>
         <mat-option
           *ngFor="let receiver of filteredReceivers | async"
-          [value]="receiver.id"
+          [value]="receiver"
         >
           {{ receiver.name }}
         </mat-option>

@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 
 using Onibi_Pro.Communication.Hubs;
 using Onibi_Pro.Communication.Models;
@@ -13,18 +14,27 @@ public sealed class EventNotifier : BackgroundService
     private readonly ILogger<EventNotifier> _logger;
     private readonly IHubContext<NotificationsHub> _hubContext;
     private readonly INotificationRepository _notificationRepository;
+    private readonly IOptions<NotificationBgWorkerConfig> _options;
 
     public EventNotifier(ILogger<EventNotifier> logger,
         IHubContext<NotificationsHub> hubContext,
-        INotificationRepository notificationRepository)
+        INotificationRepository notificationRepository,
+        IOptions<NotificationBgWorkerConfig> options)
     {
         _logger = logger;
         _hubContext = hubContext;
         _notificationRepository = notificationRepository;
+        _options = options;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (_options?.Value.Enabled == false)
+        {
+            _logger.LogInformation("{Service} has been disabled, {Time}", nameof(EventNotifier), DateTime.UtcNow);
+            return;
+        }
+
         using var timer = new PeriodicTimer(Period);
 
         while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
