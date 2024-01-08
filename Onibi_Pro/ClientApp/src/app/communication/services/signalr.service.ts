@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { IMessage, IMessageRecipient } from './message.service';
+import { INotification } from './notifications.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,12 +11,13 @@ import { IMessage, IMessageRecipient } from './message.service';
 export class SignalrService {
   private _notificationHubConnection!: signalR.HubConnection;
   private _chatHubConnection!: signalR.HubConnection;
-  private _notifications = new ReplaySubject<INewNotification>();
+  private _notifications = new ReplaySubject<INotification>();
   private _messages = new ReplaySubject<IMessage>();
+  private _sentMessages = new ReplaySubject<IMessage>();
   amountOfNotifications = new BehaviorSubject<number>(0);
   amountOfMessages = new BehaviorSubject<number>(0);
 
-  get notifications(): ReplaySubject<INewNotification> {
+  get notifications(): ReplaySubject<INotification> {
     return this._notifications;
   }
 
@@ -23,11 +25,22 @@ export class SignalrService {
     return this._messages;
   }
 
+  get sentMessages(): ReplaySubject<IMessage> {
+    return this._sentMessages;
+  }
+
   constructor(private readonly snackBar: MatSnackBar) {
     this.startNotificationHubConnection();
     this.startListeningForNotifications();
     this.startChatHubConnection();
     this.startListeningForMessages();
+  }
+
+  clearMessages(): void {
+    this._messages.complete();
+    this._messages = new ReplaySubject<IMessage>();
+    this._sentMessages.complete();
+    this._sentMessages = new ReplaySubject<IMessage>();
   }
 
   sendMessage(recipients: IMessageRecipient[], title: string, text: string) {
@@ -70,12 +83,9 @@ export class SignalrService {
       this.amountOfMessages.next(this.amountOfMessages.value + 1);
       this._messages.next(data);
     });
-  }
-}
 
-export interface INewNotification {
-  notificationId: string;
-  text: string;
-  date: Date;
-  isViewed: boolean;
+    this._chatHubConnection.on('SentMessage', (data) =>
+      this._sentMessages.next(data)
+    );
+  }
 }

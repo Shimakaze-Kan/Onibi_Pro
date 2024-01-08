@@ -11,4 +11,5 @@ public interface INotificationRepository
     Task<List<Notification>> GetChunkAsync(DateTime startDateTime, DateTime? endDateTime = null, CancellationToken cancellationToken = default);
     Task<Notification?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     Task<List<NotificationDto>> GetAllForUserAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task MarkAsDeletedAsync(List<string> notificationIds, Guid userId, CancellationToken cancellationToken = default);
 }

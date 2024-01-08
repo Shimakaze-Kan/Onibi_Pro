@@ -27,6 +27,30 @@ export class MessageService {
 
   constructor(private readonly httpClient: HttpClient) {}
 
+  markMessageAsViewed(messageId: string) {
+    return this.httpClient
+      .put(`/messages/${messageId}/markAsViewed`, null)
+      .pipe(
+        tap(() => {
+          const indexOfViewedInboxMessage = this._inboxMessages?.findIndex(
+            (x) => x.id === messageId
+          );
+          if (indexOfViewedInboxMessage >= 0) {
+            this._inboxMessages[indexOfViewedInboxMessage].isViewed = true;
+          }
+        })
+      );
+  }
+
+  markMessageAsDeleted(messageId: string) {
+    return this.httpClient.delete(`/messages/${messageId}/delete`);
+  }
+
+  resetCollections(): void {
+    this._inboxMessages = undefined!;
+    this._outboxMessages = undefined!;
+  }
+
   private getInboxMessage() {
     return this.httpClient
       .get<Array<IMessage>>('/messages/inbox')
@@ -48,6 +72,7 @@ export interface IMessage {
   reciptients: Array<IMessageRecipient>;
   sentTime: Date;
   text: string;
+  isViewed?: boolean;
 }
 
 export interface IMessageRecipient {

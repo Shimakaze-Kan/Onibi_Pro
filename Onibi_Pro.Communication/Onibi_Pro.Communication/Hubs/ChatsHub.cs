@@ -52,6 +52,8 @@ public class ChatsHub : Hub
 
         await _messageRepository.InsertMessageAsync(message, CancellationToken.None);
 
+        await Clients.Groups(senderId.ToString()).SendAsync("SentMessage", message);
+
         foreach (var recipient in recipients)
         {
             await Clients.Group(recipient.UserId.ToString()).SendAsync("ReceiveMessage", message);

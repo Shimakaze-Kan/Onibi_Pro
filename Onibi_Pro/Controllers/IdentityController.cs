@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Identity.Queries.GetManagerDetails;
 using Onibi_Pro.Application.Identity.Queries.GetRegionalManagerDetails;
+using Onibi_Pro.Application.Identity.Queries.GetUsers;
 using Onibi_Pro.Application.Identity.Queries.GetWhoami;
 using Onibi_Pro.Contracts.Identity;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
@@ -56,5 +57,16 @@ public class IdentityController : ApiBaseController
         var result = await _mediator.Send(new GetWhoamiQuery());
 
         return Ok(_mapper.Map<GetWhoamiResponse>(result));
+    }
+
+    [HttpGet("users")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetUsersResponse>), 200)]
+    public async Task<IActionResult> GetUsers([FromQuery] GetUsersRequest request, CancellationToken cancellationToken)
+    {
+        var query = _mapper.Map<GetUsersQuery>(request);
+
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return Ok(_mapper.Map<IReadOnlyCollection<GetUsersResponse>>(result));
     }
 }

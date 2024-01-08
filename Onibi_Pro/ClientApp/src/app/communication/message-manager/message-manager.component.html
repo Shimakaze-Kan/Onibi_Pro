@@ -10,7 +10,14 @@
       >
         New Message
       </button>
-      <button mat-flat-button color="primary">Clear</button>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="deleteMessages()"
+        [disabled]="disableClearButton"
+      >
+        Clear
+      </button>
     </div>
   </div>
 
@@ -86,14 +93,20 @@
 <ng-template #messageElement let-message="message">
   <div
     class="message-list-element cursor-pointer"
-    [class.viewed]="!message.isViewed"
+    [class.viewed]="!message.isViewed && !isOutboxTabSelected"
     (click)="viewMessage(message.id)"
   >
-    <div class="d-flex justify-content-between">
-      <span>{{ message.authorName }}</span>
-      <span>{{ message.sentTime | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+    <mat-checkbox
+      [checked]="checkMessageDeleteFlag(message.id)"
+      (click)="toggleMessageDeleteFlag(message.id); $event.stopPropagation()"
+    ></mat-checkbox>
+    <div>
+      <div>
+        <span>{{ message.authorName }}</span>
+        <span>{{ message.sentTime | date : "MMM dd, yyyy 'at' hh:mm a" }}</span>
+      </div>
+      <span class="mt-2">{{ message.title }}</span>
     </div>
-    <span class="mt-2">{{ message.title }}</span>
   </div>
 </ng-template>
 

@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, of, switchMap, takeUntil, tap } from 'rxjs';
-import { INewNotification, SignalrService } from '../services/signalr.service';
-import { NotificationsService } from '../services/notifications.service';
+import { SignalrService } from '../services/signalr.service';
+import {
+  INotification,
+  NotificationsService,
+} from '../services/notifications.service';
 
 @Component({
   selector: 'app-notification-manager',
@@ -10,7 +13,7 @@ import { NotificationsService } from '../services/notifications.service';
 })
 export class NotificationManagerComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  notifications: Array<INewNotification> = [];
+  notifications: Array<INotification> = [];
 
   isLoadingList = false;
 
@@ -18,6 +21,20 @@ export class NotificationManagerComponent implements OnInit, OnDestroy {
     private readonly signalRService: SignalrService,
     private readonly notificationsService: NotificationsService
   ) {}
+
+  deleteNotifications(): void {
+    of({})
+      .pipe(
+        tap(() => (this.isLoadingList = true)),
+        switchMap(() => this.notificationsService.deleteNotifications()),
+        switchMap(() => this.notificationsService.notifications),
+        tap((result) => {
+          this.isLoadingList = false;
+          this.notifications = result;
+        })
+      )
+      .subscribe();
+  }
 
   ngOnInit(): void {
     of({})

@@ -66,4 +66,29 @@ public class NotificationsController : ControllerBase
 
         return await _notificationsRepository.GetAllForUserAsync(userId, cancellationToken);
     }
+
+    [HttpDelete("{notificationIds}")]
+    public async Task<ActionResult> MarkNotificationAsDeleted(string notificationIds, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(notificationIds?.Trim()))
+        {
+            return BadRequest();
+        }
+
+        var ids = notificationIds.Split(',').Select(id => id.Trim()).ToList();
+
+        foreach (var id in ids)
+        {
+            if (id.Length != 24)
+            {
+                return BadRequest(id);
+            }
+        }
+
+        var userId = HeadersProvider.GetUserId(HttpContext);
+
+        await _notificationsRepository.MarkAsDeletedAsync(ids, userId, cancellationToken);
+
+        return Ok();
+    }
 }

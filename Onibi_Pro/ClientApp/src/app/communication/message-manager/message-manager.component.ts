@@ -5,9 +5,19 @@ import {
   IMessageRecipient,
   MessageService,
 } from '../services/message.service';
-import { Subject, of, switchMap, takeUntil, tap } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  forkJoin,
+  merge,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import { SignalrService } from '../services/signalr.service';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { subscribe } from 'diagnostics_channel';
 
 @Component({
   selector: 'app-message-manager',
@@ -16,6 +26,8 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 })
 export class MessageManagerComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
+  messagesToBeDeleted: Array<string> = [];
+  isOutboxTabSelected = false;
   viewMessageId: string = '';
   showNewMessage: boolean = false;
   isLoadingList = false;
@@ -50,6 +62,10 @@ export class MessageManagerComponent implements OnInit, OnDestroy {
     return inboxMessage || outboxMessage!;
   }
 
+  get disableClearButton(): boolean {
+    return this.messagesToBeDeleted.length === 0;
+  }
+
   constructor(
     private readonly messageService: MessageService,
     private readonly signalRService: SignalrService
@@ -65,6 +81,15 @@ export class MessageManagerComponent implements OnInit, OnDestroy {
         tap((result) => (this.inboxMessages = [result, ...this.inboxMessages]))
       )
       .subscribe();
+
+    this.signalRService.sentMessages
+      .pipe(
+        takeUntil(this._destroy$),
+        tap(
+          (result) => (this.outboxMessages = [result, ...this.outboxMessages])
+        )
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -74,6 +99,11 @@ export class MessageManagerComponent implements OnInit, OnDestroy {
 
   viewMessage(messageId: string): void {
     this.viewMessageId = messageId;
+
+    this.messageService
+      .markMessageAsViewed(messageId)
+      .pipe(switchMap(() => this.getInboxMessages()))
+      .subscribe();
   }
 
   onMessageSent(message: ISendMessage) {
@@ -100,8 +130,10 @@ export class MessageManagerComponent implements OnInit, OnDestroy {
 
   onTabChange(event: MatTabChangeEvent): void {
     if (event.index === 0) {
+      this.isOutboxTabSelected = false;
       this.getInboxMessages().subscribe();
     } else {
+      this.isOutboxTabSelected = true;
       this.getOutboxMessages().subscribe();
     }
   }
@@ -121,13 +153,83 @@ export class MessageManagerComponent implements OnInit, OnDestroy {
     this.showNewMessage = true;
   }
 
+  toggleMessageDeleteFlag(messageId: string): void {
+    const indexOfMessage = this.messagesToBeDeleted.findIndex(
+      (x) => x === messageId
+    );
+
+    if (indexOfMessage !== -1) {
+      this.messagesToBeDeleted = this.messagesToBeDeleted.filter(
+        (x) => x !== messageId
+      );
+    } else {
+      this.messagesToBeDeleted.push(messageId);
+    }
+  }
+
+  checkMessageDeleteFlag(messageId: string): boolean {
+    return !!this.messagesToBeDeleted.find((x) => x === messageId);
+  }
+
+  deleteMessages(): void {
+    const requests: Array<Observable<Object>> = [];
+
+    for (const messageId of this.messagesToBeDeleted) {
+      requests.push(this.messageService.markMessageAsDeleted(messageId));
+    }
+
+    of({})
+      .pipe(
+        tap(() => (this.isLoadingList = true)),
+        switchMap(() => forkJoin(requests)),
+        tap(() => {
+          this.signalRService.clearMessages();
+          this.messageService.resetCollections();
+          this.inboxMessages = [];
+          this.outboxMessages = [];
+
+          this.signalRService.messages
+            .pipe(
+              takeUntil(this._destroy$),
+              tap(
+                (result) =>
+                  (this.inboxMessages = [result, ...this.inboxMessages])
+              )
+            )
+            .subscribe();
+          this.signalRService.sentMessages
+            .pipe(
+              takeUntil(this._destroy$),
+              tap(
+                (result) =>
+                  (this.outboxMessages = [result, ...this.outboxMessages])
+              )
+            )
+            .subscribe();
+        }),
+        switchMap(() => this.getInboxMessages()),
+        tap(() => (this.isLoadingList = false))
+      )
+      .subscribe();
+  }
+
   private getInboxMessages() {
     return of({}).pipe(
       tap(() => (this.isLoadingList = true)),
       switchMap(() => this.messageService.inboxMessages),
       tap((result) => {
         this.isLoadingList = false;
-        this.inboxMessages = result;
+        const allMessages = [...this.inboxMessages, ...result];
+
+        this.inboxMessages = [
+          ...new Map(
+            allMessages.map((message) => [message.id, message])
+          ).values(),
+        ];
+        this.inboxMessages.sort(
+          (a, b) =>
+            new Date(b.sentTime).getTime() - new Date(a.sentTime).getTime()
+        );
       })
     );
   }
@@ -138,7 +240,18 @@ export class MessageManagerComponent implements OnInit, OnDestroy {
       switchMap(() => this.messageService.outboxMessages),
       tap((result) => {
         this.isLoadingList = false;
-        this.outboxMessages = result;
+
+        const allMessages = [...this.outboxMessages, ...result];
+
+        this.outboxMessages = [
+          ...new Map(
+            allMessages.map((message) => [message.id, message])
+          ).values(),
+        ];
+        this.outboxMessages.sort(
+          (a, b) =>
+            new Date(b.sentTime).getTime() - new Date(a.sentTime).getTime()
+        );
       })
     );
   }

@@ -17,7 +17,7 @@ public class Message
     public Guid AuthorId { get; set; }
     public List<MessageRecipient> Recipients { get; set; } = [];
     public DateTime SentTime { get; set; }
-    public bool IsViewed { get; set; }
+    public bool IsDeleted { get; set; }
 
     [Required(ErrorMessage = "Text is required")]
     public string Text { get; set; } = null!;
@@ -27,4 +27,6 @@ public class MessageRecipient
 {
     public Guid UserId { get; set; }
     public string Name { get; set; } = null!;
+    public bool IsViewed { get; set; }
+    public bool IsDeleted { get; set; }
 }

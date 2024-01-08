@@ -35,11 +35,16 @@
         formControlName="receivers"
         placeholder="Receivers"
         multiple
+        [disabled]="isLoadingFirstChunkOfUsers"
+        [compareWith]="compareReceivers"
       >
+        <mat-select-trigger>
+          {{ receiverNames }}
+        </mat-select-trigger>
         <mat-option>
           <ngx-mat-select-search
             [formControl]="receiversFilterCtrl"
-            placeholderLabel="Type to search"
+            placeholderLabel="Type email to search"
           ></ngx-mat-select-search>
         </mat-option>
         <div
@@ -49,10 +54,15 @@
           <mat-option class="none">-- None --</mat-option>
         </div>
         <mat-option
+          class="receiver-list-element"
           *ngFor="let receiver of filteredReceivers | async"
           [value]="receiver"
         >
-          {{ receiver.name }}
+          {{ receiver.firstName }} {{ receiver.lastName }} <br />
+          <span class="small-gray-text"> {{ receiver.email }}</span> <br />
+          <span class="small-gray-text">
+            {{ splitCamelCase(receiver.userType) }}
+          </span>
         </mat-option>
       </mat-select>
     </mat-form-field>

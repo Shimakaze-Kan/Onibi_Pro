@@ -2,7 +2,14 @@
   <div class="d-flex flex-row justify-content-between">
     <h3>Notifications</h3>
     <div>
-      <button mat-flat-button color="primary">Clear</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="notifications.length === 0"
+        (click)="deleteNotifications()"
+      >
+        Clear All
+      </button>
     </div>
   </div>
 
@@ -52,10 +59,7 @@
 </ng-template>
 
 <ng-template #notificationElement let-notification="notification">
-  <div
-    class="notification-list-element"
-    [class.viewed]="!notification.isViewed"
-  >
+  <div class="notification-list-element">
     <div class="d-flex">
       <span class="ms-auto">{{
         notification.date | date : "MMM dd, yyyy 'at' hh:mm a"

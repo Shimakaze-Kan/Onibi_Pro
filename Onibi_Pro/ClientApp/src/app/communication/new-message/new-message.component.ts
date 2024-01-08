@@ -13,9 +13,20 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { ReplaySubject, Subject, takeUntil } from 'rxjs';
+import {
+  ReplaySubject,
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
+import { GetUsersResponse, IdentityClient } from '../../api/api';
 import { ISendMessage } from '../message-manager/message-manager.component';
 import { IMessageRecipient } from '../services/message.service';
+import { TextHelperService } from '../../utils/services/text-helper.service';
 
 @Component({
   selector: 'app-new-message',
@@ -28,9 +39,10 @@ export class NewMessageComponent implements OnInit, OnDestroy {
   @Input() receiverId: string = '';
   @Input() text: string = '';
   private _onDestroy$ = new Subject<void>();
+  isLoadingFirstChunkOfUsers = false;
   newMessageForm = new FormGroup({
     title: new FormControl<string>('', Validators.required),
-    receivers: new FormControl<Array<IMessageRecipient>>(
+    receivers: new FormControl<Array<GetUsersResponse>>(
       [],
       [this.atLeastOneValidator]
     ),
@@ -41,20 +53,59 @@ export class NewMessageComponent implements OnInit, OnDestroy {
   });
 
   receiversFilterCtrl = new FormControl<string>('');
-  filteredReceivers = new ReplaySubject<IMessageRecipient[]>(1);
+  filteredReceivers = new ReplaySubject<GetUsersResponse[]>(1);
+
+  get receiverNames(): string {
+    return (
+      this.newMessageForm.controls.receivers.value?.map(
+        (x) => `${x.firstName} ${x.lastName}`
+      ) || []
+    ).join(', ');
+  }
+
+  constructor(
+    private readonly identityClient: IdentityClient,
+    private readonly textHelper: TextHelperService
+  ) {}
 
   ngOnInit(): void {
-    this.newMessageForm.setValue({
-      title: this.title,
-      receivers: [this.receivers.find((x) => x.userId === this.receiverId)!],
-      text: this.text,
-    });
-    this.filteredReceivers.next(this.receivers.slice());
+    this.isLoadingFirstChunkOfUsers = true;
+    of({})
+      .pipe(
+        switchMap(() =>
+          this.receiverId
+            ? this.identityClient.users(undefined, this.receiverId)
+            : []
+        ),
+        tap((receiverResult) => {
+          const receivers = receiverResult || [];
+          this.newMessageForm.setValue({
+            title: this.title,
+            receivers: receivers,
+            text: this.text,
+          });
+          this.filteredReceivers.next(receivers);
+
+          this.isLoadingFirstChunkOfUsers = false;
+        })
+      )
+      .subscribe();
+
     this.receiversFilterCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy$))
-      .subscribe(() => {
-        this.filterReceivers();
-      });
+      .pipe(
+        takeUntil(this._onDestroy$),
+        debounceTime(200),
+        distinctUntilChanged(),
+        switchMap((value) => {
+          if (!value || value.trim() === '') {
+            return of([]);
+          } else {
+            return this.identityClient.users(value.toLowerCase(), undefined);
+          }
+        }),
+        tap((users) => this.filteredReceivers.next(users))
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -67,30 +118,25 @@ export class NewMessageComponent implements OnInit, OnDestroy {
     const message: ISendMessage = {
       text: rawFormValues.text || '',
       title: rawFormValues.title || '',
-      recipients: rawFormValues.receivers || [],
+      recipients:
+        rawFormValues.receivers?.map(
+          (x) =>
+            ({
+              name: `${x.firstName} ${x.lastName}`,
+              userId: x.id,
+            } as IMessageRecipient)
+        ) || [],
     };
     this.messageSent.emit(message);
   }
 
-  private filterReceivers() {
-    if (!this.receivers) {
-      return;
-    }
-
-    let search = this.receiversFilterCtrl.value;
-    if (!search) {
-      this.filteredReceivers.next(this.receivers.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-
-    this.filteredReceivers.next(
-      this.receivers.filter((receivers) =>
-        receivers.name.toLowerCase().includes(search!)
-      )
-    );
+  splitCamelCase(value: string | undefined): string {
+    return this.textHelper.splitCamelCaseToString(value);
   }
+
+  compareReceivers = (r1: GetUsersResponse, r2: GetUsersResponse): boolean => {
+    return r1.id === r2.id;
+  };
 
   private atLeastOneValidator(
     control: AbstractControl
@@ -101,9 +147,4 @@ export class NewMessageComponent implements OnInit, OnDestroy {
     }
     return { atLeastOne: true };
   }
-
-  receivers: IMessageRecipient[] = [
-    { userId: 'f59cf698-6f65-4902-8593-87e790931cbf', name: 'John Johnson' },
-    { userId: 'E7A4344B-6141-422D-9F61-5421958ED8B4', name: 'Donal Trump' },
-  ];
 }

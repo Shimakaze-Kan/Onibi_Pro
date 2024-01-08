@@ -55,7 +55,7 @@ public sealed class EventNotifier : BackgroundService
                 {
                     foreach (var recipient in notification.Recipients)
                     {
-                        NotificationDto data = new(notification.Id, notification.Text, notification.SentAt, recipient.IsViewed);
+                        NotificationDto data = new(notification.Id, notification.Text, notification.SentAt);
                         await _hubContext.Clients.Group(recipient.UserId.ToString()).SendAsync("ReceiveNotification", data);
                     }
 
