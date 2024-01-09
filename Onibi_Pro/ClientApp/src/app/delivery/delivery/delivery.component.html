@@ -216,6 +216,11 @@
                           element.sourceRestaurant))
                   "
                 >
+                  <mat-progress-bar
+                    mode="indeterminate"
+                    [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+                  ></mat-progress-bar>
+
                   <button
                     type="button"
                     class="m-auto"

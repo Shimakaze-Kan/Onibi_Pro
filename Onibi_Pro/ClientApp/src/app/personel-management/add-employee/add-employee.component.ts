@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   ReplaySubject,
   Subject,
@@ -10,14 +11,9 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import {
-  CreateEmployeeRequest,
-  GetManagerDetailsResponse,
-  RestaurantsClient,
-} from '../../api/api';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Positions } from '../Positions';
+import { CreateEmployeeRequest, RestaurantsClient } from '../../api/api';
 import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
+import { IAddEmployeeData } from './IAddEmployeeData';
 
 @Component({
   selector: 'app-add-employee',
@@ -41,10 +37,8 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
     supervisors: new FormControl<string>({ value: '', disabled: true }),
   });
 
-  supervisorFilterCtrl = new FormControl<string>('');
   positionFilterCtrl = new FormControl<string>('');
 
-  filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
   constructor(
@@ -55,29 +49,21 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
     private readonly client: RestaurantsClient,
     private readonly snackBar: MatSnackBar,
     // @ts-ignore
-    @Inject(MAT_DIALOG_DATA) private data: GetManagerDetailsResponse,
+    @Inject(MAT_DIALOG_DATA) private data: IAddEmployeeData,
     private readonly errorParser: ErrorMessagesParserService
   ) {
-    const supervisors = data.sameRestaurantManagers
+    const supervisors = data.managerDetails.sameRestaurantManagers
       ?.map((supervisor) => `${supervisor.firstName} ${supervisor.lastName}`)
       .join(', ');
 
     this.newEmployeeForm.controls.supervisors.setValue(supervisors || null);
     this.newEmployeeForm.controls.restaurantId.setValue(
-      data.restaurantId || null
+      data.managerDetails.restaurantId || null
     );
   }
 
   ngOnInit(): void {
-    this.filteredSupervisors.next(this.supervisors.slice());
-
-    this.supervisorFilterCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy$))
-      .subscribe(() => {
-        this.filterSupervisors();
-      });
-
-    this.filteredPositions.next(this.positions.slice());
+    this.filteredPositions.next(this.data.positions.slice());
 
     this.positionFilterCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy$))
@@ -106,7 +92,7 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       employeePositions: formValues.position || undefined,
     });
     this.client
-      .employeePost(this.data.restaurantId || '', request)
+      .employeePost(this.data.managerDetails.restaurantId || '', request)
       .pipe(
         take(1),
         tap(() => this.dialogRef.close({ reload: true })),
@@ -123,48 +109,23 @@ export class AddEmployeeComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  private filterSupervisors() {
-    if (!this.supervisors) {
-      return;
-    }
-
-    let search = this.supervisorFilterCtrl.value;
-    if (!search) {
-      this.filteredSupervisors.next(this.supervisors.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-
-    this.filteredSupervisors.next(
-      this.supervisors.filter((supervisor) =>
-        supervisor.toLowerCase().includes(search!)
-      )
-    );
-  }
-
   private filterPositions() {
-    if (!this.positions) {
+    if (!this.data.positions) {
       return;
     }
 
     let search = this.positionFilterCtrl.value;
     if (!search) {
-      this.filteredPositions.next(this.positions.slice());
+      this.filteredPositions.next(this.data.positions.slice());
       return;
     } else {
       search = search.toLowerCase();
     }
 
     this.filteredPositions.next(
-      this.positions.filter((position) =>
+      this.data.positions.filter((position) =>
         position.toLowerCase().includes(search!)
       )
     );
   }
-
-  // dummy data
-  supervisors = ['Jane Smith', 'Bob Johnson'];
-  cities = ['New York', 'Sosnowiec'];
-  positions = Positions.positions;
 }

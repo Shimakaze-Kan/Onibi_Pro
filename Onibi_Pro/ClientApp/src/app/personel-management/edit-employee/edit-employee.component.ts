@@ -11,7 +11,6 @@ import {
   of,
 } from 'rxjs';
 import { EmployeeRecord } from '../personel-management.component';
-import { Positions } from '../Positions';
 import {
   EditEmployeeRequest,
   GetManagerDetailsResponse,
@@ -45,10 +44,8 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
   });
 
   loading = false;
-  supervisorFilterCtrl = new FormControl<string>('');
   positionFilterCtrl = new FormControl<string>('');
 
-  filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
   constructor(
@@ -67,15 +64,7 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.filteredSupervisors.next(this.supervisors.slice());
-
-    this.supervisorFilterCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy$))
-      .subscribe(() => {
-        this.filterSupervisors();
-      });
-
-    this.filteredPositions.next(this.positions.slice());
+    this.filteredPositions.next(this.editEmployeeData.positions.slice());
 
     this.positionFilterCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy$))
@@ -140,48 +129,23 @@ export class EditEmployeeComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  private filterSupervisors() {
-    if (!this.supervisors) {
-      return;
-    }
-
-    let search = this.supervisorFilterCtrl.value;
-    if (!search) {
-      this.filteredSupervisors.next(this.supervisors.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-
-    this.filteredSupervisors.next(
-      this.supervisors.filter((supervisor) =>
-        supervisor.toLowerCase().includes(search!)
-      )
-    );
-  }
-
   private filterPositions() {
-    if (!this.positions) {
+    if (!this.editEmployeeData.positions) {
       return;
     }
 
     let search = this.positionFilterCtrl.value;
     if (!search) {
-      this.filteredPositions.next(this.positions.slice());
+      this.filteredPositions.next(this.editEmployeeData.positions.slice());
       return;
     } else {
       search = search.toLowerCase();
     }
 
     this.filteredPositions.next(
-      this.positions.filter((position) =>
+      this.editEmployeeData.positions.filter((position) =>
         position.toLowerCase().includes(search!)
       )
     );
   }
-
-  // dummy data
-  supervisors = ['Jane Smith', 'Bob Johnson'];
-  cities = ['New York', 'Sosnowiec', 'Chicago'];
-  positions = Positions.positions;
 }

@@ -13,6 +13,8 @@ using Onibi_Pro.Application.Restaurants.Commands.DeleteSchedule;
 using Onibi_Pro.Application.Restaurants.Commands.EditEmployee;
 using Onibi_Pro.Application.Restaurants.Commands.EditSchedule;
 using Onibi_Pro.Application.Restaurants.Queries.GetAddress;
+using Onibi_Pro.Application.Restaurants.Queries.GetEmployeeCities;
+using Onibi_Pro.Application.Restaurants.Queries.GetEmployeePositions;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Application.Restaurants.Queries.GetSchedules;
 using Onibi_Pro.Contracts.Common;
@@ -145,5 +147,21 @@ public class RestaurantsController : ApiBaseController
         var result = await _mediator.Send(command);
 
         return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpGet("employeePositions")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<string>), 200)]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
+    public async Task<IActionResult> GetEmployeePositions(CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(new GetEmployeePositionsQuery(), cancellationToken));
+    }
+
+    [HttpGet("employeeCities")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<string>), 200)]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
+    public async Task<IActionResult> GetEmployeeCities(CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(new GetEmployeeCitiesQuery(), cancellationToken));
     }
 }

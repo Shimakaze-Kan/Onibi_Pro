@@ -100,7 +100,7 @@
   </fieldset>
   <button
     type="submit"
-    [disabled]="approveForm.invalid"
+    [disabled]="approveForm.invalid || loading"
     mat-flat-button
     color="primary"
     (click)="approve()"

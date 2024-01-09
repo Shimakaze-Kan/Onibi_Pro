@@ -4,4 +4,5 @@ import { EmployeeRecord } from '../personel-management.component';
 export interface IEditEmployeeData {
   employeeData: EmployeeRecord;
   managerDetails: GetManagerDetailsResponse;
+  positions: Array<string>;
 }

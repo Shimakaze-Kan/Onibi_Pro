@@ -13,6 +13,8 @@ import {
   ReplaySubject,
   Subject,
   filter,
+  forkJoin,
+  mergeMap,
   switchMap,
   take,
   takeUntil,
@@ -39,6 +41,8 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
   private _employees: Array<EmployeeRecord> = [];
   private _onDestroy$ = new Subject<void>();
   private _managerDetails: GetManagerDetailsResponse = undefined!;
+  positions: Array<string> = [];
+  cities: Array<string> = [];
   displayedColumns = [
     'email',
     'firstName',
@@ -63,19 +67,17 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
     email: new FormControl<string>(''),
     firstName: new FormControl<string>(''),
     lastName: new FormControl<string>(''),
-    restaurantId: new FormControl<string>(''),
+    restaurantId: new FormControl<string>({ value: '', disabled: true }),
     supervisors: new FormControl<string>({ value: '', disabled: true }),
     city: new FormControl<string>(''),
     positions: new FormControl<string>(''),
   });
 
   loading = false;
-  supervisorFilterCtrl = new FormControl<string>('');
   cityFilterCtrl = new FormControl<string>('');
   positionFilterCtrl = new FormControl<string>('');
 
   filteredCities = new ReplaySubject<string[]>(1);
-  filteredSupervisors = new ReplaySubject<string[]>(1);
   filteredPositions = new ReplaySubject<string[]>(1);
 
   constructor(
@@ -91,23 +93,11 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.filteredSupervisors.next(this.supervisors.slice());
-
-    this.supervisorFilterCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy$))
-      .subscribe(() => {
-        this.filterSupervisors();
-      });
-
-    this.filteredCities.next(this.cities.slice());
-
     this.cityFilterCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy$))
       .subscribe(() => {
         this.filterCities();
       });
-
-    this.filteredPositions.next(this.positions.slice());
 
     this.positionFilterCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy$))
@@ -119,7 +109,19 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
     this.getManagerDetails()
       .pipe(
         switchMap(() => this.getEmployees()),
-        tap(() => (this.loading = false))
+        mergeMap(() =>
+          forkJoin({
+            positions: this.restaurantClient.employeePositions(),
+            cities: this.restaurantClient.employeeCities(),
+          })
+        ),
+        tap(({ positions, cities }) => {
+          this.positions = positions;
+          this.cities = cities;
+          this.filteredCities.next(this.cities.slice());
+          this.filteredPositions.next(this.positions.slice());
+          this.loading = false;
+        })
       )
       .subscribe();
   }
@@ -192,26 +194,6 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       );
   }
 
-  private filterSupervisors() {
-    if (!this.supervisors) {
-      return;
-    }
-
-    let search = this.supervisorFilterCtrl.value;
-    if (!search) {
-      this.filteredSupervisors.next(this.supervisors.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-
-    this.filteredSupervisors.next(
-      this.supervisors.filter((supervisor) =>
-        supervisor.toLowerCase().includes(search!)
-      )
-    );
-  }
-
   private filterCities() {
     if (!this.cities) {
       return;
@@ -262,6 +244,9 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
         tap((result) => {
           this._managerDetails = result;
           this._restaurantId = result.restaurantId || '';
+          this.employeeSearchForm.controls.restaurantId.setValue(
+            result.restaurantId || ''
+          );
         })
       );
   }
@@ -269,10 +254,6 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
   searchEmployees(): void {
     this.getEmployees().subscribe();
   }
-
-  supervisors = ['Jane Smith', 'Bob Johnson'];
-  cities = ['New York', 'Sosnowiec'];
-  positions = ['Cashier', 'Restaurant Manager', 'Regional Manager'];
 }
 
 export class EmployeeRecord {
