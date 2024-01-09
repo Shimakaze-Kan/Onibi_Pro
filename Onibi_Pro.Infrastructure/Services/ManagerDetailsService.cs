@@ -3,6 +3,7 @@
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Common.Models;
 using Onibi_Pro.Application.Persistence;
+using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Infrastructure.Services;
@@ -44,5 +45,20 @@ internal class ManagerDetailsService : IManagerDetailsService
         var details = managerDetails.First();
 
         return new ManagerDetailsDto(details.ManagerId, details.RestaurantId, details.RegionalManagerId, managers.AsReadOnly());
+    }
+
+    public async Task<UserId> GetUserId(ManagerId managerId)
+    {
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
+
+        var sql = @"
+            SELECT u.Id
+            FROM dbo.Managers m
+            JOIN dbo.Users u on m.UserId = u.Id
+            WHERE m.ManagerId = @ManagerId";
+
+        var result = await connection.ExecuteScalarAsync<Guid>(sql, new { ManagerId = managerId.Value });
+
+        return UserId.Create(result);
     }
 }

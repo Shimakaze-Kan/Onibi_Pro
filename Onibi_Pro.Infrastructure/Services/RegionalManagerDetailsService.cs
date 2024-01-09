@@ -3,6 +3,7 @@
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Common.Models;
 using Onibi_Pro.Application.Persistence;
+using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Infrastructure.Services;
@@ -43,5 +44,20 @@ internal sealed class RegionalManagerDetailsService : IRegionalManagerDetailsSer
         );
 
         return groupedResults.First();
+    }
+
+    public async Task<UserId> GetUserId(RegionalManagerId regionalManagerId)
+    {
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
+
+        var sql = @"
+            SELECT u.Id
+            FROM dbo.RegionalManagers m
+            JOIN dbo.Users u on m.UserId = u.Id
+            WHERE m.RegionalManagerId = @RegionalManagerId";
+
+        var result = await connection.ExecuteScalarAsync<Guid>(sql, new { RegionalManagerId = regionalManagerId.Value });
+
+        return UserId.Create(result);
     }
 }

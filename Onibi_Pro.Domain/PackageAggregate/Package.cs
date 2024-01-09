@@ -3,6 +3,7 @@
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.Common.ValueObjects;
+using Onibi_Pro.Domain.PackageAggregate.Events;
 using Onibi_Pro.Domain.PackageAggregate.ValueObjects;
 using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
@@ -90,7 +91,7 @@ public sealed class Package : AggregateRoot<PackageId>
             return Errors.Package.WrongIngredientAmount;
         }
 
-        return new Package(PackageId.CreateUnique(),
+        var package = new Package(PackageId.CreateUnique(),
             manager,
             regionalManager,
             destination,
@@ -100,6 +101,10 @@ public sealed class Package : AggregateRoot<PackageId>
             ingredients,
             isUrgent,
             until);
+
+        package.AddDomainEvent(new PendingRegionalManagerApproval(regionalManager, isUrgent));
+
+        return package;
     }
 
     public ErrorOr<Success> AssignCourier(RegionalManagerId regionalManager, CourierId courier)
@@ -110,7 +115,6 @@ public sealed class Package : AggregateRoot<PackageId>
         }
 
         Courier = courier;
-        // fire event
 
         return new Success();
     }
@@ -128,6 +132,8 @@ public sealed class Package : AggregateRoot<PackageId>
         {
             return Errors.Package.StatusChangeFailed;
         }
+
+        AddDomainEvent(new ApprovedToPickup(Courier, IsUrgent, Until));
 
         return new Success();
     }
@@ -153,7 +159,7 @@ public sealed class Package : AggregateRoot<PackageId>
             return Errors.Package.StatusChangeFailed;
         }
 
-        //fire event
+        AddDomainEvent(new PendingRestaurantManagerApproval(sourceRestaurant, IsUrgent));
         return new Success();
     }
 
@@ -168,6 +174,8 @@ public sealed class Package : AggregateRoot<PackageId>
         {
             return Errors.Package.StatusChangeFailed;
         }
+
+        AddDomainEvent(new ApprovedToPickup(Courier, IsUrgent, Until));
 
         return new Success();
     }
@@ -184,6 +192,8 @@ public sealed class Package : AggregateRoot<PackageId>
             return Errors.Package.StatusChangeFailed;
         }
 
+        AddDomainEvent(new PackageRejectedByRegionalManager(Manager));
+
         return new Success();
     }
 
@@ -198,6 +208,8 @@ public sealed class Package : AggregateRoot<PackageId>
         {
             return Errors.Package.StatusChangeFailed;
         }
+
+        AddDomainEvent(new PackageRejectedByOrigin(RegionalManager, Manager, sourceManagerRestaurant, Origin));
 
         return new Success();
     }
@@ -214,6 +226,8 @@ public sealed class Package : AggregateRoot<PackageId>
             return Errors.Package.StatusChangeFailed;
         }
 
+        AddDomainEvent(new CourierPickedUp(RegionalManager, Manager, _ingredients));
+
         return new Success();
     }
 
@@ -228,6 +242,8 @@ public sealed class Package : AggregateRoot<PackageId>
         {
             return Errors.Package.StatusChangeFailed;
         }
+
+        AddDomainEvent(new PackageDelivered(RegionalManager));
 
         return new Success();
     }
