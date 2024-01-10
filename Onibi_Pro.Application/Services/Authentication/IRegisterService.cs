@@ -6,6 +6,6 @@ namespace Onibi_Pro.Application.Services.Authentication;
 
 public interface IRegisterService
 {
-    Task<ErrorOr<Success>> RegisterAsync(string firstName, string lastName, string email,
-        string password, CreatorUserType currentCreatorType, CancellationToken cancellationToken = default);
+    Task<ErrorOr<UserId>> RegisterAsync(string firstName, string lastName, string email,
+        string password, CreatorUserType currentCreatorType, CancellationToken cancellationToken = default, bool commitTransaction = true);
 }

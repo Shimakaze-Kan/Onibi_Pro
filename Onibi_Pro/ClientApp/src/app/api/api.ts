@@ -20,7 +20,7 @@ export interface IAuthenticationClient {
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterRequest | undefined): Observable<void>;
+    register(body: RegisterRequest | undefined): Observable<string>;
     /**
      * @param body (optional) 
      * @return Success
@@ -53,7 +53,7 @@ export class AuthenticationClient implements IAuthenticationClient {
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterRequest | undefined): Observable<void> {
+    register(body: RegisterRequest | undefined): Observable<string> {
         let url_ = this.baseUrl + "/api/Authentication/register";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -65,6 +65,7 @@ export class AuthenticationClient implements IAuthenticationClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
+                "Accept": "text/plain"
             })
         };
 
@@ -75,14 +76,14 @@ export class AuthenticationClient implements IAuthenticationClient {
                 try {
                     return this.processRegister(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<string>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<string>;
         }));
     }
 
-    protected processRegister(response: HttpResponseBase): Observable<void> {
+    protected processRegister(response: HttpResponseBase): Observable<string> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -91,7 +92,11 @@ export class AuthenticationClient implements IAuthenticationClient {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -994,6 +999,25 @@ export interface IRegionalManagersClient {
      * @return Success
      */
     courierGet(): Observable<GetCouriersResponse[]>;
+    /**
+     * @param restaurantIdFilter (optional) 
+     * @param managerIdFilter (optional) 
+     * @param firstNameFilter (optional) 
+     * @param lastNameFilter (optional) 
+     * @param emailFilter (optional) 
+     * @return Success
+     */
+    managerGet(restaurantIdFilter: string | undefined, managerIdFilter: string | undefined, firstNameFilter: string | undefined, lastNameFilter: string | undefined, emailFilter: string | undefined): Observable<GetManagersResponse[]>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    managerPost(body: CreateManagerRequest | undefined): Observable<void>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    managerPut(body: UpdateManagerRequest | undefined): Observable<void>;
 }
 
 @Injectable({
@@ -1110,6 +1134,193 @@ export class RegionalManagersClient implements IRegionalManagersClient {
                 result200 = <any>null;
             }
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param restaurantIdFilter (optional) 
+     * @param managerIdFilter (optional) 
+     * @param firstNameFilter (optional) 
+     * @param lastNameFilter (optional) 
+     * @param emailFilter (optional) 
+     * @return Success
+     */
+    managerGet(restaurantIdFilter: string | undefined, managerIdFilter: string | undefined, firstNameFilter: string | undefined, lastNameFilter: string | undefined, emailFilter: string | undefined): Observable<GetManagersResponse[]> {
+        let url_ = this.baseUrl + "/api/RegionalManagers/manager?";
+        if (restaurantIdFilter === null)
+            throw new Error("The parameter 'restaurantIdFilter' cannot be null.");
+        else if (restaurantIdFilter !== undefined)
+            url_ += "RestaurantIdFilter=" + encodeURIComponent("" + restaurantIdFilter) + "&";
+        if (managerIdFilter === null)
+            throw new Error("The parameter 'managerIdFilter' cannot be null.");
+        else if (managerIdFilter !== undefined)
+            url_ += "ManagerIdFilter=" + encodeURIComponent("" + managerIdFilter) + "&";
+        if (firstNameFilter === null)
+            throw new Error("The parameter 'firstNameFilter' cannot be null.");
+        else if (firstNameFilter !== undefined)
+            url_ += "FirstNameFilter=" + encodeURIComponent("" + firstNameFilter) + "&";
+        if (lastNameFilter === null)
+            throw new Error("The parameter 'lastNameFilter' cannot be null.");
+        else if (lastNameFilter !== undefined)
+            url_ += "LastNameFilter=" + encodeURIComponent("" + lastNameFilter) + "&";
+        if (emailFilter === null)
+            throw new Error("The parameter 'emailFilter' cannot be null.");
+        else if (emailFilter !== undefined)
+            url_ += "EmailFilter=" + encodeURIComponent("" + emailFilter) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processManagerGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processManagerGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetManagersResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetManagersResponse[]>;
+        }));
+    }
+
+    protected processManagerGet(response: HttpResponseBase): Observable<GetManagersResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetManagersResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    managerPost(body: CreateManagerRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/RegionalManagers/manager";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processManagerPost(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processManagerPost(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processManagerPost(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    managerPut(body: UpdateManagerRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/RegionalManagers/manager";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processManagerPut(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processManagerPut(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processManagerPut(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3840,6 +4051,54 @@ export interface ICreateCourierRequest {
     userId?: string;
 }
 
+export class CreateManagerRequest implements ICreateManagerRequest {
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    restaurantId?: string;
+
+    constructor(data?: ICreateManagerRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.restaurantId = _data["restaurantId"];
+        }
+    }
+
+    static fromJS(data: any): CreateManagerRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateManagerRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["restaurantId"] = this.restaurantId;
+        return data;
+    }
+}
+
+export interface ICreateManagerRequest {
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    restaurantId?: string;
+}
+
 export class GetCouriersResponse implements IGetCouriersResponse {
     courierId?: string;
     phone?: string | undefined;
@@ -3890,6 +4149,110 @@ export interface IGetCouriersResponse {
     firstName?: string | undefined;
     lastName?: string | undefined;
     email?: string | undefined;
+}
+
+export class GetManagersResponse implements IGetManagersResponse {
+    managerId?: string;
+    restaurantId?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+
+    constructor(data?: IGetManagersResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.managerId = _data["managerId"];
+            this.restaurantId = _data["restaurantId"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): GetManagersResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetManagersResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["managerId"] = this.managerId;
+        data["restaurantId"] = this.restaurantId;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IGetManagersResponse {
+    managerId?: string;
+    restaurantId?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+}
+
+export class UpdateManagerRequest implements IUpdateManagerRequest {
+    managerId?: string;
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    restaurantId?: string;
+
+    constructor(data?: IUpdateManagerRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.managerId = _data["managerId"];
+            this.email = _data["email"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.restaurantId = _data["restaurantId"];
+        }
+    }
+
+    static fromJS(data: any): UpdateManagerRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateManagerRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["managerId"] = this.managerId;
+        data["email"] = this.email;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["restaurantId"] = this.restaurantId;
+        return data;
+    }
+}
+
+export interface IUpdateManagerRequest {
+    managerId?: string;
+    email?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    restaurantId?: string;
 }
 
 export class AssignManagerRequest implements IAssignManagerRequest {

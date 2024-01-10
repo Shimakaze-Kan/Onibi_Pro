@@ -25,8 +25,9 @@ internal sealed class RegisterService : IRegisterService
         _passwordService = passwordService;
     }
 
-    public async Task<ErrorOr<Success>> RegisterAsync(string firstName, string lastName,
-        string email, string password, CreatorUserType currentCreatorType, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<UserId>> RegisterAsync(string firstName, string lastName,
+        string email, string password, CreatorUserType currentCreatorType, 
+        CancellationToken cancellationToken = default, bool commitTransaction = true)
     {
         User? existingUser = await GetUserByEmailAsync(email, cancellationToken);
 
@@ -60,9 +61,12 @@ internal sealed class RegisterService : IRegisterService
             return Error.Unexpected();
         }
 
-        await _unitOfWork.CommitTransactionAsync(cancellationToken);
+        if (commitTransaction)
+        {
+            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+        }
 
-        return new Success();
+        return user.Value.Id;
     }
 
     private async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)

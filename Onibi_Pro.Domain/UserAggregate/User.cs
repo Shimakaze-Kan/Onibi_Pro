@@ -44,6 +44,15 @@ public sealed class User : AggregateRoot<UserId>
         return user;
     }
 
+    public void Update(string firstName, string lastName, string email)
+    {
+        AddDomainEvent(new UserUpdated(Email, email));
+
+        FirstName = firstName;
+        LastName = lastName;
+        Email = email;
+    }
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private User() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

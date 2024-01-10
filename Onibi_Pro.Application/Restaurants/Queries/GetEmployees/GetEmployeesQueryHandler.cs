@@ -8,33 +8,33 @@ using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
-using Onibi_Pro.Application.Services.Access;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
+using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
-internal sealed class GetEmployeesQuerryHandler : IRequestHandler<GetEmployeesQuery, ErrorOr<IReadOnlyCollection<EmployeeDto>>>
+internal sealed class GetEmployeesQueryHandler : IRequestHandler<GetEmployeesQuery, ErrorOr<IReadOnlyCollection<EmployeeDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
-    private readonly IAccessService _accessService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IManagerDetailsService _managerDetailsService;
 
-    public GetEmployeesQuerryHandler(IDbConnectionFactory dbConnectionFactory,
-        IAccessService accessService,
-        ICurrentUserService currentUserService)
+    public GetEmployeesQueryHandler(IDbConnectionFactory dbConnectionFactory,
+        ICurrentUserService currentUserService,
+        IManagerDetailsService managerDetailsService)
     {
         _dbConnectionFactory = dbConnectionFactory;
-        _accessService = accessService;
         _currentUserService = currentUserService;
+        _managerDetailsService = managerDetailsService;
     }
 
     public async Task<ErrorOr<IReadOnlyCollection<EmployeeDto>>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
-        var restaurantExists = await _accessService.RestauranExists(request.RestaurantId, connection);
+        var managerDetails = await _managerDetailsService.GetManagerDetailsAsync(UserId.Create(_currentUserService.UserId));
 
-        if (!restaurantExists)
+        if (managerDetails.RestaurantId != request.RestaurantId)
         {
             return Errors.Restaurant.RestaurantNotFound;
         }
@@ -81,12 +81,12 @@ internal sealed class GetEmployeesQuerryHandler : IRequestHandler<GetEmployeesQu
 
     private static List<Positions>? MapStingCollectionToPositionCollection(GetEmployeesQuery request)
     {
-        return request.PositionFilter?.Where(position => Enum.TryParse<Positions>(position, ignoreCase: true,  out _))
+        return request.PositionFilter?.Where(position => Enum.TryParse<Positions>(position, ignoreCase: true, out _))
             .Select(position => Enum.Parse<Positions>(position, ignoreCase: true)).ToList();
     }
 
-    private static string FormatFilter(string? filter) 
-        =>  $"%{filter}%";
+    private static string FormatFilter(string? filter)
+        => $"%{filter}%";
 
     private static string BuildFilterQuery(GetEmployeesQuery request)
     {

@@ -11,9 +11,9 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { CreateEmployeeRequest, RestaurantsClient } from '../../api/api';
-import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
+import { ErrorMessagesParserService } from '../../../utils/services/error-messages-parser.service';
 import { IAddEmployeeData } from './IAddEmployeeData';
+import { RestaurantsClient, CreateEmployeeRequest } from '../../../api/api';
 
 @Component({
   selector: 'app-add-employee',

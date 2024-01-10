@@ -18,6 +18,7 @@ using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 namespace Onibi_Pro.Infrastructure.Persistence.Repositories;
 internal sealed class UnitOfWork : IUnitOfWork
 {
+    private readonly SemaphoreSlim _transactionSemaphore = new(1, 1);
     private readonly OnibiProDbContext _dbContext;
     private IDbContextTransaction _currentTransaction;
 
@@ -48,12 +49,19 @@ internal sealed class UnitOfWork : IUnitOfWork
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (_currentTransaction != null)
-        {
-            return;
-        }
+        await _transactionSemaphore.WaitAsync(cancellationToken);
 
-        _currentTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            if (_currentTransaction == null)
+            {
+                _currentTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            }
+        }
+        finally
+        {
+            _transactionSemaphore.Release();
+        }
     }
 
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)

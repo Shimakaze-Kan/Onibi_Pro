@@ -37,5 +37,11 @@ public static partial class Errors
 
         public static Error ScheduleNotFound => Error.NotFound(
             code: "Schedule.NotFound", description: "Schedule not found.");
+        
+        public static Error ManagerNotFound => Error.NotFound(
+            code: "Manager.NotFound", description: "Manager not found.");
+        
+        public static Error NoManagersLeft => Error.Validation(
+            code: "Restaurant.NoManagersLeft", description: "Cannot unassign the manager from the restaurant as it would leave the restaurant without any manager.");
     }
 }

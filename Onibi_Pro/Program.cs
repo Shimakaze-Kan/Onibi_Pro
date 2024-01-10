@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Onibi_Pro;
 using Onibi_Pro.Application;
+using Onibi_Pro.Domain.Common.Services;
 using Onibi_Pro.Infrastructure;
 using Onibi_Pro.Infrastructure.Authentication;
 
@@ -12,7 +13,8 @@ internal class Program
         {
             builder.Services.AddPresentation()
                             .AddApplication()
-                            .AddInfrastructure(builder.Configuration);
+                            .AddInfrastructure(builder.Configuration)
+                            .AddDomain();
         }
 
         var app = builder.Build();

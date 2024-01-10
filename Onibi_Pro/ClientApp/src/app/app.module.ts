@@ -1,7 +1,7 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_ID, NgModule, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
 import {
   ActivatedRouteSnapshot,
   CanActivateChildFn,
@@ -11,51 +11,51 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 
-import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-import { ScheduleComponent } from './schedule/schedule.component';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatTableModule } from '@angular/material/table';
-import { PersonelManagementComponent } from './personel-management/personel-management.component';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { TakeSpaceDirective } from './directives/take-space.directive';
-import { WelcomeComponent } from './welcome/welcome.component';
-import { AddEmployeeComponent } from './personel-management/add-employee/add-employee.component';
-import { MatDialogModule } from '@angular/material/dialog';
-import { CommunicationModule } from './communication/communication.module';
-import { UtilsModule } from './utils/utils.module';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { Observable } from 'rxjs';
+import { AppComponent } from './app.component';
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { PermissionChecker } from './auth/permission-checker.service';
+import { CommunicationModule } from './communication/communication.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { DeliveryComponent } from './delivery/delivery/delivery.component';
-import { OverlayModule } from '@angular/cdk/overlay';
-import { MatBadgeModule } from '@angular/material/badge';
-import { EditEmployeeComponent } from './personel-management/edit-employee/edit-employee.component';
-import { OrdersModule } from './orders/orders.module';
-import { PermissionChecker } from './auth/permission-checker.service';
-import { AuthInterceptor } from './auth/auth.interceptor';
-import { Observable } from 'rxjs';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RequiredStarDirective } from './directives/required-star.directive';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { TakeSpaceDirective } from './directives/take-space.directive';
+import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { OrderManagerComponent } from './orders/order-manager/order-manager.component';
+import { OrdersModule } from './orders/orders.module';
+import { ManagersManagementComponent } from './personel-management/managers-management/managers-management.component';
+import { PersonelManagementModule } from './personel-management/personel-management.module';
+import { RestaurantPersonelManagementComponent } from './personel-management/restaurant-personel-management/restaurant-personel-management.component';
+import { ScheduleComponent } from './schedule/schedule.component';
 import { UserTypes } from './utils/UserTypes';
+import { UtilsModule } from './utils/utils.module';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -109,10 +109,16 @@ export const ROUTES: Array<Route> = [
         data: { userTypes: [UserTypes.manager] },
       },
       {
-        path: 'personel-management',
-        component: PersonelManagementComponent,
+        path: 'restaurant-personel-management',
+        component: RestaurantPersonelManagementComponent,
         canActivate: [canActivateUserTypes],
         data: { userTypes: [UserTypes.manager] },
+      },
+      {
+        path: 'manager-management',
+        component: ManagersManagementComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.regionalManager] },
       },
       {
         path: 'delivery',
@@ -142,11 +148,8 @@ export const ROUTES: Array<Route> = [
     AppComponent,
     NavMenuComponent,
     ScheduleComponent,
-    PersonelManagementComponent,
     TakeSpaceDirective,
     WelcomeComponent,
-    AddEmployeeComponent,
-    EditEmployeeComponent,
     RequiredStarDirective,
   ],
   imports: [
@@ -168,6 +171,7 @@ export const ROUTES: Array<Route> = [
     DeliveryModule,
     OverlayModule,
     OrdersModule,
+    PersonelManagementModule,
   ],
   providers: [
     { provide: APP_ID, useValue: 'serverApp' },

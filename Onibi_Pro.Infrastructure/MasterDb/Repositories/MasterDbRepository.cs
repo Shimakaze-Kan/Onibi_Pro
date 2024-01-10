@@ -61,4 +61,17 @@ internal sealed class MasterDbRepository : IMasterDbRepository
 
         return parameters.Get<string>("@ClientName");
     }
+
+    public async Task UpdateUser(string oldEmal, string newEmal, string clientName)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@OldEmail", oldEmal);
+        parameters.Add("@NewEmail", newEmal);
+        parameters.Add("@ClientName", clientName);
+
+        connection.Execute("dbo.UpdateUser", parameters, commandType: CommandType.StoredProcedure);
+    }
 }

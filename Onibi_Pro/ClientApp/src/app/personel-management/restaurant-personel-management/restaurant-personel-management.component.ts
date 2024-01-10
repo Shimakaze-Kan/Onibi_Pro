@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -20,23 +14,27 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { AddEmployeeComponent } from './add-employee/add-employee.component';
-import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
 import {
   GetEmployeesResponse,
   GetManagerDetailsResponse,
   IdentityClient,
   RestaurantsClient,
-} from '../api/api';
+} from '../../api/api';
+import { IdentityService } from '../../utils/services/identity.service';
+import { EditEmployeeComponent } from './edit-employee/edit-employee.component';
+import { AddEmployeeComponent } from './add-employee/add-employee.component';
 import { IEditEmployeeData } from './edit-employee/IEditEmployeeData';
-import { IdentityService } from '../utils/services/identity.service';
+import { IAddEmployeeData } from './add-employee/IAddEmployeeData';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-personel-management',
-  templateUrl: './personel-management.component.html',
-  styleUrls: ['./personel-management.component.scss'],
+  templateUrl: './restaurant-personel-management.component.html',
+  styleUrls: ['./restaurant-personel-management.component.scss'],
 })
-export class PersonelManagementComponent implements OnDestroy, OnInit {
+export class RestaurantPersonelManagementComponent
+  implements OnDestroy, OnInit
+{
   private _restaurantId = '';
   private _employees: Array<EmployeeRecord> = [];
   private _onDestroy$ = new Subject<void>();
@@ -84,7 +82,8 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
     private readonly dialog: MatDialog,
     private readonly restaurantClient: RestaurantsClient,
     private readonly identityClient: IdentityClient,
-    private readonly identityService: IdentityService
+    private readonly identityService: IdentityService,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnDestroy(): void {
@@ -135,7 +134,10 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       minHeight: '80%',
       maxHeight: '100%',
       maxWidth: '750px',
-      data: this._managerDetails,
+      data: {
+        managerDetails: this._managerDetails,
+        positions: this.positions,
+      } as IAddEmployeeData,
     });
 
     dialogRef
@@ -143,7 +145,12 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       .pipe(
         filter((result) => !!result),
         filter((result: { reload: boolean }) => result.reload),
-        switchMap((_) => this.getEmployees())
+        switchMap((_) => this.getEmployees()),
+        tap(() =>
+          this.snackBar.open('Employee created successfully.', 'close', {
+            duration: 5000,
+          })
+        )
       )
       .subscribe();
   }
@@ -156,6 +163,7 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       data: {
         employeeData: employeeData,
         managerDetails: this._managerDetails,
+        positions: this.positions,
       } as IEditEmployeeData,
     });
 
@@ -164,7 +172,12 @@ export class PersonelManagementComponent implements OnDestroy, OnInit {
       .pipe(
         filter((result) => !!result),
         filter((result: { reload: boolean }) => result.reload),
-        switchMap((_) => this.getEmployees())
+        switchMap((_) => this.getEmployees()),
+        tap(() =>
+          this.snackBar.open('Employee edited successfully.', 'close', {
+            duration: 5000,
+          })
+        )
       )
       .subscribe();
   }

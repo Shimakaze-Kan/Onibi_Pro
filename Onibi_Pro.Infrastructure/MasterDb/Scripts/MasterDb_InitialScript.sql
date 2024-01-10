@@ -2,6 +2,7 @@
 *	CHANGELOG
 *	WHO		        WHEN		WHAT			
 *	Shimakaze-Kan	12/25/2023	Initial script	
+*   Shimakaze-Kan   01/10/2024  Added script for procedure 'UpdateUser'
 *
 *****************************************************************************/
 
@@ -104,6 +105,35 @@ BEGIN
         FROM OnibiUsers u
         JOIN OnibiClients c ON u.ClientId = c.Id
         WHERE u.Email = @Email;
+    END;
+    ');
+END
+GO
+
+-- Check if the "UpdateUser" procedure exists
+IF NOT EXISTS (SELECT 1 FROM sys.procedures WHERE name = 'UpdateUser')
+BEGIN
+    -- Create the "UpdateUser" procedure
+    EXEC('
+    CREATE PROCEDURE UpdateUser
+        @OldEmail NVARCHAR(255),
+        @NewEmail NVARCHAR(255),
+		@ClientName NVARCHAR(255)
+    AS
+    BEGIN
+		DECLARE @ClientId INT;
+
+        -- Check if the client exists
+        SELECT @ClientId = Id FROM OnibiClients WHERE Name = @ClientName;
+
+        IF @ClientId IS NULL
+        BEGIN
+            -- If the client does not exist, raise an error
+            THROW 50000, ''Client does not exist.'', 1;
+        END;
+
+        -- Update the users email
+        UPDATE OnibiUsers SET Email = @NewEmail WHERE Email = @OldEmail AND ClientId = @ClientId;
     END;
     ');
 END

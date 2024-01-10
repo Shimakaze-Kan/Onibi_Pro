@@ -7,7 +7,6 @@ using Onibi_Pro.Domain.RegionalManagerAggregate.ValueObjects;
 using Onibi_Pro.Domain.RestaurantAggregate.Entities;
 using Onibi_Pro.Domain.RestaurantAggregate.Events;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
-using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Domain.RestaurantAggregate;
@@ -92,13 +91,8 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         }
     }
 
-    public ErrorOr<Success> AssigneManager(UserId userId, UserTypes userType)
+    internal ErrorOr<Success> AssignManager(UserId userId)
     {
-        if (userType != UserTypes.Manager)
-        {
-            return Errors.Restaurant.WrongUserManagerType;
-        }
-
         if (_managers.Any(x => x.UserId == userId))
         {
             return Errors.Restaurant.UserIsAlreadyManager;
@@ -109,9 +103,25 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         return new Success();
     }
 
-    public void UnassigneManager(Manager manager)
+    public ErrorOr<Success> UnassignManager(Manager manager)
     {
+        if (!_managers.Contains(manager))
+        {
+            return Errors.Restaurant.ManagerNotFound;
+        }
+
+        if (_managers.Count == 1)
+        {
+            return Errors.Restaurant.NoManagersLeft;
+        }
+
         _managers.Remove(manager);
+        return new Success();
+    }
+
+    public Manager? TryGetManager(UserId userId)
+    {
+        return _managers.FirstOrDefault(manager => manager.UserId == userId);
     }
 
     public ErrorOr<Success> AddSchedule(UserId userId, Schedule schedule)

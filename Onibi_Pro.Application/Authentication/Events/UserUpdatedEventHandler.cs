@@ -5,20 +5,20 @@ using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.UserAggregate.Events;
 
 namespace Onibi_Pro.Application.Authentication.Events;
-internal sealed class PopulateUserToMasterDb : INotificationHandler<UserCreated>
+internal sealed class UserUpdatedEventHandler : INotificationHandler<UserUpdated>
 {
     private readonly IMasterDbRepository _masterDbRepository;
     private readonly ICurrentUserService _currentUserService;
 
-    public PopulateUserToMasterDb(IMasterDbRepository masterDbRepository,
+    public UserUpdatedEventHandler(IMasterDbRepository masterDbRepository,
         ICurrentUserService currentUserService)
     {
         _masterDbRepository = masterDbRepository;
         _currentUserService = currentUserService;
     }
 
-    public async Task Handle(UserCreated notification, CancellationToken cancellationToken)
+    public async Task Handle(UserUpdated notification, CancellationToken cancellationToken)
     {
-        await _masterDbRepository.AddUser(notification.Email, _currentUserService.ClientName);
+        await _masterDbRepository.UpdateUser(notification.OldEmail, notification.NewEmail, _currentUserService.ClientName);
     }
 }

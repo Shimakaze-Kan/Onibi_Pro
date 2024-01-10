@@ -2,46 +2,31 @@
 
 using MediatR;
 
-using Onibi_Pro.Application.Persistence;
-using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Application.Services.CuttingConcerns;
 using Onibi_Pro.Domain.RestaurantAggregate.ValueObjects;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Restaurants.Commands.AssignManager;
 internal sealed class AssignManagerCommandHandler : IRequestHandler<AssignManagerCommand, ErrorOr<Unit>>
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAssignManagerService _assignManagerService;
 
-    public AssignManagerCommandHandler(IUnitOfWork unitOfWork)
+    public AssignManagerCommandHandler(IAssignManagerService assignManagerService)
     {
-        _unitOfWork = unitOfWork;
+        _assignManagerService = assignManagerService;
     }
 
     public async Task<ErrorOr<Unit>> Handle(AssignManagerCommand request, CancellationToken cancellationToken)
     {
-        var restaurant = await _unitOfWork.RestaurantRepository
-            .GetByIdAsync(RestaurantId.Create(request.RestaurantId), cancellationToken);
+        var restaurantId = RestaurantId.Create(request.RestaurantId);
+        var userId = UserId.Create(request.UserId);
 
-        if (restaurant is null)
-        {
-            return Errors.Restaurant.RestaurantNotFound;
-        }
-
-        var user = await _unitOfWork.UserRepository.GetByIdAsync(UserId.Create(request.UserId), cancellationToken);
-
-        if (user is null)
-        {
-            return Errors.User.UserNotFound;
-        }
-
-        var result = restaurant.AssigneManager(user.Id, user.UserType);
+        var result = await _assignManagerService.AssignToRestaurant(restaurantId, userId, cancellationToken);
 
         if (result.IsError)
         {
             return result.Errors;
         }
-
-        await _unitOfWork.SaveAsync(cancellationToken);
 
         return Unit.Value;
     }

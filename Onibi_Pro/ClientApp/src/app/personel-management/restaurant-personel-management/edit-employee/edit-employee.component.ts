@@ -10,15 +10,15 @@ import {
   catchError,
   of,
 } from 'rxjs';
-import { EmployeeRecord } from '../personel-management.component';
-import {
-  EditEmployeeRequest,
-  GetManagerDetailsResponse,
-  RestaurantsClient,
-} from '../../api/api';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IEditEmployeeData } from './IEditEmployeeData';
-import { ErrorMessagesParserService } from '../../utils/services/error-messages-parser.service';
+import {
+  GetManagerDetailsResponse,
+  RestaurantsClient,
+  EditEmployeeRequest,
+} from '../../../api/api';
+import { EmployeeRecord } from '../restaurant-personel-management.component';
+import { ErrorMessagesParserService } from '../../../utils/services/error-messages-parser.service';
 
 @Component({
   selector: 'app-edit-employee',

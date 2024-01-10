@@ -9,6 +9,7 @@ using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Contracts.Authentication;
+using Onibi_Pro.Contracts.Identity;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Shared;
 
@@ -31,6 +32,7 @@ public class AuthenticationController : ApiBaseController
     }
 
     [HttpPost("register")]
+    [ProducesResponseType(typeof(Guid), 200)]
     [Authorize(Policy = AuthorizationPolicies.GlobalOrRegionalManagerAccess)]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
@@ -38,7 +40,7 @@ public class AuthenticationController : ApiBaseController
 
         var authResult = await _mediator.Send(command);
 
-        return authResult.Match(_ => Ok(), Problem);
+        return authResult.Match(result => Ok(result.Value), Problem);
     }
 
     [AllowAnonymous]

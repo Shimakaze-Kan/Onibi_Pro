@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.RegionalManagers.Commands.CreateCourier;
+using Onibi_Pro.Application.RegionalManagers.Commands.CreateManager;
+using Onibi_Pro.Application.RegionalManagers.Commands.UpdateManager;
 using Onibi_Pro.Application.RegionalManagers.Queries.GetCouriers;
-using Onibi_Pro.Contracts.Orders;
+using Onibi_Pro.Application.RegionalManagers.Queries.GetManagers;
 using Onibi_Pro.Contracts.RegionalManagers;
 using Onibi_Pro.Shared;
 
@@ -45,5 +47,39 @@ public class RegionalManagersController : ApiBaseController
         var result = await _mediator.Send(new GetCouriersQuery(), cancellationToken);
 
         return Ok(_mapper.Map<IReadOnlyCollection<GetCouriersResponse>>(result));
+    }
+
+    [HttpGet("manager")]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerAccess)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetManagersResponse>), 200)]
+    public async Task<IActionResult> GetManagers([FromQuery] GetManagersRequest request, CancellationToken cancellationToken)
+    {
+        var query = _mapper.Map<GetManagersQuery>(request);
+
+        var response = await _mediator.Send(query, cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpPost("manager")]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerAccess)]
+    public async Task<IActionResult> CreateManager(CreateManagerRequest request, CancellationToken cancellationToken)
+    {
+        var command = _mapper.Map<CreateManagerCommand>(request);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPut("manager")]
+    [Authorize(Policy = AuthorizationPolicies.RegionalManagerAccess)]
+    public async Task<IActionResult> UpdateManager(UpdateManagerRequest request, CancellationToken cancellationToken)
+    {
+        var command = _mapper.Map<UpdateManagerCommand>(request);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
     }
 }

@@ -5,12 +5,12 @@ using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.UserAggregate.Events;
 
 namespace Onibi_Pro.Application.Authentication.Events;
-internal sealed class MoveUserPasswordHandler : INotificationHandler<UserCreated>
+internal sealed class MoveUserPasswordEventHandler : INotificationHandler<UserCreated>
 {
     private readonly IUserPasswordRepository _userPasswordRepository;
     private readonly ICurrentUserService _currentUserService;
 
-    public MoveUserPasswordHandler(IUserPasswordRepository userPasswordRepository,
+    public MoveUserPasswordEventHandler(IUserPasswordRepository userPasswordRepository,
         ICurrentUserService currentUserService)
     {
         _userPasswordRepository = userPasswordRepository;
