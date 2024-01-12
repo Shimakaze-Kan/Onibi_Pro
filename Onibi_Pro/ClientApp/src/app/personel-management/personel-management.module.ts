@@ -27,6 +27,7 @@ import { AddManagerComponent } from './managers-management/add-manager/add-manag
 import { EditManagerComponent } from './managers-management/edit-manager/edit-manager.component';
 import { AddEmployeeComponent } from './restaurant-personel-management/add-employee/add-employee.component';
 import { EditEmployeeComponent } from './restaurant-personel-management/edit-employee/edit-employee.component';
+import { RegionalmanagersManagementComponent } from './regionalmanagers-management/regionalmanagers-management.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { EditEmployeeComponent } from './restaurant-personel-management/edit-emp
     EditEmployeeComponent,
     AddManagerComponent,
     EditManagerComponent,
+    RegionalmanagersManagementComponent,
   ],
   imports: [
     CommonModule,

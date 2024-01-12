@@ -18,6 +18,8 @@ import {
   Subject,
   debounceTime,
   distinctUntilChanged,
+  map,
+  merge,
   of,
   switchMap,
   takeUntil,
@@ -63,6 +65,10 @@ export class NewMessageComponent implements OnInit, OnDestroy {
     ).join(', ');
   }
 
+  get receivers(): Array<GetUsersResponse> {
+    return this.newMessageForm.controls.receivers.value || [];
+  }
+
   constructor(
     private readonly identityClient: IdentityClient,
     private readonly textHelper: TextHelperService
@@ -102,6 +108,22 @@ export class NewMessageComponent implements OnInit, OnDestroy {
           } else {
             return this.identityClient.users(value.toLowerCase(), undefined);
           }
+        }),
+        map((users) => {
+          const keyValueReceivers = this.receivers.map((receiver) => [
+            receiver.id || '',
+            receiver,
+          ]);
+          const keyValueUsers = users.map((receiver) => [
+            receiver.id || '',
+            receiver,
+          ]);
+
+          const combinedUsers =
+            // @ts-ignore:next-line ts is just stupid here
+            [...new Map([...keyValueReceivers, ...keyValueUsers]).values()];
+
+          return combinedUsers as GetUsersResponse[];
         }),
         tap((users) => this.filteredReceivers.next(users))
       )
