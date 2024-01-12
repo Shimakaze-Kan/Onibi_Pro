@@ -36,6 +36,6 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### get all
-GET {{baseUrl}}/shipments
+GET {{baseUrl}}/shipments?Amount=0
 Content-Type: application/json
 Authorization: Bearer {{token}}

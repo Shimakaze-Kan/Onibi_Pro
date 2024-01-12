@@ -1,5 +1,7 @@
 ﻿using Dapper;
 
+using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
@@ -8,7 +10,7 @@ using Onibi_Pro.Application.RegionalManagers.Queries.Common;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.RegionalManagers.Queries.GetCouriers;
-internal sealed class GetCouriersQueryHandler : IRequestHandler<GetCouriersQuery, IReadOnlyCollection<CourierDto>>
+internal sealed class GetCouriersQueryHandler : IRequestHandler<GetCouriersQuery, ErrorOr<IReadOnlyCollection<CourierDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -23,7 +25,7 @@ internal sealed class GetCouriersQueryHandler : IRequestHandler<GetCouriersQuery
         _regionalManagerDetailsService = regionalManagerDetailsService;
     }
 
-    public async Task<IReadOnlyCollection<CourierDto>> Handle(GetCouriersQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<IReadOnlyCollection<CourierDto>>> Handle(GetCouriersQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 

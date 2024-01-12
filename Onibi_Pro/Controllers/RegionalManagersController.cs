@@ -1,4 +1,10 @@
-﻿using MapsterMapper;
+﻿using System.Collections.Generic;
+
+using Azure;
+
+using ErrorOr;
+
+using MapsterMapper;
 
 using MediatR;
 
@@ -10,6 +16,7 @@ using Onibi_Pro.Application.RegionalManagers.Commands.CreateManager;
 using Onibi_Pro.Application.RegionalManagers.Commands.UpdateManager;
 using Onibi_Pro.Application.RegionalManagers.Queries.GetCouriers;
 using Onibi_Pro.Application.RegionalManagers.Queries.GetManagers;
+using Onibi_Pro.Application.RegionalManagers.Queries.GetRegionalManagers;
 using Onibi_Pro.Contracts.RegionalManagers;
 using Onibi_Pro.Shared;
 
@@ -46,7 +53,7 @@ public class RegionalManagersController : ApiBaseController
     {
         var result = await _mediator.Send(new GetCouriersQuery(), cancellationToken);
 
-        return Ok(_mapper.Map<IReadOnlyCollection<GetCouriersResponse>>(result));
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetCouriersResponse>>(result)), Problem);
     }
 
     [HttpGet("manager")]
@@ -56,9 +63,9 @@ public class RegionalManagersController : ApiBaseController
     {
         var query = _mapper.Map<GetManagersQuery>(request);
 
-        var response = await _mediator.Send(query, cancellationToken);
+        var result = await _mediator.Send(query, cancellationToken);
 
-        return Ok(response);
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetManagersResponse>>(result)), Problem);
     }
 
     [HttpPost("manager")]
@@ -81,5 +88,17 @@ public class RegionalManagersController : ApiBaseController
         var result = await _mediator.Send(command, cancellationToken);
 
         return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetRegionalManagerResponse>), 200)]
+    public async Task<IActionResult> GetRegionalManagers(GetRegionalManagersRequest request, CancellationToken cancellationToken)
+    {
+        var query = _mapper.Map<GetRegionalManagersQuery>(request);
+
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetRegionalManagerResponse>>(result)), Problem);
     }
 }

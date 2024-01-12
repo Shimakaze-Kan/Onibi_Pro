@@ -56,7 +56,7 @@ public class IdentityController : ApiBaseController
     {
         var result = await _mediator.Send(new GetWhoamiQuery());
 
-        return Ok(_mapper.Map<GetWhoamiResponse>(result));
+        return result.Match(resullt => Ok(_mapper.Map<GetWhoamiResponse>(result)), Problem);
     }
 
     [HttpGet("users")]
@@ -67,6 +67,6 @@ public class IdentityController : ApiBaseController
 
         var result = await _mediator.Send(query, cancellationToken);
 
-        return Ok(_mapper.Map<IReadOnlyCollection<GetUsersResponse>>(result));
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetUsersResponse>>(result)), Problem);
     }
 }

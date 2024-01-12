@@ -66,7 +66,7 @@ public class ShipmentsController : ApiBaseController
 
         var result = await _mediator.Send(query, cancellationToken);
 
-        return Ok(_mapper.Map<GetPackagesResponse>(result));
+        return result.Match(result => Ok(_mapper.Map<GetPackagesResponse>(result)), Problem);
     }
 
     [HttpPut("approveShipment/{packageId}")]

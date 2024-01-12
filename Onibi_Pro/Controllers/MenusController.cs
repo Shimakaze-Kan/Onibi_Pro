@@ -52,6 +52,6 @@ public class MenusController : ApiBaseController
     {
         var result = await _mediator.Send(new GetIngredientsQuery());
 
-        return Ok(_mapper.Map<IReadOnlyCollection<GetIngredientResponse>>(result));
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetIngredientResponse>>(result)), Problem);
     }
 }

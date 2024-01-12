@@ -58,7 +58,7 @@ public class OrdersController : ApiBaseController
 
         var result = await _mediator.Send(query);
 
-        return Ok(_mapper.Map<GetOrdersResponse>(result));
+        return result.Match(result => Ok(_mapper.Map<GetOrdersResponse>(result)), Problem);
     }
 
     [HttpPut("{orderId}")]

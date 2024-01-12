@@ -29,3 +29,13 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/RegionalManagers/courier
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+### get regional managers
+GET {{baseUrl}}/RegionalManagers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "PageNumber": 1,
+    "PageSize": 10
+}

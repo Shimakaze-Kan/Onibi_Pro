@@ -1,5 +1,7 @@
 ﻿using Dapper;
 
+using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
@@ -7,7 +9,7 @@ using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.RegionalManagers.Queries.GetManagers;
-internal sealed class GetManagersQueryHandler : IRequestHandler<GetManagersQuery, IReadOnlyCollection<ManagerDto>>
+internal sealed class GetManagersQueryHandler : IRequestHandler<GetManagersQuery, ErrorOr<IReadOnlyCollection<ManagerDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly IRegionalManagerDetailsService _regionalManagerDetailsService;
@@ -22,7 +24,7 @@ internal sealed class GetManagersQueryHandler : IRequestHandler<GetManagersQuery
         _currentUserService = currentUserService;
     }
 
-    public async Task<IReadOnlyCollection<ManagerDto>> Handle(GetManagersQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<IReadOnlyCollection<ManagerDto>>> Handle(GetManagersQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
         var regionalManagerDetails = await _regionalManagerDetailsService.GetRegionalManagerDetailsAsync(UserId.Create(_currentUserService.UserId));

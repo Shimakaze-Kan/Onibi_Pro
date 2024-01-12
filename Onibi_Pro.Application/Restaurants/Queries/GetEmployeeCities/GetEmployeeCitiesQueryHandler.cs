@@ -1,5 +1,7 @@
 ﻿using Dapper;
 
+using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
@@ -7,7 +9,7 @@ using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Restaurants.Queries.GetEmployeeCities;
-internal sealed class GetEmployeeCitiesQueryHandler : IRequestHandler<GetEmployeeCitiesQuery, IReadOnlyCollection<string>>
+internal sealed class GetEmployeeCitiesQueryHandler : IRequestHandler<GetEmployeeCitiesQuery, ErrorOr<IReadOnlyCollection<string>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly IManagerDetailsService _managerDetailsService;
@@ -22,7 +24,7 @@ internal sealed class GetEmployeeCitiesQueryHandler : IRequestHandler<GetEmploye
         _currentUserService = currentUserService;
     }
 
-    public async Task<IReadOnlyCollection<string>> Handle(GetEmployeeCitiesQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<IReadOnlyCollection<string>>> Handle(GetEmployeeCitiesQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 

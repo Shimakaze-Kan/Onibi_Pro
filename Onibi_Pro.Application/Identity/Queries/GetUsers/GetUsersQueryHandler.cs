@@ -1,12 +1,14 @@
 ﻿using Dapper;
 
+using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 
 namespace Onibi_Pro.Application.Identity.Queries.GetUsers;
-internal class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IReadOnlyCollection<UserDataDto>>
+internal class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, ErrorOr<IReadOnlyCollection<UserDataDto>>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -18,7 +20,7 @@ internal class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IReadOnlyCo
         _currentUserService = currentUserService;
     }
 
-    public async Task<IReadOnlyCollection<UserDataDto>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<IReadOnlyCollection<UserDataDto>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 

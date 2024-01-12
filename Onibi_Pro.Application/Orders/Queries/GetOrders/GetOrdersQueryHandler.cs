@@ -3,6 +3,8 @@ using System.Text.Json;
 
 using Dapper;
 
+using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
@@ -12,7 +14,7 @@ using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 using static Onibi_Pro.Application.Orders.Queries.GetOrders.OrdersDto;
 
 namespace Onibi_Pro.Application.Orders.Queries.GetOrders;
-internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, OrdersDto>
+internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, ErrorOr<OrdersDto>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -27,7 +29,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, Or
         _managerDetailsService = managerDetailsService;
     }
 
-    public async Task<OrdersDto> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<OrdersDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
@@ -38,7 +40,7 @@ internal sealed class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, Or
         var orders = await GetOrders(request, connection, restaurantId, endRow);
         var totalCount = await GetTotalCount(connection, restaurantId);
 
-        return new(orders, totalCount);
+        return new OrdersDto(orders, totalCount);
     }
 
     private static async Task<IReadOnlyCollection<OrderDto>> GetOrders(

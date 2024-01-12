@@ -2,6 +2,8 @@
 
 using Dapper;
 
+using ErrorOr;
+
 using MediatR;
 
 using Onibi_Pro.Application.Common.Interfaces.Services;
@@ -11,7 +13,7 @@ using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 namespace Onibi_Pro.Application.Packages.Queries.GetPackages;
-internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery, GetPackagesDto>
+internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery, ErrorOr<GetPackagesDto>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -32,7 +34,7 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
         _courierDetailsService = courierDetailsService;
     }
 
-    public async Task<GetPackagesDto> Handle(GetPackagesQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<GetPackagesDto>> Handle(GetPackagesQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
 
@@ -51,7 +53,7 @@ internal sealed class GetPackagesQueryHandler : IRequestHandler<GetPackagesQuery
         var packages = await GetPackages(connection, whereClause, dynamicParameters);
         var total = await GetTotalCount(connection, whereClause, dynamicParameters);
 
-        return new([.. packages], total);
+        return new GetPackagesDto([.. packages], total);
     }
 
     private static async Task<IEnumerable<PackageDto>> GetPackages(IDbConnection connection, string whereClause, DynamicParameters dynamicParameters)

@@ -55,7 +55,7 @@ public class RestaurantsController : ApiBaseController
     {
         var result = await _mediator.Send(new GetAddressQuery(RestaurantId.Create(restaurantId)), cancellationToken);
 
-        return Ok(result);
+        return result.Match(Ok, Problem);
     }
 
     [HttpGet("{restaurantId}/employees")]
@@ -154,7 +154,9 @@ public class RestaurantsController : ApiBaseController
     [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
     public async Task<IActionResult> GetEmployeePositions(CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new GetEmployeePositionsQuery(), cancellationToken));
+        var result = await _mediator.Send(new GetEmployeePositionsQuery(), cancellationToken);
+
+        return result.Match(Ok, Problem);
     }
 
     [HttpGet("employeeCities")]
@@ -162,6 +164,8 @@ public class RestaurantsController : ApiBaseController
     [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
     public async Task<IActionResult> GetEmployeeCities(CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new GetEmployeeCitiesQuery(), cancellationToken));
+        var result = await _mediator.Send(new GetEmployeeCitiesQuery(), cancellationToken);
+
+        return result.Match(Ok, Problem);
     }
 }
