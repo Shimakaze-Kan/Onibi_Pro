@@ -56,7 +56,7 @@ public class IdentityController : ApiBaseController
     {
         var result = await _mediator.Send(new GetWhoamiQuery());
 
-        return result.Match(resullt => Ok(_mapper.Map<GetWhoamiResponse>(result)), Problem);
+        return result.Match(result => Ok(_mapper.Map<GetWhoamiResponse>(result)), Problem);
     }
 
     [HttpGet("users")]

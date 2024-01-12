@@ -104,6 +104,12 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       url: '/manager-management',
       canActivate: false,
     },
+    {
+      name: 'Personel Management',
+      id: 7,
+      url: '/regionalmanager-management',
+      canActivate: false,
+    },
   ];
 
   get pages(): Array<IPage> {

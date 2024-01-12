@@ -5,7 +5,7 @@ public sealed class GetRegionalManagersQueryValidator : AbstractValidator<GetReg
 {
     public GetRegionalManagersQueryValidator()
     {
-        RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1);
+        RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1).LessThanOrEqualTo(20);
         RuleFor(x => x.PageSize).GreaterThanOrEqualTo(1);
     }
 }

@@ -1018,6 +1018,17 @@ export interface IRegionalManagersClient {
      * @return Success
      */
     managerPut(body: UpdateManagerRequest | undefined): Observable<void>;
+    /**
+     * @param pageNumber (optional) 
+     * @param pageSize (optional) 
+     * @param regionalManagerIdFilter (optional) 
+     * @param firstNameFilter (optional) 
+     * @param lastNameFilter (optional) 
+     * @param emailFilter (optional) 
+     * @param restaurantIdFilter (optional) 
+     * @return Success
+     */
+    regionalManagers(pageNumber: number | undefined, pageSize: number | undefined, regionalManagerIdFilter: string | undefined, firstNameFilter: string | undefined, lastNameFilter: string | undefined, emailFilter: string | undefined, restaurantIdFilter: string | undefined): Observable<GetRegionalManagerResponse>;
 }
 
 @Injectable({
@@ -1329,6 +1340,92 @@ export class RegionalManagersClient implements IRegionalManagersClient {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @param pageNumber (optional) 
+     * @param pageSize (optional) 
+     * @param regionalManagerIdFilter (optional) 
+     * @param firstNameFilter (optional) 
+     * @param lastNameFilter (optional) 
+     * @param emailFilter (optional) 
+     * @param restaurantIdFilter (optional) 
+     * @return Success
+     */
+    regionalManagers(pageNumber: number | undefined, pageSize: number | undefined, regionalManagerIdFilter: string | undefined, firstNameFilter: string | undefined, lastNameFilter: string | undefined, emailFilter: string | undefined, restaurantIdFilter: string | undefined): Observable<GetRegionalManagerResponse> {
+        let url_ = this.baseUrl + "/api/RegionalManagers?";
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (regionalManagerIdFilter === null)
+            throw new Error("The parameter 'regionalManagerIdFilter' cannot be null.");
+        else if (regionalManagerIdFilter !== undefined)
+            url_ += "RegionalManagerIdFilter=" + encodeURIComponent("" + regionalManagerIdFilter) + "&";
+        if (firstNameFilter === null)
+            throw new Error("The parameter 'firstNameFilter' cannot be null.");
+        else if (firstNameFilter !== undefined)
+            url_ += "FirstNameFilter=" + encodeURIComponent("" + firstNameFilter) + "&";
+        if (lastNameFilter === null)
+            throw new Error("The parameter 'lastNameFilter' cannot be null.");
+        else if (lastNameFilter !== undefined)
+            url_ += "LastNameFilter=" + encodeURIComponent("" + lastNameFilter) + "&";
+        if (emailFilter === null)
+            throw new Error("The parameter 'emailFilter' cannot be null.");
+        else if (emailFilter !== undefined)
+            url_ += "EmailFilter=" + encodeURIComponent("" + emailFilter) + "&";
+        if (restaurantIdFilter === null)
+            throw new Error("The parameter 'restaurantIdFilter' cannot be null.");
+        else if (restaurantIdFilter !== undefined)
+            url_ += "RestaurantIdFilter=" + encodeURIComponent("" + restaurantIdFilter) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRegionalManagers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRegionalManagers(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetRegionalManagerResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetRegionalManagerResponse>;
+        }));
+    }
+
+    protected processRegionalManagers(response: HttpResponseBase): Observable<GetRegionalManagerResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetRegionalManagerResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 export interface IRestaurantsClient {
@@ -1336,7 +1433,11 @@ export interface IRestaurantsClient {
      * @param body (optional) 
      * @return Success
      */
-    restaurants(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse>;
+    restaurantsPost(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse>;
+    /**
+     * @return Success
+     */
+    restaurantsGet(): Observable<string[]>;
     /**
      * @return Success
      */
@@ -1411,7 +1512,7 @@ export class RestaurantsClient implements IRestaurantsClient {
      * @param body (optional) 
      * @return Success
      */
-    restaurants(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse> {
+    restaurantsPost(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse> {
         let url_ = this.baseUrl + "/api/Restaurants";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1428,11 +1529,11 @@ export class RestaurantsClient implements IRestaurantsClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRestaurants(response_);
+            return this.processRestaurantsPost(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRestaurants(response_ as any);
+                    return this.processRestaurantsPost(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<CreateRestaurantResponse>;
                 }
@@ -1441,7 +1542,7 @@ export class RestaurantsClient implements IRestaurantsClient {
         }));
     }
 
-    protected processRestaurants(response: HttpResponseBase): Observable<CreateRestaurantResponse> {
+    protected processRestaurantsPost(response: HttpResponseBase): Observable<CreateRestaurantResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1453,6 +1554,64 @@ export class RestaurantsClient implements IRestaurantsClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CreateRestaurantResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    restaurantsGet(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/Restaurants";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRestaurantsGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRestaurantsGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processRestaurantsGet(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2525,201 +2684,6 @@ export class ShipmentsClient implements IShipmentsClient {
     }
 
     protected processConfirmDelivery(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
-export interface IWeatherForecastClient {
-    /**
-     * @return Success
-     */
-    weatherForecast(): Observable<WeatherForecast[]>;
-    /**
-     * @return Success
-     */
-    get(key: string): Observable<string>;
-    /**
-     * @return Success
-     */
-    set(key: string, val: string): Observable<void>;
-}
-
-@Injectable({
-    providedIn: 'root'
-})
-export class WeatherForecastClient implements IWeatherForecastClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
-
-    /**
-     * @return Success
-     */
-    weatherForecast(): Observable<WeatherForecast[]> {
-        let url_ = this.baseUrl + "/api/WeatherForecast";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processWeatherForecast(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processWeatherForecast(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<WeatherForecast[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<WeatherForecast[]>;
-        }));
-    }
-
-    protected processWeatherForecast(response: HttpResponseBase): Observable<WeatherForecast[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(WeatherForecast.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @return Success
-     */
-    get(key: string): Observable<string> {
-        let url_ = this.baseUrl + "/api/WeatherForecast/get/{key}";
-        if (key === undefined || key === null)
-            throw new Error("The parameter 'key' must be defined.");
-        url_ = url_.replace("{key}", encodeURIComponent("" + key));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGet(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGet(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<string>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<string>;
-        }));
-    }
-
-    protected processGet(response: HttpResponseBase): Observable<string> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @return Success
-     */
-    set(key: string, val: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/WeatherForecast/set/{key}/{val}";
-        if (key === undefined || key === null)
-            throw new Error("The parameter 'key' must be defined.");
-        url_ = url_.replace("{key}", encodeURIComponent("" + key));
-        if (val === undefined || val === null)
-            throw new Error("The parameter 'val' must be defined.");
-        url_ = url_.replace("{val}", encodeURIComponent("" + val));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSet(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSet(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processSet(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4203,6 +4167,118 @@ export interface IGetManagersResponse {
     email?: string | undefined;
 }
 
+export class GetRegionalManagerResponse implements IGetRegionalManagerResponse {
+    regionalManagers?: GetRegionalManagerResponse_RegionalManagerItem[] | undefined;
+    totalRecords?: number;
+
+    constructor(data?: IGetRegionalManagerResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["regionalManagers"])) {
+                this.regionalManagers = [] as any;
+                for (let item of _data["regionalManagers"])
+                    this.regionalManagers!.push(GetRegionalManagerResponse_RegionalManagerItem.fromJS(item));
+            }
+            this.totalRecords = _data["totalRecords"];
+        }
+    }
+
+    static fromJS(data: any): GetRegionalManagerResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetRegionalManagerResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.regionalManagers)) {
+            data["regionalManagers"] = [];
+            for (let item of this.regionalManagers)
+                data["regionalManagers"].push(item.toJSON());
+        }
+        data["totalRecords"] = this.totalRecords;
+        return data;
+    }
+}
+
+export interface IGetRegionalManagerResponse {
+    regionalManagers?: GetRegionalManagerResponse_RegionalManagerItem[] | undefined;
+    totalRecords?: number;
+}
+
+export class GetRegionalManagerResponse_RegionalManagerItem implements IGetRegionalManagerResponse_RegionalManagerItem {
+    regionalManagerId?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    numberOfManagers?: number;
+    restaurantIds?: string[] | undefined;
+
+    constructor(data?: IGetRegionalManagerResponse_RegionalManagerItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.regionalManagerId = _data["regionalManagerId"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+            this.numberOfManagers = _data["numberOfManagers"];
+            if (Array.isArray(_data["restaurantIds"])) {
+                this.restaurantIds = [] as any;
+                for (let item of _data["restaurantIds"])
+                    this.restaurantIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetRegionalManagerResponse_RegionalManagerItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetRegionalManagerResponse_RegionalManagerItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["regionalManagerId"] = this.regionalManagerId;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        data["numberOfManagers"] = this.numberOfManagers;
+        if (Array.isArray(this.restaurantIds)) {
+            data["restaurantIds"] = [];
+            for (let item of this.restaurantIds)
+                data["restaurantIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IGetRegionalManagerResponse_RegionalManagerItem {
+    regionalManagerId?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    numberOfManagers?: number;
+    restaurantIds?: string[] | undefined;
+}
+
 export class UpdateManagerRequest implements IUpdateManagerRequest {
     managerId?: string;
     email?: string | undefined;
@@ -5377,60 +5453,6 @@ export class GetPackagesResponse implements IGetPackagesResponse {
 export interface IGetPackagesResponse {
     packages?: PackageItem[] | undefined;
     total?: number;
-}
-
-export class WeatherForecast implements IWeatherForecast {
-    date?: Date;
-    temperatureC?: number;
-    readonly temperatureF?: number;
-    summary?: string | undefined;
-
-    constructor(data?: IWeatherForecast) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
-            this.temperatureC = _data["temperatureC"];
-            (<any>this).temperatureF = _data["temperatureF"];
-            this.summary = _data["summary"];
-        }
-    }
-
-    static fromJS(data: any): WeatherForecast {
-        data = typeof data === 'object' ? data : {};
-        let result = new WeatherForecast();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
-        data["temperatureC"] = this.temperatureC;
-        data["temperatureF"] = this.temperatureF;
-        data["summary"] = this.summary;
-        return data;
-    }
-}
-
-export interface IWeatherForecast {
-    date?: Date;
-    temperatureC?: number;
-    temperatureF?: number;
-    summary?: string | undefined;
-}
-
-function formatDate(d: Date) {
-    return d.getFullYear() + '-' + 
-        (d.getMonth() < 9 ? ('0' + (d.getMonth()+1)) : (d.getMonth()+1)) + '-' +
-        (d.getDate() < 10 ? ('0' + d.getDate()) : d.getDate());
 }
 
 export class ApiException extends Error {

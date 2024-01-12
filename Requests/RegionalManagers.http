@@ -37,5 +37,7 @@ Authorization: Bearer {{token}}
 
 {
     "PageNumber": 1,
-    "PageSize": 10
+    "PageSize": 10,
+    "RestaurantIdFilter": "d8",
+    "FirstNameFilter": "j"
 }

@@ -56,6 +56,7 @@ import { ScheduleComponent } from './schedule/schedule.component';
 import { UserTypes } from './utils/UserTypes';
 import { UtilsModule } from './utils/utils.module';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { RegionalmanagersManagementComponent } from './personel-management/regionalmanagers-management/regionalmanagers-management.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -119,6 +120,12 @@ export const ROUTES: Array<Route> = [
         component: ManagersManagementComponent,
         canActivate: [canActivateUserTypes],
         data: { userTypes: [UserTypes.regionalManager] },
+      },
+      {
+        path: 'regionalmanager-management',
+        component: RegionalmanagersManagementComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.globalManager] },
       },
       {
         path: 'delivery',

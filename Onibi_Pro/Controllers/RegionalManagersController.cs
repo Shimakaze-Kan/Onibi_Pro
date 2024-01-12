@@ -92,13 +92,14 @@ public class RegionalManagersController : ApiBaseController
 
     [HttpGet]
     [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
-    [ProducesResponseType(typeof(IReadOnlyCollection<GetRegionalManagerResponse>), 200)]
-    public async Task<IActionResult> GetRegionalManagers(GetRegionalManagersRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(GetRegionalManagerResponse), 200)]
+    public async Task<IActionResult> GetRegionalManagers([FromQuery] GetRegionalManagersRequest request, 
+        CancellationToken cancellationToken)
     {
         var query = _mapper.Map<GetRegionalManagersQuery>(request);
 
         var result = await _mediator.Send(query, cancellationToken);
 
-        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetRegionalManagerResponse>>(result)), Problem);
+        return result.Match(result => Ok(_mapper.Map<GetRegionalManagerResponse>(result)), Problem);
     }
 }

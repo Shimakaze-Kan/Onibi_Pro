@@ -1,4 +1,6 @@
-﻿using Dapper;
+﻿using System.Data;
+
+using Dapper;
 
 using ErrorOr;
 
@@ -7,8 +9,11 @@ using MediatR;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 
+using static Onibi_Pro.Application.RegionalManagers.Queries.GetRegionalManagers.RegionalManagerDto;
+
 namespace Onibi_Pro.Application.RegionalManagers.Queries.GetRegionalManagers;
-internal sealed class GetRegionalManagersQueryHandler : IRequestHandler<GetRegionalManagersQuery, ErrorOr<IReadOnlyCollection<RegionalManagerDto>>>
+internal sealed class GetRegionalManagersQueryHandler 
+    : IRequestHandler<GetRegionalManagersQuery, ErrorOr<RegionalManagerDto>>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly ICurrentUserService _currentUserService;
@@ -20,21 +25,35 @@ internal sealed class GetRegionalManagersQueryHandler : IRequestHandler<GetRegio
         _currentUserService = currentUserService;
     }
 
-    public async Task<ErrorOr<IReadOnlyCollection<RegionalManagerDto>>> Handle(GetRegionalManagersQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<RegionalManagerDto>> Handle(
+        GetRegionalManagersQuery request, CancellationToken cancellationToken)
     {
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
         var sql = GetSqlQuery();
 
         var result = await connection.QueryAsync<RegionalManagerIntermediateDto>(sql,
-            new { Offset = (request.PageNumber - 1) * request.PageSize, request.PageSize });
-        var groupedResults = GroupResults(result);
+            new
+            {
+                Offset = (request.PageNumber - 1) * request.PageSize + 1,
+                request.PageSize,
+                RegionalManagerIdFilter = FormatFilter(request.RegionalManagerIdFilter),
+                FirstNameFilter = FormatFilter(request.FirstNameFilter),
+                LastNameFilter = FormatFilter(request.LastNameFilter),
+                EmailFilter = FormatFilter(request.EmailFilter),
+                RestaurantIdFilter = FormatFilter(request.RestaurantIdFilter)
+            });
 
-        return groupedResults.ToList();
+        var totalRecords = await GetTotalRecords(connection, cancellationToken);
+
+        var groupedResults = GroupResults(result, totalRecords);
+
+        return groupedResults;
     }
 
-    private static IEnumerable<RegionalManagerDto> GroupResults(IEnumerable<RegionalManagerIntermediateDto> result)
+    private static RegionalManagerDto GroupResults(
+        IEnumerable<RegionalManagerIntermediateDto> result, int totalRecords)
     {
-        return result.GroupBy(rm => new
+        var items = result.GroupBy(rm => new
         {
             rm.RegionalManagerId,
             rm.FirstName,
@@ -42,13 +61,15 @@ internal sealed class GetRegionalManagersQueryHandler : IRequestHandler<GetRegio
             rm.Email,
             rm.NumberOfManagers
         })
-        .Select(group => new RegionalManagerDto(
+        .Select(group => new RegionalManagerItem(
             group.Key.RegionalManagerId,
             group.Key.FirstName,
             group.Key.LastName,
             group.Key.Email,
             group.Key.NumberOfManagers,
             group.Select(rm => rm.RestaurantId).Distinct().ToList()));
+
+        return new([.. items], totalRecords);
     }
 
     private static string GetSqlQuery()
@@ -57,12 +78,12 @@ internal sealed class GetRegionalManagersQueryHandler : IRequestHandler<GetRegio
             WITH ManagerCountCTE AS (
                 SELECT
                     rm.RegionalManagerId AS {nameof(RegionalManagerIntermediateDto.RegionalManagerId)},
-                    u.FirstName AS {nameof(RegionalManagerIntermediateDto.FirstName)},
-                    u.LastName AS {nameof(RegionalManagerIntermediateDto.LastName)},
-                    u.Email AS {nameof(RegionalManagerIntermediateDto.Email)},
-                    rmri.RestaurantId AS {nameof(RegionalManagerIntermediateDto.RestaurantId)},
-                    COUNT(m.RestaurantId) OVER (PARTITION BY rm.RegionalManagerId) 
-                        AS {nameof(RegionalManagerIntermediateDto.NumberOfManagers)}
+		            u.FirstName AS {nameof(RegionalManagerIntermediateDto.FirstName)},
+		            u.LastName AS {nameof(RegionalManagerIntermediateDto.LastName)},
+		            u.Email AS {nameof(RegionalManagerIntermediateDto.Email)},
+		            rmri.RestaurantId AS {nameof(RegionalManagerIntermediateDto.RestaurantId)},
+		            COUNT(m.RestaurantId) OVER (PARTITION BY rm.RegionalManagerId) 
+			            AS {nameof(RegionalManagerIntermediateDto.NumberOfManagers)}
                 FROM
                     dbo.RegionalManagers rm
                 JOIN
@@ -71,13 +92,18 @@ internal sealed class GetRegionalManagersQueryHandler : IRequestHandler<GetRegio
                     dbo.Users u ON u.Id = rm.UserId
                 LEFT JOIN
                     dbo.Managers m ON m.RestaurantId = rmri.RestaurantId
+            ),
+            FilteredManager AS (
+                SELECT
+                    *,
+                    DENSE_RANK() OVER (PARTITION BY RegionalManagerId ORDER BY RegionalManagerId) AS RowNum
+                FROM
+                    ManagerCountCTE
                 WHERE
-                    rm.RegionalManagerId IN (
-                        SELECT RegionalManagerId
-                        FROM dbo.RegionalManagers
-                        ORDER BY RegionalManagerId
-                        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
-                    )
+                    FirstName LIKE @FirstNameFilter AND
+                    LastName LIKE @LastNameFilter AND
+		            Email LIKE @EmailFilter AND
+		            RegionalManagerId LIKE @RegionalManagerIdFilter
             )
             SELECT
                 RegionalManagerId,
@@ -87,10 +113,27 @@ internal sealed class GetRegionalManagersQueryHandler : IRequestHandler<GetRegio
                 RestaurantId,
                 NumberOfManagers
             FROM
-                ManagerCountCTE
-            ORDER BY
-                RegionalManagerId;";
+                FilteredManager
+            WHERE
+	            RowNum >= @Offset AND
+	            RowNum <= @PageSize AND
+	            RowNum IN (SELECT RowNum 
+		            FROM FilteredManager 
+		            WHERE RestaurantId LIKE @RestaurantIdFilter)";
     }
+
+    private static async Task<int> GetTotalRecords(IDbConnection connection, CancellationToken cancellationToken)
+    {
+        var query = @"
+            SELECT COUNT(1)
+            FROM dbo.RegionalManagers WITH (NOLOCK)";
+
+        var totalRecords = await connection.ExecuteScalarAsync<int>(query, cancellationToken);
+        return totalRecords;
+    }
+
+    private static string FormatFilter(string? filter)
+        => $"%{filter}%";
 
     private class RegionalManagerIntermediateDto
     {
