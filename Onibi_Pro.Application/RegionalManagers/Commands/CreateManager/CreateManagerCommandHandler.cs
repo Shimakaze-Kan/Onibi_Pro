@@ -45,7 +45,10 @@ internal sealed class CreateManagerCommandHandler : IRequestHandler<CreateManage
         if (user.IsError)
         {
             _logger.LogError("An error occured when creating a user.");
-            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+            if (user.FirstError != Error.Unexpected())
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+            }
 
             return user.Errors;
         }

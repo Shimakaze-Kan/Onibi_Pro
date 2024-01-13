@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-
-using Azure;
-
-using ErrorOr;
-
-using MapsterMapper;
+﻿using MapsterMapper;
 
 using MediatR;
 
@@ -13,7 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.RegionalManagers.Commands.CreateCourier;
 using Onibi_Pro.Application.RegionalManagers.Commands.CreateManager;
+using Onibi_Pro.Application.RegionalManagers.Commands.CreateRegionalManager;
 using Onibi_Pro.Application.RegionalManagers.Commands.UpdateManager;
+using Onibi_Pro.Application.RegionalManagers.Commands.UpdateRegionalManager;
 using Onibi_Pro.Application.RegionalManagers.Queries.GetCouriers;
 using Onibi_Pro.Application.RegionalManagers.Queries.GetManagers;
 using Onibi_Pro.Application.RegionalManagers.Queries.GetRegionalManagers;
@@ -93,7 +89,7 @@ public class RegionalManagersController : ApiBaseController
     [HttpGet]
     [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
     [ProducesResponseType(typeof(GetRegionalManagerResponse), 200)]
-    public async Task<IActionResult> GetRegionalManagers([FromQuery] GetRegionalManagersRequest request, 
+    public async Task<IActionResult> GetRegionalManagers([FromQuery] GetRegionalManagersRequest request,
         CancellationToken cancellationToken)
     {
         var query = _mapper.Map<GetRegionalManagersQuery>(request);
@@ -101,5 +97,29 @@ public class RegionalManagersController : ApiBaseController
         var result = await _mediator.Send(query, cancellationToken);
 
         return result.Match(result => Ok(_mapper.Map<GetRegionalManagerResponse>(result)), Problem);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    public async Task<IActionResult> CreateRegionalManager([FromBody] CreateRegionalManagerRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = _mapper.Map<CreateRegionalManagerCommand>(request);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpPut]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    public async Task<IActionResult> UpdateRegionalManager([FromBody] UpdateRegionalManagerRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = _mapper.Map<UpdateRegionalManagerCommand>(request);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
     }
 }

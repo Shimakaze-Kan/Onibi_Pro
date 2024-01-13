@@ -24,16 +24,26 @@ public sealed class RegionalManager : AggregateRoot<RegionalManagerId>
         UserId = userId;
     }
 
-    public static RegionalManager Create(UserId userId, List<RestaurantId>? restaurants = null)
+    public static ErrorOr<RegionalManager> Create(UserId userId, bool areRestaurantsAlreadyAssigned, List<RestaurantId>? restaurants = null)
     {
-        return new(RegionalManagerId.CreateUnique(), userId, restaurants);
+        if (areRestaurantsAlreadyAssigned)
+        {
+            return Errors.RegionalManager.RestaurantsAlreadyAssignedToOtherRegionalManagers;
+        }
+
+        return new RegionalManager(RegionalManagerId.CreateUnique(), userId, restaurants);
     }
 
-    public ErrorOr<Success> AssignRestaurant(RestaurantId restaurantId)
+    public ErrorOr<Success> AssignRestaurant(RestaurantId restaurantId, bool isRestaurantsAlreadyAssigned)
     {
         if (_restaurants.Contains(restaurantId))
         {
             return Errors.RegionalManager.RestaurantAlreadyAssigned;
+        }
+
+        if (isRestaurantsAlreadyAssigned)
+        {
+            return Errors.RegionalManager.RestaurantsAlreadyAssignedToOtherRegionalManagers;
         }
 
         _restaurants.Add(restaurantId);

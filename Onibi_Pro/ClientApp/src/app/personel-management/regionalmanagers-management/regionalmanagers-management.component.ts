@@ -1,13 +1,28 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ReplaySubject, Subject, of, switchMap, takeUntil, tap } from 'rxjs';
+import {
+  ReplaySubject,
+  Subject,
+  filter,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import {
   GetRegionalManagerResponse,
+  GetRegionalManagerResponse_RegionalManagerItem,
   RegionalManagersClient,
   RestaurantsClient,
 } from '../../api/api';
 import { MatTableDataSource } from '@angular/material/table';
 import { PageEvent } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
+import { AddRegionalmanagerComponent } from './add-regionalmanager/add-regionalmanager.component';
+import { IAddRegionalManagerData } from './add-regionalmanager/IAddRegionalManagerData';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { EditRegionalmanagerComponent } from './edit-regionalmanager/edit-regionalmanager.component';
+import { IEditRegionalManagerData } from './edit-regionalmanager/IEditRegionalManagerData';
 
 @Component({
   selector: 'app-regionalmanagers-management',
@@ -47,7 +62,9 @@ export class RegionalmanagersManagementComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly restaurantClient: RestaurantsClient,
-    private readonly regionalManagersClient: RegionalManagersClient
+    private readonly regionalManagersClient: RegionalManagersClient,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -97,6 +114,65 @@ export class RegionalmanagersManagementComponent implements OnInit, OnDestroy {
     this.onSubmit();
   }
 
+  openAddRegionalManagerDialog(): void {
+    const dialogRef = this.dialog.open(AddRegionalmanagerComponent, {
+      minHeight: '80%',
+      maxHeight: '100%',
+      maxWidth: '770px',
+      data: { restaurants: this.restaurants } as IAddRegionalManagerData,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter((result) => !!result),
+        filter((result: { reload: boolean }) => result.reload),
+        tap((_) => this.onSubmit()),
+        tap(() =>
+          this.snackBar.open(
+            'Regional Manager created successfully.',
+            'close',
+            {
+              duration: 5000,
+            }
+          )
+        )
+      )
+      .subscribe();
+  }
+
+  openEditRegionalManagerDialog(
+    record: GetRegionalManagerResponse_RegionalManagerItem
+  ): void {
+    const dialogRef = this.dialog.open(EditRegionalmanagerComponent, {
+      minHeight: '80%',
+      maxHeight: '100%',
+      maxWidth: '770px',
+      data: {
+        restaurants: this.restaurants,
+        regionalManager: record,
+      } as IEditRegionalManagerData,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter((result) => !!result),
+        filter((result: { reload: boolean }) => result.reload),
+        tap((_) => this.onSubmit()),
+        tap(() =>
+          this.snackBar.open(
+            'Regional Manager updated successfully.',
+            'close',
+            {
+              duration: 5000,
+            }
+          )
+        )
+      )
+      .subscribe();
+  }
+
   private getRegionalManagers() {
     const rawValues = Object.fromEntries(
       Object.entries(this.regionalManagerSearchForm.getRawValue()).map(
@@ -106,7 +182,7 @@ export class RegionalmanagersManagementComponent implements OnInit, OnDestroy {
 
     return of({}).pipe(
       switchMap(() =>
-        this.regionalManagersClient.regionalManagers(
+        this.regionalManagersClient.regionalManagersGet(
           this.pageIndex + 1,
           this.pageSize,
           rawValues.regionalManagerId,

@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
+using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.RestaurantAggregate.Events;
@@ -11,12 +12,15 @@ internal sealed class AssignRestaurantToRegionalManager : INotificationHandler<R
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AssignRestaurantToRegionalManager> _logger;
+    private readonly IRestaurantDetailsService _restaurantDetailsService;
 
     public AssignRestaurantToRegionalManager(IUnitOfWork unitOfWork,
-        ILogger<AssignRestaurantToRegionalManager> logger)
+        ILogger<AssignRestaurantToRegionalManager> logger,
+        IRestaurantDetailsService restaurantDetailsService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _restaurantDetailsService = restaurantDetailsService;
     }
 
     public async Task Handle(RestaurantCreated notification, CancellationToken cancellationToken)
@@ -29,7 +33,9 @@ internal sealed class AssignRestaurantToRegionalManager : INotificationHandler<R
             throw new ArgumentNullException(Errors.RegionalManager.RegionalManagerNotFound.Description);
         }
 
-        var result = regionalManager.AssignRestaurant(notification.Restaurant.Id);
+        var isRestaurantsAssignedToAnyRegionalManager = 
+            await _restaurantDetailsService.AreRestaurantsAssignedToAnyRegionalManager([notification.Restaurant.Id]);
+        var result = regionalManager.AssignRestaurant(notification.Restaurant.Id, isRestaurantsAssignedToAnyRegionalManager);
 
         if (result.IsError)
         {

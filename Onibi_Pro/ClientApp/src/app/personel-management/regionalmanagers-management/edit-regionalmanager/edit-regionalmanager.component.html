@@ -1,0 +1,93 @@
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
+<h1 mat-dialog-title>Edit Regional Manager</h1>
+<div mat-dialog-content class="dialog-content">
+  <form [formGroup]="editRegionalManagerForm" autocomplete="off">
+    <fieldset [disabled]="loading" class="row mt-3">
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="emailInput" appRequiredStar>Email</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="emailInput"
+              matInput
+              placeholder="Email"
+              formControlName="email"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="firstNameInput" appRequiredStar
+            >First Name</label
+          >
+          <mat-form-field appearance="outline">
+            <input
+              id="firstNameInput"
+              matInput
+              placeholder="First Name"
+              formControlName="firstName"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="lastNameInput" appRequiredStar
+            >Last Name</label
+          >
+          <mat-form-field appearance="outline">
+            <input
+              id="lastNameInput"
+              matInput
+              placeholder="Last Name"
+              formControlName="lastName"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="restaurantsSelect">Restaurants</label>
+          <mat-form-field appearance="outline">
+            <mat-select
+              id="restaurantsSelect"
+              formControlName="restaurants"
+              placeholder="Restaurants"
+              multiple
+            >
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="restaurantFilterCtrl"
+                  placeholderLabel="Type to search"
+                ></ngx-mat-select-search>
+              </mat-option>
+              <mat-option class="none">-- None --</mat-option>
+              <mat-option
+                *ngFor="let restaurant of filteredRestaurants | async"
+                [value]="restaurant"
+              >
+                <span style="word-break: break-all"> {{ restaurant }}</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button
+    mat-button
+    [disabled]="editRegionalManagerForm.invalid || loading"
+    (click)="editRegionalManager()"
+    color="primary"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
+</div>

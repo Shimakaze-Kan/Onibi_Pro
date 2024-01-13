@@ -78,12 +78,12 @@ internal sealed class GetRegionalManagersQueryHandler
             WITH ManagerCountCTE AS (
                 SELECT
                     rm.RegionalManagerId AS {nameof(RegionalManagerIntermediateDto.RegionalManagerId)},
-		            u.FirstName AS {nameof(RegionalManagerIntermediateDto.FirstName)},
-		            u.LastName AS {nameof(RegionalManagerIntermediateDto.LastName)},
-		            u.Email AS {nameof(RegionalManagerIntermediateDto.Email)},
-		            rmri.RestaurantId AS {nameof(RegionalManagerIntermediateDto.RestaurantId)},
-		            COUNT(m.RestaurantId) OVER (PARTITION BY rm.RegionalManagerId) 
-			            AS {nameof(RegionalManagerIntermediateDto.NumberOfManagers)}
+                    u.FirstName AS {nameof(RegionalManagerIntermediateDto.FirstName)},
+                    u.LastName AS {nameof(RegionalManagerIntermediateDto.LastName)},
+                    u.Email AS {nameof(RegionalManagerIntermediateDto.Email)},
+                    rmri.RestaurantId AS {nameof(RegionalManagerIntermediateDto.RestaurantId)},
+                    COUNT(m.RestaurantId) OVER (PARTITION BY rm.RegionalManagerId) 
+                        AS {nameof(RegionalManagerIntermediateDto.NumberOfManagers)}
                 FROM
                     dbo.RegionalManagers rm
                 JOIN
@@ -102,8 +102,12 @@ internal sealed class GetRegionalManagersQueryHandler
                 WHERE
                     FirstName LIKE @FirstNameFilter AND
                     LastName LIKE @LastNameFilter AND
-		            Email LIKE @EmailFilter AND
-		            RegionalManagerId LIKE @RegionalManagerIdFilter
+                    Email LIKE @EmailFilter AND
+                    RegionalManagerId LIKE @RegionalManagerIdFilter AND
+                    RegionalManagerId IN (SELECT 
+                        RegionalManagerId 
+                        FROM ManagerCountCTE 
+                        WHERE RestaurantId LIKE @RestaurantIdFilter)
             )
             SELECT
                 RegionalManagerId,
@@ -115,11 +119,8 @@ internal sealed class GetRegionalManagersQueryHandler
             FROM
                 FilteredManager
             WHERE
-	            RowNum >= @Offset AND
-	            RowNum <= @PageSize AND
-	            RowNum IN (SELECT RowNum 
-		            FROM FilteredManager 
-		            WHERE RestaurantId LIKE @RestaurantIdFilter)";
+                RowNum >= @Offset AND
+                RowNum <= @Offset + @PageSize - 1";
     }
 
     private static async Task<int> GetTotalRecords(IDbConnection connection, CancellationToken cancellationToken)

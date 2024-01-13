@@ -31,4 +31,22 @@ internal sealed class RestaurantDetailsService : IRestaurantDetailsService
 
         return result.Select(UserId.Create).ToList();
     }
+
+    public async Task<bool> AreRestaurantsAssignedToAnyRegionalManager(List<RestaurantId>? restaurants)
+    {
+        if (restaurants is null || restaurants.Count == 0)
+        {
+            return false;
+        }
+
+        var restaurantIds = restaurants.ConvertAll(restaurant => restaurant.Value);
+        using var connection = await _dbConnectionFactory.OpenConnectionAsync(_currentUserService.ClientName);
+
+        var sql = @"
+            SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+            FROM dbo.RegionalManagerRestaurantIds
+            WHERE RestaurantId IN @RestaurantIds";
+
+        return await connection.ExecuteScalarAsync<bool>(sql, new { restaurantIds });
+    }
 }

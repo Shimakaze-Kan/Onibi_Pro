@@ -22,5 +22,8 @@ public static partial class Errors
         
         public static Error InvalidPhoneNumber => Error.Validation(
             code: "Courier.InvalidPhoneNumber", description: "Phone number is invalid.");
+        
+        public static Error RestaurantsAlreadyAssignedToOtherRegionalManagers => Error.Conflict(
+            code: "RegionalManager.RestaurantsAlreadyAssigned", description: "One of the restaurants listed is already assigned to another regional manager.");
     }
 }

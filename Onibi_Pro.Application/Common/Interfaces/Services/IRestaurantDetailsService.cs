@@ -5,4 +5,5 @@ namespace Onibi_Pro.Application.Common.Interfaces.Services;
 public interface IRestaurantDetailsService
 {
     Task<List<UserId>> GetManagerUserIds(RestaurantId restaurantId);
+    Task<bool> AreRestaurantsAssignedToAnyRegionalManager(List<RestaurantId>? restaurants);
 }
