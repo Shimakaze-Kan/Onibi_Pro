@@ -17,6 +17,7 @@ using Onibi_Pro.Application.Restaurants.Queries.GetEmployeeCities;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployeePositions;
 using Onibi_Pro.Application.Restaurants.Queries.GetEmployees;
 using Onibi_Pro.Application.Restaurants.Queries.GetRestaurantIds;
+using Onibi_Pro.Application.Restaurants.Queries.GetRestaurants;
 using Onibi_Pro.Application.Restaurants.Queries.GetSchedules;
 using Onibi_Pro.Contracts.Common;
 using Onibi_Pro.Contracts.Restaurants;
@@ -170,7 +171,7 @@ public class RestaurantsController : ApiBaseController
         return result.Match(Ok, Problem);
     }
 
-    [HttpGet]
+    [HttpGet("ids")]
     [ProducesResponseType(typeof(IReadOnlyCollection<Guid>), 200)]
     [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
     public async Task<IActionResult> GetRestaurantIds(CancellationToken cancellationToken)
@@ -178,5 +179,15 @@ public class RestaurantsController : ApiBaseController
         var result = await _mediator.Send(new GetRestaurantIdsQuery(), cancellationToken);
 
         return result.Match(Ok, Problem);
+    }
+    
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyCollection<GetRestaurantsResponse>), 200)]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    public async Task<IActionResult> GetRestaurants([FromQuery] string query = "", CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetRestaurantsQuery(query), cancellationToken);
+
+        return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetRestaurantsResponse>>(result)), Problem);
     }
 }

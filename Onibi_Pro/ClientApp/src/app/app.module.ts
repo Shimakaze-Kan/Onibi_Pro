@@ -57,6 +57,8 @@ import { UserTypes } from './utils/UserTypes';
 import { UtilsModule } from './utils/utils.module';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { RegionalmanagersManagementComponent } from './personel-management/regionalmanagers-management/regionalmanagers-management.component';
+import { RestaurantComponent } from './restaurant/restaurant/restaurant.component';
+import { RestaurantModule } from './restaurant/restaurant.module';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -145,6 +147,12 @@ export const ROUTES: Array<Route> = [
         canActivate: [canActivateUserTypes],
         data: { userTypes: [UserTypes.manager] },
       },
+      {
+        path: 'restaurant',
+        component: RestaurantComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.globalManager] },
+      },
     ],
   },
   { path: '**', redirectTo: '' },
@@ -179,6 +187,7 @@ export const ROUTES: Array<Route> = [
     OverlayModule,
     OrdersModule,
     PersonelManagementModule,
+    RestaurantModule,
   ],
   providers: [
     { provide: APP_ID, useValue: 'serverApp' },

@@ -1,0 +1,128 @@
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
+<h1 mat-dialog-title>New Restaurant</h1>
+<div mat-dialog-content class="dialog-content">
+  <form [formGroup]="newRestaurantForm" autocomplete="off">
+    <fieldset [disabled]="loading" class="row mt-3">
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="streetInput" appRequiredStar>Street</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="streetInput"
+              matInput
+              placeholder="Street"
+              formControlName="street"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="cityInput" appRequiredStar>City</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="cityInput"
+              matInput
+              placeholder="City"
+              formControlName="city"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="postalCodeInput" appRequiredStar
+            >Postal Code</label
+          >
+          <mat-form-field appearance="outline">
+            <input
+              id="postalCodeInput"
+              matInput
+              placeholder="Postal Code"
+              formControlName="postalCode"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <label class="mb-1" for="countryInput" appRequiredStar>Country</label>
+          <mat-form-field appearance="outline">
+            <input
+              id="countryInput"
+              matInput
+              placeholder="Contry"
+              formControlName="country"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="row">
+          <label class="mb-1" for="regionalManagerSelect"
+            >Regional Manager</label
+          >
+          <mat-form-field appearance="outline">
+            <mat-select
+              id="regionalManagerSelect"
+              formControlName="regionalManager"
+              placeholder="Regional Manager"
+            >
+              <mat-select-trigger>
+                <ng-container *ngIf="!!selectedRegionalManager">
+                  <span>{{ selectedRegionalManager.email }}</span
+                  ><br />
+                  <span class="small-gray-text">{{
+                    selectedRegionalManager.regionalManagerId
+                  }}</span
+                  ><br />
+                  <span class="small-gray-text"
+                    >{{ selectedRegionalManager.firstName }}
+                    {{ selectedRegionalManager.lastName }}</span
+                  ><br />
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="regionalManagerFilterCtrl"
+                  placeholderLabel="Type to search"
+                ></ngx-mat-select-search>
+              </mat-option>
+              <mat-option class="none">-- None --</mat-option>
+              <mat-option
+                *ngFor="let regionalManager of filteredRegionalManagers | async"
+                [value]="regionalManager"
+              >
+                <span>{{ regionalManager.email }}</span
+                ><br />
+                <span class="small-gray-text">{{
+                  regionalManager.regionalManagerId
+                }}</span
+                ><br />
+                <span class="small-gray-text"
+                  >{{ regionalManager.firstName }}
+                  {{ regionalManager.lastName }}</span
+                ><br />
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button
+    mat-button
+    [disabled]="newRestaurantForm.invalid || loading"
+    (click)="createRestaurant()"
+    color="primary"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
+</div>

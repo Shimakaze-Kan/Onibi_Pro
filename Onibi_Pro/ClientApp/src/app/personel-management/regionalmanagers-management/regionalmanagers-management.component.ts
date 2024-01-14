@@ -72,7 +72,7 @@ export class RegionalmanagersManagementComponent implements OnInit, OnDestroy {
       .pipe(
         tap(() => (this.loading = true)),
         switchMap(() => this.getRegionalManagers()),
-        switchMap(() => this.restaurantClient.restaurantsGet()),
+        switchMap(() => this.restaurantClient.ids()),
         tap((result) => {
           this.restaurants = result;
           this.filteredRestaurants.next(this.restaurants.slice());

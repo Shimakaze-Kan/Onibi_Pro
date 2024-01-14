@@ -1549,9 +1549,10 @@ export interface IRestaurantsClient {
      */
     restaurantsPost(body: CreateRestaurantRequest | undefined): Observable<CreateRestaurantResponse>;
     /**
+     * @param query (optional) 
      * @return Success
      */
-    restaurantsGet(): Observable<string[]>;
+    restaurantsGet(query: string | undefined): Observable<GetRestaurantsResponse[]>;
     /**
      * @return Success
      */
@@ -1607,6 +1608,10 @@ export interface IRestaurantsClient {
      * @return Success
      */
     employeeCities(): Observable<string[]>;
+    /**
+     * @return Success
+     */
+    ids(): Observable<string[]>;
 }
 
 @Injectable({
@@ -1679,10 +1684,15 @@ export class RestaurantsClient implements IRestaurantsClient {
     }
 
     /**
+     * @param query (optional) 
      * @return Success
      */
-    restaurantsGet(): Observable<string[]> {
-        let url_ = this.baseUrl + "/api/Restaurants";
+    restaurantsGet(query: string | undefined): Observable<GetRestaurantsResponse[]> {
+        let url_ = this.baseUrl + "/api/Restaurants?";
+        if (query === null)
+            throw new Error("The parameter 'query' cannot be null.");
+        else if (query !== undefined)
+            url_ += "query=" + encodeURIComponent("" + query) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1700,14 +1710,14 @@ export class RestaurantsClient implements IRestaurantsClient {
                 try {
                     return this.processRestaurantsGet(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<string[]>;
+                    return _observableThrow(e) as any as Observable<GetRestaurantsResponse[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<string[]>;
+                return _observableThrow(response_) as any as Observable<GetRestaurantsResponse[]>;
         }));
     }
 
-    protected processRestaurantsGet(response: HttpResponseBase): Observable<string[]> {
+    protected processRestaurantsGet(response: HttpResponseBase): Observable<GetRestaurantsResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1721,7 +1731,7 @@ export class RestaurantsClient implements IRestaurantsClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(item);
+                    result200!.push(GetRestaurantsResponse.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -2363,6 +2373,64 @@ export class RestaurantsClient implements IRestaurantsClient {
     }
 
     protected processEmployeeCities(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    ids(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/Restaurants/ids";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processIds(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processIds(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processIds(response: HttpResponseBase): Observable<string[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5275,6 +5343,58 @@ export interface IGetEmployeesResponse {
     city?: string | undefined;
     supervisors?: string | undefined;
     positions?: string[] | undefined;
+}
+
+export class GetRestaurantsResponse implements IGetRestaurantsResponse {
+    id?: string;
+    street?: string | undefined;
+    postalCode?: string | undefined;
+    city?: string | undefined;
+    country?: string | undefined;
+
+    constructor(data?: IGetRestaurantsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.street = _data["street"];
+            this.postalCode = _data["postalCode"];
+            this.city = _data["city"];
+            this.country = _data["country"];
+        }
+    }
+
+    static fromJS(data: any): GetRestaurantsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetRestaurantsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["street"] = this.street;
+        data["postalCode"] = this.postalCode;
+        data["city"] = this.city;
+        data["country"] = this.country;
+        return data;
+    }
+}
+
+export interface IGetRestaurantsResponse {
+    id?: string;
+    street?: string | undefined;
+    postalCode?: string | undefined;
+    city?: string | undefined;
+    country?: string | undefined;
 }
 
 export class GetScheduleResponse implements IGetScheduleResponse {

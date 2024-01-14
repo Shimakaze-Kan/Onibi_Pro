@@ -1,0 +1,13 @@
+@import "../../../colors.scss";
+
+mat-list-item {
+  border: solid 1px transparent;
+  padding: 0.5rem;
+  cursor: pointer !important;
+
+  &:hover {
+    background-color: rgba(245, 102, 21, 0.09);
+    border: solid 1px $logo-color;
+    border-radius: 5px;
+  }
+}

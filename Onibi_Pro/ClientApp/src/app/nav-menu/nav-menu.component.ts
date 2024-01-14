@@ -110,6 +110,12 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       url: '/regionalmanager-management',
       canActivate: false,
     },
+    {
+      name: 'Restaurant',
+      id: 7,
+      url: '/restaurant',
+      canActivate: false,
+    },
   ];
 
   get pages(): Array<IPage> {
