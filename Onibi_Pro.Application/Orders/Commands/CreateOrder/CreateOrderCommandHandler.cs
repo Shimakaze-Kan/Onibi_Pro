@@ -49,15 +49,25 @@ internal sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderCom
         }
 
         var menuItemIds = request.OrderItems.ConvertAll(item => item.MenuItemId);
-        var areMenuItemIdsValid = await AreMenuItemIdsValid(menuItemIds, connection);
+        var validMenuItemIds = await AreMenuItemIdsValid(menuItemIds, connection);
 
-        if (!areMenuItemIdsValid)
+        var orderItems = new List<OrderItem>();
+
+        foreach (var item in request.OrderItems)
         {
-            return Errors.Order.WrongMenuItemId;
-        }
+            var isMenuItemValid = validMenuItemIds.Contains(item.MenuItemId);
+            var orderItem = OrderItem.Create(MenuItemId.Create(item.MenuItemId), item.Quantity, isMenuItemValid);
 
+            if (orderItem.IsError)
+            {
+                return orderItem.Errors;
+            }
+
+            orderItems.Add(orderItem.Value);
+        }
+        
         var order = Order.Create(_dateTimeProvider.UtcNow,
-            request.OrderItems.ConvertAll(item => OrderItem.Create(MenuItemId.Create(item.MenuItemId), item.Quantity)),
+            orderItems,
             RestaurantId.Create(request.RestaurantId));
 
         if (order.IsError)
@@ -71,11 +81,9 @@ internal sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderCom
         return order;
     }
 
-    private static async Task<bool> AreMenuItemIdsValid(List<Guid> menuItemIds, IDbConnection connection)
+    private static async Task<IEnumerable<Guid>> AreMenuItemIdsValid(List<Guid> menuItemIds, IDbConnection connection)
     {
-        var query = "SELECT COUNT(*) FROM dbo.MenuItems WHERE MenuItemId IN @Ids";
-        var count = await connection.QueryFirstOrDefaultAsync<int>(query, new { Ids = menuItemIds });
-
-        return count == menuItemIds.Count;
+        var query = "SELECT MenuItemId FROM dbo.MenuItems WHERE MenuItemId IN @Ids AND IsDeleted = 0";
+        return await connection.QueryAsync<Guid>(query, new { Ids = menuItemIds });
     }
 }

@@ -54,6 +54,7 @@ public class MenuConfigurations : IEntityTypeConfiguration<Menu>
 
             mib.Property(x => x.Name).HasMaxLength(100);
             mib.Property(x => x.Price);
+            mib.Property(x => x.IsDeleted);
 
             mib.OwnsMany(x => x.Ingredients, a =>
             {

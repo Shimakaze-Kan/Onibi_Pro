@@ -531,6 +531,16 @@ export interface IMenusClient {
      */
     menusGet(): Observable<GetMenusResponse[]>;
     /**
+     * @param body (optional) 
+     * @return Success
+     */
+    menusPut(body: AddMenuItemRequest | undefined): Observable<void>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    menusDelete(body: RemoveMenuItemRequest | undefined): Observable<void>;
+    /**
      * @return Success
      */
     ingredients(): Observable<GetIngredientResponse[]>;
@@ -654,6 +664,110 @@ export class MenusClient implements IMenusClient {
                 result200 = <any>null;
             }
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    menusPut(body: AddMenuItemRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Menus";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMenusPut(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMenusPut(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMenusPut(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    menusDelete(body: RemoveMenuItemRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Menus";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMenusDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMenusDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMenusDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3277,6 +3391,106 @@ export interface IGetWhoamiResponse {
     userType?: string | undefined;
 }
 
+export class AddMenuItemRequest implements IAddMenuItemRequest {
+    menuId?: string;
+    price?: number;
+    name?: string | undefined;
+    ingredients?: AddMenuItemRequest_Ingredient[] | undefined;
+
+    constructor(data?: IAddMenuItemRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.menuId = _data["menuId"];
+            this.price = _data["price"];
+            this.name = _data["name"];
+            if (Array.isArray(_data["ingredients"])) {
+                this.ingredients = [] as any;
+                for (let item of _data["ingredients"])
+                    this.ingredients!.push(AddMenuItemRequest_Ingredient.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AddMenuItemRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddMenuItemRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["menuId"] = this.menuId;
+        data["price"] = this.price;
+        data["name"] = this.name;
+        if (Array.isArray(this.ingredients)) {
+            data["ingredients"] = [];
+            for (let item of this.ingredients)
+                data["ingredients"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAddMenuItemRequest {
+    menuId?: string;
+    price?: number;
+    name?: string | undefined;
+    ingredients?: AddMenuItemRequest_Ingredient[] | undefined;
+}
+
+export class AddMenuItemRequest_Ingredient implements IAddMenuItemRequest_Ingredient {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+
+    constructor(data?: IAddMenuItemRequest_Ingredient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.unit = _data["unit"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): AddMenuItemRequest_Ingredient {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddMenuItemRequest_Ingredient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["unit"] = this.unit;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface IAddMenuItemRequest_Ingredient {
+    name?: string | undefined;
+    unit?: string | undefined;
+    quantity?: number;
+}
+
 export class CreateMenuRequest implements ICreateMenuRequest {
     name?: string | undefined;
     menuItems?: CreateMenuRequest_MenuItem[] | undefined;
@@ -3763,6 +3977,46 @@ export interface IGetMenusResponse_MenuItem {
     name?: string | undefined;
     price?: number;
     ingredients?: GetMenusResponse_Ingredient[] | undefined;
+}
+
+export class RemoveMenuItemRequest implements IRemoveMenuItemRequest {
+    menuId?: string;
+    menuItemId?: string;
+
+    constructor(data?: IRemoveMenuItemRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.menuId = _data["menuId"];
+            this.menuItemId = _data["menuItemId"];
+        }
+    }
+
+    static fromJS(data: any): RemoveMenuItemRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RemoveMenuItemRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["menuId"] = this.menuId;
+        data["menuItemId"] = this.menuItemId;
+        return data;
+    }
+}
+
+export interface IRemoveMenuItemRequest {
+    menuId?: string;
+    menuItemId?: string;
 }
 
 export class CreateOrderRequest implements ICreateOrderRequest {

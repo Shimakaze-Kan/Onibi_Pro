@@ -1,0 +1,73 @@
+<div class="container d-flex flex-column">
+  <button
+    type="button"
+    class="ms-auto mb-3"
+    mat-flat-button
+    color="primary"
+    [disabled]="loading"
+    (click)="openAddMenuDialog()"
+  >
+    Add Menu
+  </button>
+
+  <div class="spinner-container d-flex justify-content-center" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+  <mat-accordion class="example-headers-align">
+    <mat-expansion-panel
+      *ngFor="let menu of menus"
+      [expanded]="openedMenuId === menu.id"
+      (opened)="openedMenuId = menu.id!"
+      hideToggle
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ menu.name }}
+        </mat-panel-title>
+        <mat-panel-description> Menu Items </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <table class="w-100">
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Ingredients</th>
+          <th></th>
+        </tr>
+        <tr
+          *ngFor="let menuItem of menu.menuItems; let last = last"
+          [class.last-tr]="last"
+        >
+          <td>{{ menuItem.name }}</td>
+          <td>{{ menuItem.price | currency : "USD" }}</td>
+          <td>
+            <ul>
+              <li *ngFor="let ingredient of menuItem.ingredients">
+                {{ ingredient.name }}
+                <span class="ingredient-line">
+                  {{ ingredient.quantity }} {{ ingredient.unit }}</span
+                >
+              </li>
+            </ul>
+          </td>
+          <td>
+            <button
+              type="button"
+              class="ms-auto"
+              mat-flat-button
+              color="accent"
+              [disabled]="isRemoving"
+              (click)="removeItem(menu.id!, menuItem.menuItemId!)"
+            >
+              Remove
+            </button>
+          </td>
+        </tr>
+      </table>
+
+      <mat-action-row>
+        <button mat-button color="primary">Next</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

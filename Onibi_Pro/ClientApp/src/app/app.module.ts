@@ -59,6 +59,10 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { RegionalmanagersManagementComponent } from './personel-management/regionalmanagers-management/regionalmanagers-management.component';
 import { RestaurantComponent } from './restaurant/restaurant/restaurant.component';
 import { RestaurantModule } from './restaurant/restaurant.module';
+import { MenuComponent } from './menu/menu.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { AddMenuitemComponent } from './menu/add-menuitem/add-menuitem.component';
+import { AddMenuComponent } from './menu/add-menu/add-menu.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -82,6 +86,7 @@ const MATERIAL_MODULES = [
   MatProgressSpinnerModule,
   MatDatepickerModule,
   MatNativeDateModule,
+  MatExpansionModule,
 ];
 
 const canActivateAnything: CanActivateChildFn = (
@@ -153,6 +158,12 @@ export const ROUTES: Array<Route> = [
         canActivate: [canActivateUserTypes],
         data: { userTypes: [UserTypes.globalManager] },
       },
+      {
+        path: 'menu',
+        component: MenuComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.globalManager] },
+      },
     ],
   },
   { path: '**', redirectTo: '' },
@@ -166,6 +177,9 @@ export const ROUTES: Array<Route> = [
     TakeSpaceDirective,
     WelcomeComponent,
     RequiredStarDirective,
+    MenuComponent,
+    AddMenuitemComponent,
+    AddMenuComponent,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),

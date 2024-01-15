@@ -1,5 +1,9 @@
-﻿using Onibi_Pro.Domain.Common.Models;
+﻿using ErrorOr;
+
+using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.Common.Models;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
+
 
 namespace Onibi_Pro.Domain.OrderAggregate.ValueObjects;
 public sealed class OrderItem : ValueObject
@@ -13,8 +17,13 @@ public sealed class OrderItem : ValueObject
         Quantity = quantity;
     }
 
-    public static OrderItem Create(MenuItemId menuItemId, int quantity)
+    public static ErrorOr<OrderItem> Create(MenuItemId menuItemId, int quantity, bool menuItemExistsAndIsNotDeleted)
     {
+        if (!menuItemExistsAndIsNotDeleted)
+        {
+            return Errors.Order.WrongMenuItemId;
+        }
+
         return new OrderItem(menuItemId, quantity);
     }
 

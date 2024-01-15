@@ -116,6 +116,12 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       url: '/restaurant',
       canActivate: false,
     },
+    {
+      name: 'Menu',
+      id: 8,
+      url: '/menu',
+      canActivate: false,
+    },
   ];
 
   get pages(): Array<IPage> {

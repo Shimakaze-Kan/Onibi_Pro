@@ -9,6 +9,7 @@ public sealed class MenuItem : Entity<MenuItemId>
 
     public string Name { get; private set; }
     public decimal Price { get; private set; }
+    public bool IsDeleted { get; private set; }
     public IReadOnlyList<Ingredient> Ingredients => _ingredients;
 
     private MenuItem(MenuItemId id, string name, decimal price, List<Ingredient> ingredients)
@@ -32,6 +33,11 @@ public sealed class MenuItem : Entity<MenuItemId>
     public void RemoveIngredient(Ingredient ingredient)
     {
         _ingredients.Remove(ingredient);
+    }
+
+    internal void MarkAsDeleted()
+    {
+        IsDeleted = true;
     }
 
 #pragma warning disable CS8618

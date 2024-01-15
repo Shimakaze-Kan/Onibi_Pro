@@ -2,6 +2,7 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Onibi_Pro.Application.Orders.Commands.CancelOrder;
@@ -10,6 +11,7 @@ using Onibi_Pro.Application.Orders.Queries.GetOrderById;
 using Onibi_Pro.Application.Orders.Queries.GetOrders;
 using Onibi_Pro.Contracts.Orders;
 using Onibi_Pro.Domain.OrderAggregate.ValueObjects;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Controllers;
 [Route("api/[controller]")]
@@ -40,6 +42,7 @@ public class OrdersController : ApiBaseController
 
     [HttpPost("{restaurantId}")]
     [ProducesResponseType(typeof(CreateOrderResponse), 200)]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request, [FromRoute] Guid restaurantId)
     {
         var command = _mapper.Map<CreateOrderCommand>((request, restaurantId));
@@ -62,6 +65,7 @@ public class OrdersController : ApiBaseController
     }
 
     [HttpPut("{orderId}")]
+    [Authorize(Policy = AuthorizationPolicies.ManagerAccess)]
     public async Task<IActionResult> CancelOrder([FromRoute] Guid orderId, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CancelOrderCommand(OrderId.Create(orderId)), cancellationToken);

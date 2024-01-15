@@ -71,7 +71,8 @@ internal sealed class GetMenusQueryHandler : IRequestHandler<GetMenusQuery, Erro
                 ig.Quantity AS {nameof(IntermediateIngredientDto.Quantity)}
             FROM dbo.Menus m
             JOIN dbo.MenuItems mi ON mi.MenuId = m.Id
-            JOIN dbo.Ingredients ig ON ig.MenuItemId = mi.MenuItemId";
+            JOIN dbo.Ingredients ig ON ig.MenuItemId = mi.MenuItemId
+            WHERE mi.IsDeleted = 0";
 
         var menuDictionary = new Dictionary<Guid, IntermediateMenuDto>();
 

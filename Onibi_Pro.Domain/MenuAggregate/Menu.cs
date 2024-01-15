@@ -44,9 +44,17 @@ public sealed class Menu : AggregateRoot<MenuId>
         _menuItems.Add(item);
     }
 
-    public void RemoveItem(MenuItem item)
+    public ErrorOr<Success> RemoveItem(MenuItem item)
     {
-        _menuItems.Remove(item);
+        var menuItem = _menuItems.FirstOrDefault(menuItem => menuItem == item);
+
+        if (menuItem is null)
+        {
+            return Errors.Menu.MenuItemNotFound;
+        }
+
+        menuItem.MarkAsDeleted();
+        return new Success();
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

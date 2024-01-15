@@ -5,7 +5,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Onibi_Pro.Application.Menus.Commands.AddMenuItem;
 using Onibi_Pro.Application.Menus.Commands.CreateMenu;
+using Onibi_Pro.Application.Menus.Commands.RemoveMenuItem;
 using Onibi_Pro.Application.Menus.Queries.GetIngredients;
 using Onibi_Pro.Application.Menus.Queries.GetMenus;
 using Onibi_Pro.Contracts.Menus;
@@ -53,5 +55,27 @@ public class MenusController : ApiBaseController
         var result = await _mediator.Send(new GetIngredientsQuery());
 
         return result.Match(result => Ok(_mapper.Map<IReadOnlyCollection<GetIngredientResponse>>(result)), Problem);
+    }
+
+    [HttpPut]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    public async Task<IActionResult> AddMenuItem([FromBody] AddMenuItemRequest request, CancellationToken cancellationToken)
+    {
+        var command = _mapper.Map<AddMenuItemCommand>(request);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
+    }
+
+    [HttpDelete]
+    [Authorize(Policy = AuthorizationPolicies.GlobalManagerAccess)]
+    public async Task<IActionResult> RemoveMenuItem([FromBody] RemoveMenuItemRequest request, CancellationToken cancellationToken)
+    {
+        var command = _mapper.Map<RemoveMenuItemCommand>(request);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
     }
 }
