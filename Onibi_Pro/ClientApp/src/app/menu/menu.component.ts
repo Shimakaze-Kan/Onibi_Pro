@@ -8,6 +8,7 @@ import { filter, of, switchMap, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { AddMenuComponent } from './add-menu/add-menu.component';
+import { AddMenuitemComponent } from './add-menuitem/add-menuitem.component';
 
 @Component({
   selector: 'app-menu',
@@ -83,6 +84,30 @@ export class MenuComponent implements OnInit {
         switchMap((_) => this.getMenus()),
         tap(() =>
           this.snackBar.open('Menu created successfully.', 'close', {
+            duration: 5000,
+          })
+        )
+      )
+      .subscribe();
+  }
+
+  openAddMenuItemDialog(menuId: string) {
+    const dialogRef = this.dialog.open(AddMenuitemComponent, {
+      minHeight: '80%',
+      maxHeight: '100%',
+      minWidth: '750px',
+      maxWidth: '750px',
+      data: { menuId: menuId },
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(
+        filter((result) => !!result),
+        filter((result: { reload: boolean }) => result.reload),
+        switchMap((_) => this.getMenus()),
+        tap(() =>
+          this.snackBar.open('Menu item created successfully.', 'close', {
             duration: 5000,
           })
         )

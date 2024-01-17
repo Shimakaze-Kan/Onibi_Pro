@@ -4,7 +4,11 @@
 ></mat-progress-bar>
 <h1 mat-dialog-title>New Menu</h1>
 <div mat-dialog-content class="dialog-content">
-  <form [formGroup]="menuForm" autocomplete="off">
+  <span
+    >To add a menu, you must provide at least one menu item with at least one
+    ingredient.</span
+  >
+  <form class="mt-2" [formGroup]="menuForm" autocomplete="off">
     <fieldset [disabled]="loading" class="row mt-2">
       <div class="row-12">
         <div class="row">

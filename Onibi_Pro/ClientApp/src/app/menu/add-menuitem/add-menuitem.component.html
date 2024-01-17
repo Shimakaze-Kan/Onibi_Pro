@@ -1,1 +1,138 @@
-<p>add-menuitem works!</p>
+<mat-progress-bar
+  mode="indeterminate"
+  [ngStyle]="{ visibility: loading ? 'visible' : 'hidden' }"
+></mat-progress-bar>
+<h1 mat-dialog-title>New Menu Item</h1>
+<div mat-dialog-content class="dialog-content">
+  <span>To add a menu item, you must provide at least one ingredient.</span>
+  <form class="mt-2" [formGroup]="menuItemForm" autocomplete="off">
+    <fieldset [disabled]="loading" class="row mt-2">
+      <div class="d-flex flex-column">
+        <div class="d-flex flex-row" style="gap: 1rem">
+          <div class="row-12 row-md-6">
+            <div class="row">
+              <label class="mb-1" for="nameInput" appRequiredStar
+                >Menu Item Name</label
+              >
+              <mat-form-field appearance="outline">
+                <input
+                  id="nameInput"
+                  matInput
+                  type="text"
+                  formControlName="name"
+                  placeholder="Name"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row-12 row-md-6">
+            <div class="row">
+              <label class="mb-1" for="priceInput" appRequiredStar>Price</label>
+              <mat-form-field appearance="outline">
+                <input
+                  id="nameInput"
+                  matInput
+                  type="number"
+                  formControlName="price"
+                  placeholder="Price"
+                  step="0.01"
+                  min="0.01"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <button
+          mat-flat-button
+          color="accent"
+          type="button"
+          class="mb-3"
+          (click)="addIngredient()"
+        >
+          Add Ingredient
+        </button>
+
+        <div formArrayName="ingredients">
+          <div
+            *ngFor="
+              let ingredient of getIngredientControls();
+              let j = index;
+              let last = last
+            "
+          >
+            <span class="mb-2"
+              ><b> Ingredient {{ j + 1 }}</b></span
+            >
+            <div [formGroup]="ingredient">
+              <div class="row">
+                <label class="mb-1" for="nameInput" appRequiredStar
+                  >Ingredient Name</label
+                >
+                <mat-form-field appearance="outline">
+                  <input
+                    id="nameInput"
+                    matInput
+                    type="text"
+                    formControlName="name"
+                    placeholder="Name"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <div class="d-flex flex-column">
+                    <label class="mb-1" for="unitSelect" appRequiredStar
+                      >Unit</label
+                    >
+                    <mat-form-field appearance="outline">
+                      <mat-select
+                        id="unitSelect"
+                        formControlName="unit"
+                        placeholder="Unit"
+                      >
+                        <mat-option [value]="'Grams'">Grams</mat-option>
+                        <mat-option [value]="'Milliliters'"
+                          >Milliliters</mat-option
+                        >
+                        <mat-option [value]="'Pieces'">Pieces</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="d-flex flex-column">
+                    <label class="mb-1" for="quantityInput" appRequiredStar
+                      >Quantity</label
+                    >
+                    <mat-form-field appearance="outline">
+                      <input
+                        id="quantityInput"
+                        matInput
+                        type="text"
+                        formControlName="quantity"
+                        placeholder="Quantiry"
+                      />
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <mat-divider class="mb-2" *ngIf="!last"></mat-divider>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+<div mat-dialog-actions class="justify-content-end">
+  <button mat-button (click)="onClose()">Close</button>
+  <button
+    mat-button
+    [disabled]="menuItemForm.invalid || loading"
+    (click)="createMenu()"
+    color="primary"
+    cdkFocusInitial
+  >
+    I Accept
+  </button>
+</div>

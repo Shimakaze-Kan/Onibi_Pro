@@ -5,6 +5,7 @@ import {
   FormBuilder,
   FormGroup,
   ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -25,10 +26,13 @@ import { ErrorMessagesParserService } from '../../utils/services/error-messages-
 })
 export class AddMenuComponent {
   loading = false;
-  menuForm: FormGroup = this.fb.group({
-    menuName: ['', [Validators.required]],
-    menuItems: this.fb.array([]),
-  });
+  menuForm: FormGroup = this.fb.group(
+    {
+      menuName: ['', [Validators.required]],
+      menuItems: this.fb.array([]),
+    },
+    { validator: AtLeasOneMenuItemValidator }
+  );
 
   get menuItems() {
     return this.menuForm.get('menuItems') as FormArray;
@@ -58,18 +62,21 @@ export class AddMenuComponent {
   }
 
   createMenuItem(): FormGroup {
-    return this.fb.group({
-      name: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0.01)]],
-      ingredients: this.fb.array([]),
-    });
+    return this.fb.group(
+      {
+        name: ['', Validators.required],
+        price: [0, [Validators.required, Validators.min(0.01)]],
+        ingredients: this.fb.array([]),
+      },
+      { validator: AtLeasOneIngredientValidator }
+    );
   }
 
   createIngredient(): FormGroup {
     return this.fb.group({
       name: ['', Validators.required],
       unit: ['', Validators.required],
-      quantity: [0, Validators.required],
+      quantity: [0, [Validators.required, Validators.min(0.01)]],
     });
   }
 
@@ -127,3 +134,23 @@ export class AddMenuComponent {
       .subscribe();
   }
 }
+
+const AtLeasOneMenuItemValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const menuItems = (control as FormGroup).get('menuItems')?.value;
+
+  return menuItems !== null && menuItems.length > 0
+    ? null
+    : { menuItems: true };
+};
+
+const AtLeasOneIngredientValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const ingredients = (control as FormGroup).get('ingredients')?.value;
+
+  return ingredients !== null && ingredients.length > 0
+    ? null
+    : { ingredients: true };
+};

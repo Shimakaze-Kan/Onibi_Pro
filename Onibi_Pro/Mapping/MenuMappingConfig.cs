@@ -41,8 +41,8 @@ public class MenuMappingConfig : IRegister
 
         config.NewConfig<AddMenuItemRequest, AddMenuItemCommand>()
             .Map(dest => dest.MenuId, src => MenuId.Create(src.MenuId));
-            
-        config.NewConfig<AddMenuItemRequest.Ingredient, Ingredient>()
-            .Map(dest => dest.Unit, src => Enum.Parse<UnitType>(src.Unit));
+
+        TypeAdapterConfig<AddMenuItemRequest.Ingredient, Ingredient>.NewConfig()
+            .ConstructUsing(src => Ingredient.Create(src.Name, Enum.Parse<UnitType>(src.Unit), src.Quantity));
     }
 }
