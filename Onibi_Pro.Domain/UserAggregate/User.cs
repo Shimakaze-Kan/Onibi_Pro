@@ -25,12 +25,15 @@ public sealed class User : AggregateRoot<UserId>
     }
 
     public static ErrorOr<User> Create(string firstName, string lastName,
-        string email, string hashedPassword, CreatorUserType currentCreatorType)
+        string email, string hashedPassword, CreatorUserType currentCreatorType, UserTypes? preferredUserType = null)
     {
-        ErrorOr<UserTypes> userType = currentCreatorType.Value switch
+        ErrorOr<UserTypes> userType = (currentCreatorType.Value, preferredUserType) switch
         {
-            UserTypes.GlobalManager => UserTypes.RegionalManager,
-            UserTypes.RegionalManager => UserTypes.Manager,
+            (UserTypes.GlobalManager, UserTypes.RegionalManager) => UserTypes.RegionalManager,
+            (UserTypes.GlobalManager, null) => UserTypes.RegionalManager,
+            (UserTypes.RegionalManager, UserTypes.Manager) => UserTypes.Manager,
+            (UserTypes.RegionalManager, null) => UserTypes.Manager,
+            (UserTypes.RegionalManager, UserTypes.Courier) => UserTypes.Courier,
             _ => Errors.User.UnsupportedCreatorUserType
         };
 
@@ -58,8 +61,6 @@ public sealed class User : AggregateRoot<UserId>
     {
         IsEmailConfirmed = true;
     }
-
-
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private User() { }

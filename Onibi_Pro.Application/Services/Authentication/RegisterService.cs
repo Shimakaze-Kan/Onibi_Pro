@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.Common.Errors;
+using Onibi_Pro.Domain.UserAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
 
 using User = Onibi_Pro.Domain.UserAggregate.User;
@@ -27,7 +28,8 @@ internal sealed class RegisterService : IRegisterService
 
     public async Task<ErrorOr<UserId>> RegisterAsync(string firstName, string lastName,
         string email, string password, CreatorUserType currentCreatorType, 
-        CancellationToken cancellationToken = default, bool commitTransaction = true)
+        CancellationToken cancellationToken = default, bool commitTransaction = true,
+        UserTypes? userType = null)
     {
         User? existingUser = await GetUserByEmailAsync(email, cancellationToken);
 
@@ -39,7 +41,7 @@ internal sealed class RegisterService : IRegisterService
 
         var hashedPassword = _passwordService.HashPassword(password);
 
-        var user = User.Create(firstName, lastName, email, hashedPassword, currentCreatorType);
+        var user = User.Create(firstName, lastName, email, hashedPassword, currentCreatorType, userType);
 
         if (user.IsError)
         {

@@ -1,1 +1,49 @@
-<p>courier works!</p>
+<div class="container d-flex flex-column">
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="loading"
+    class="mb-3 ms-auto"
+    (click)="openAddCourierDialog()"
+  >
+    Add Courier
+  </button>
+  <div class="row">
+    <label class="mb-1" for="queryInput">Search Couriers</label>
+    <mat-form-field appearance="outline">
+      <input
+        [disabled]="loading"
+        id="queryInput"
+        matInput
+        placeholder="Type Email Or Phone"
+        (keyup)="handleOnChange($event)"
+      />
+    </mat-form-field>
+  </div>
+
+  <h5>Returned {{ numberOfCouriers }} Couriers</h5>
+
+  <table>
+    <div
+      class="spinner-container position-absolute"
+      style="left: 50%"
+      *ngIf="loading"
+    >
+      <mat-spinner></mat-spinner>
+    </div>
+    <tr>
+      <th>Courier Id</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+    </tr>
+    <tr *ngFor="let courier of filteredCouriers$ | async">
+      <td>{{ courier.courierId }}</td>
+      <td>{{ courier.email }}</td>
+      <td>{{ courier.phone }}</td>
+      <td>{{ courier.firstName }}</td>
+      <td>{{ courier.lastName }}</td>
+    </tr>
+  </table>
+</div>

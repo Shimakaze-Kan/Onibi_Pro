@@ -8,7 +8,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  merge,
   startWith,
   switchMap,
   tap,

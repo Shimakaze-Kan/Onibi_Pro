@@ -8,6 +8,7 @@ using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Pages;
 
@@ -92,6 +93,7 @@ public class PasswordModel : PageModel
             Login = email;
 
             await _userPasswordRepository.UpdatePasswordAsync(UserId.Create(userId), password, clientName, cancellationToken);
+            Response.Cookies.Delete(AuthenticationKeys.CookieName);
         }
         catch (Exception)
         {

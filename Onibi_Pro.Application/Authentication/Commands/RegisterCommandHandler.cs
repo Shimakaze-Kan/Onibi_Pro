@@ -5,6 +5,7 @@ using MediatR;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Application.Services.Authentication;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Application.Authentication.Commands;
 internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<UserId>>
@@ -24,8 +25,9 @@ internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, 
         return await _registerService.RegisterAsync(request.FirstName,
             request.LastName,
             request.Email,
-            request.Password,
+            Passwords.InitialPassword,
             currentCreatorType: CreatorUserType.Create(_currentUserService.UserType),
-            cancellationToken);
+            userType: request.UserType,
+            cancellationToken: cancellationToken);
     }
 }
