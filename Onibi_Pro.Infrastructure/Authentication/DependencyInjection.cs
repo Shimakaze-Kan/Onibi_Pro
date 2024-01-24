@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Common.Interfaces.Services;
+using Onibi_Pro.Infrastructure.Authentication.Configurations;
 using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Infrastructure.Authentication;
@@ -16,10 +17,12 @@ internal static class DependencyInjection
         this IServiceCollection services, ConfigurationManager configurationManager)
     {
         services.Configure<JwtTokenSettings>(configurationManager.GetSection(JwtTokenSettings.SectionName));
+        services.Configure<ActivateEncryptionConfiguration>(configurationManager.GetSection(ActivateEncryptionConfiguration.Key));
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<ITokenGuard, TokenGuard>();
         services.AddTokenConfig(configurationManager);
         services.AddSingleton<IPasswordService, PasswordService>();
+        services.AddSingleton<IActivateEncryptionService, ActivateEncryptionService>();
 
         return services;
     }

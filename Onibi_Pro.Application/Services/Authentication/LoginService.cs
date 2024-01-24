@@ -52,12 +52,17 @@ internal sealed class LoginService : ILoginService
 
         using var connection = await _dbConnectionFactory.OpenConnectionAsync(clientName);
         var user = await connection.QueryFirstOrDefaultAsync<UserDto?>(
-            "SELECT TOP 1 Id, FirstName, LastName, Email, UserType FROM dbo.Users WHERE Email = @Email", new { email });
+            "SELECT TOP 1 Id, FirstName, LastName, Email, UserType, IsEmailConfirmed FROM dbo.Users WHERE Email = @Email", new { email });
 
         if (user is null)
         {
             _logger.LogCritical("User not found in client db: {clientName}, email: {email}", email, clientName);
             return Errors.Authentication.InvalidCredentials;
+        }
+
+        if (!user.IsEmailConfirmed)
+        {
+            return Errors.Authentication.EmailNotConfirmed;
         }
 
         var hashedPassword = await _userPasswordRepository.GetPasswordForUserAsync(UserId.Create(user.Id), clientName, cancellationToken);
@@ -79,5 +84,5 @@ internal sealed class LoginService : ILoginService
         await _tokenGuard.DenyTokenAsync(userId, cancellationToken);
     }
 
-    private record UserDto(Guid Id, string FirstName, string LastName, string Email, string UserType);
+    private record UserDto(Guid Id, string FirstName, string LastName, string Email, string UserType, bool IsEmailConfirmed);
 }

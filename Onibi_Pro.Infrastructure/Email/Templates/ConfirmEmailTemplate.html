@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Confirmation</title>
+    <style>
+      body {
+        font-family: Roboto, sans-serif, Arial;
+        text-align: center;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background-color: #ffffff;
+        padding: 20px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ff6a16;
+      }
+
+      .onibi-logo {
+        width: 200px;
+      }
+
+      p {
+        font-size: 16px;
+        color: #333333;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <table width="100%">
+        <tr>
+          <td align="center">
+            <img class="onibi-logo" width="200" src="cid:{{logo}}" alt="Logo" />
+          </td>
+        </tr>
+      </table>
+
+      <p>To confirm your email address, click the link below within 1 hour:</p>
+
+      <!--Button-->
+      <center>
+        <table align="center" cellspacing="0" cellpadding="0" width="100%">
+          <tr>
+            <td align="center">
+              <table
+                border="0"
+                class="mobile-button"
+                cellspacing="0"
+                cellpadding="0"
+                style="height: 38px"
+              >
+                <tr>
+                  <td
+                    align="center"
+                    bgcolor="#f56615"
+                    style="
+                      background-color: #f56615;
+                      margin: auto;
+                      max-width: 600px;
+                      -webkit-border-radius: 34px;
+                      -moz-border-radius: 34px;
+                      border-radius: 34px;
+                      padding: 0px 20px;
+                    "
+                    width="100%"
+                  >
+                    <!--[if mso]>&nbsp;<![endif]-->
+                    <a
+                      href="{{confirm_email}}"
+                      target="_blank"
+                      style="14px; font-family: Arial, sans-serif; color: #ffffff; font-weight:normal; text-align:center; background-color: #f56615; text-decoration: none; border: none; -webkit-border-radius: 34px; -moz-border-radius: 34px; border-radius: 34px; display: inline-block;"
+                    >
+                      <span
+                        style="
+                          font-size: 14px;
+                          font-family: Arial, sans-serif;
+                          color: #ffffff;
+                          font-weight: normal;
+                          line-height: 1.5em;
+                          text-align: center;
+                        "
+                        >CONFIRM EMAIL</span
+                      >
+                    </a>
+                    <!--[if mso]>&nbsp;<![endif]-->
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </center>
+      <p>
+        After confirming your email, you will be redirected to a page where you
+        can set your new password.
+      </p>
+
+      <span style="color: gray"
+        >© 2024 Onibi Pro, Inc. All rights reserved.</span
+      >
+    </div>
+  </body>
+</html>

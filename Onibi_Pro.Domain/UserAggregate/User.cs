@@ -11,6 +11,7 @@ public sealed class User : AggregateRoot<UserId>
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public string Email { get; private set; }
+    public bool IsEmailConfirmed { get; private set; }
     public UserTypes UserType { get; private set; }
 
     private User(UserId userId, string firstName, string lastName,
@@ -52,6 +53,13 @@ public sealed class User : AggregateRoot<UserId>
         LastName = lastName;
         Email = email;
     }
+
+    public void ConfirmEmail()
+    {
+        IsEmailConfirmed = true;
+    }
+
+
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private User() { }

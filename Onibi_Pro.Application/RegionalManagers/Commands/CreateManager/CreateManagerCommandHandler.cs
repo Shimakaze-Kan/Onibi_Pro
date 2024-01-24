@@ -10,6 +10,7 @@ using Onibi_Pro.Application.Services.Authentication;
 using Onibi_Pro.Application.Services.CuttingConcerns;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Application.RegionalManagers.Commands.CreateManager;
 internal sealed class CreateManagerCommandHandler : IRequestHandler<CreateManagerCommand, ErrorOr<Success>>
@@ -40,7 +41,7 @@ internal sealed class CreateManagerCommandHandler : IRequestHandler<CreateManage
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var user = await _registerService.RegisterAsync(request.FirstName, request.LastName,
-            request.Email, "pass123@!", CreatorUserType.Create(_currentUserService.UserType), cancellationToken, commitTransaction: false);
+            request.Email, Passwords.InitialPassword, CreatorUserType.Create(_currentUserService.UserType), cancellationToken, commitTransaction: false);
 
         if (user.IsError)
         {

@@ -57,3 +57,6 @@ Content-Type: application/json
     "password":"ssasa",
     "email": "dfdfsdf"
 }
+
+### confirm email
+PUT {{baseUrl}}/authentication/ConfirmEmail/mxqmM1b1xKVQNOUdguALW1ej5D5i5+ENPqA06V2iOJnnCJJXEMjrEiWaxbDlzmMlIcr7gxkmWj9Q4uzyo8vPQQ==

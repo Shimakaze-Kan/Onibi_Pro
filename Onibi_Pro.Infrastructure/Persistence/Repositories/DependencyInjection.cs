@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using Onibi_Pro.Application.Common.Interfaces.Authentication;
 using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Domain.MenuAggregate;
 using Onibi_Pro.Domain.MenuAggregate.ValueObjects;
@@ -30,6 +31,7 @@ internal static class DependencyInjection
         services.AddScoped<IDomainRepository<Package, PackageId>, DomainRepository<Package, PackageId>>();
 
         services.AddScoped<IUserPasswordRepository, UserPasswordRepository>();
+        services.AddScoped<IUserActivationRepository, UserActivationRepository>();
 
         return services;
     }

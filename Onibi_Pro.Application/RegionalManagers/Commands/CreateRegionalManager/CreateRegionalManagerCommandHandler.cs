@@ -9,6 +9,7 @@ using Onibi_Pro.Application.Persistence;
 using Onibi_Pro.Application.Services.Authentication;
 using Onibi_Pro.Domain.RegionalManagerAggregate;
 using Onibi_Pro.Domain.UserAggregate.ValueObjects;
+using Onibi_Pro.Shared;
 
 namespace Onibi_Pro.Application.RegionalManagers.Commands.CreateRegionalManager;
 internal sealed class CreateRegionalManagerCommandHandler : IRequestHandler<CreateRegionalManagerCommand, ErrorOr<Success>>
@@ -40,7 +41,7 @@ internal sealed class CreateRegionalManagerCommandHandler : IRequestHandler<Crea
             request.FirstName,
             request.LastName,
             request.Email,
-            "pass123@!",
+            Passwords.InitialPassword,
             CreatorUserType.Create(_currentUserService.UserType),
             cancellationToken,
             commitTransaction: false);

@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddScoped<IRegisterService, RegisterService>();
         services.AddScoped<ILoginService, LoginService>();
         services.AddScoped<IAssignManagerService, AssignManagerService>();
+        services.AddScoped<IAccountActivationService, AccountActivationService>();
         services.AddMediatR(config
             => config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 

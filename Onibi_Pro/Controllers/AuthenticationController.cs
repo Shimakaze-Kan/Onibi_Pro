@@ -9,7 +9,6 @@ using Onibi_Pro.Application.Authentication.Commands;
 using Onibi_Pro.Application.Authentication.Queries;
 using Onibi_Pro.Application.Common.Interfaces.Services;
 using Onibi_Pro.Contracts.Authentication;
-using Onibi_Pro.Contracts.Identity;
 using Onibi_Pro.Domain.Common.Errors;
 using Onibi_Pro.Shared;
 
@@ -34,22 +33,22 @@ public class AuthenticationController : ApiBaseController
     [HttpPost("register")]
     [ProducesResponseType(typeof(Guid), 200)]
     [Authorize(Policy = AuthorizationPolicies.GlobalOrRegionalManagerAccess)]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterRequest request, CancellationToken cancellationToken)
     {
         var command = _mapper.Map<RegisterCommand>(request);
 
-        var authResult = await _mediator.Send(command);
+        var authResult = await _mediator.Send(command, cancellationToken);
 
         return authResult.Match(result => Ok(result.Value), Problem);
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request, CancellationToken cancellationToken)
     {
         var query = _mapper.Map<LoginQuery>(request);
 
-        var authResult = await _mediator.Send(query);
+        var authResult = await _mediator.Send(query, cancellationToken);
 
         if (authResult.IsError && authResult.FirstError == Errors.Authentication.InvalidCredentials)
         {
@@ -62,9 +61,9 @@ public class AuthenticationController : ApiBaseController
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
-        var logoutResult = await _mediator.Send(new LogoutCommand());
+        var logoutResult = await _mediator.Send(new LogoutCommand(), cancellationToken);
 
         return logoutResult.Match(
             logoutResult =>
@@ -79,5 +78,14 @@ public class AuthenticationController : ApiBaseController
     public ActionResult<bool> IsAuthenticated()
     {
         return Ok(_currentUserService.CanGetCurrentUser);
+    }
+
+    [AllowAnonymous]
+    [HttpPut("ConfirmEmail/{*code}")]
+    public async Task<IActionResult> ConfirmEmail([FromRoute] string code, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ConfirmEmailCommand(code), cancellationToken);
+
+        return result.Match(_ => Ok(), Problem);
     }
 }

@@ -1,0 +1,38 @@
+﻿@page "{*code}"
+@model Onibi_Pro.Pages.ConfirmEmailModel
+@{
+}
+<div style="display: flex;height: 100%;justify-content: center;">
+    <h3 style="margin-top: auto;margin-bottom: auto; font-family: sans-serif;">
+        Activation of your account is in progress....
+    </h3>
+</div>
+
+<script>
+    window.onload = function () {
+        const code = new URL(window.location.href).pathname.split('ConfirmEmail/').pop();
+
+        const activationData = {
+            Code: code
+        };
+
+        fetch(`/api/Authentication/ConfirmEmail/${code}`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = `/Password/${code}`;
+                } else {
+                    return alert('An error occured');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occured.');
+            });
+    };
+</script>

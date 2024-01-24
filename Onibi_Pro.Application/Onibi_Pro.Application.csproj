@@ -12,6 +12,7 @@
     <PackageReference Include="FluentValidation" Version="11.9.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
     <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
@@ -20,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Onibi_Pro.Domain\Onibi_Pro.Domain.csproj" />
+    <ProjectReference Include="..\Onibi_Pro.Shared\Onibi_Pro.Shared.csproj" />
   </ItemGroup>
 
 </Project>

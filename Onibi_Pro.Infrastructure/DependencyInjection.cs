@@ -12,6 +12,7 @@ using Onibi_Pro.Infrastructure.Identity;
 using Onibi_Pro.Infrastructure.MasterDb;
 using Microsoft.EntityFrameworkCore;
 using Onibi_Pro.Infrastructure.ExternalServices;
+using Onibi_Pro.Infrastructure.Email;
 
 namespace Onibi_Pro.Infrastructure;
 public static class DependencyInjection
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddIdentity();
         services.AddMasterDb();
         services.AddExternalServices(configurationManager);
+        services.AddEmails(configurationManager);
 
         // Need this for migration
         services.AddDbContext<OnibiProDbContext>(options =>

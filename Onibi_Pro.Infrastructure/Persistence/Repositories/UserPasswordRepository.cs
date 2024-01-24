@@ -33,7 +33,8 @@ internal sealed class UserPasswordRepository(DbContextFactory dbContextFactory) 
         var userPasswordsSet = context.Set<UserPassword>();
 
         var userPassword = await userPasswordsSet.SingleAsync(x => x.UserId == userId, cancellationToken);
-        userPassword = userPassword with { Password = password };
+        userPassword.Password = password;
+
         await context.SaveChangesAsync(cancellationToken);
     }
 }

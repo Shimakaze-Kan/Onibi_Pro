@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Infrastructure", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Contracts", "Onibi_Pro.Contracts\Onibi_Pro.Contracts.csproj", "{046ED295-C290-4DEF-ABBE-A9DBBE11BB11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Onibi_Pro.Shared", "Onibi_Pro.Shared\Onibi_Pro.Shared.csproj", "{0080B1AB-4843-4BE8-985B-99001FF38D49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onibi_Pro.Shared", "Onibi_Pro.Shared\Onibi_Pro.Shared.csproj", "{0080B1AB-4843-4BE8-985B-99001FF38D49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
