@@ -63,6 +63,7 @@ import { MenuComponent } from './menu/menu.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { AddMenuitemComponent } from './menu/add-menuitem/add-menuitem.component';
 import { AddMenuComponent } from './menu/add-menu/add-menu.component';
+import { CourierComponent } from './courier/courier.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -180,6 +181,7 @@ export const ROUTES: Array<Route> = [
     MenuComponent,
     AddMenuitemComponent,
     AddMenuComponent,
+    CourierComponent,
   ],
   imports: [
     BrowserModule, //.withServerTransition({ appId: 'ng-cli-universal' }),

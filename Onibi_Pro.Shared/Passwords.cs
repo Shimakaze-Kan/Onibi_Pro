@@ -2,5 +2,5 @@
 public static class Passwords
 {
     // user has to change it after email confirmation
-    public const string InitialPassword = "pass123@!";
+    public static string InitialPassword => Guid.NewGuid().ToString();
 }
