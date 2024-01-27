@@ -20,6 +20,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -35,36 +36,37 @@ import { MatTableModule } from '@angular/material/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { NgChartsModule } from 'ng2-charts';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { Observable } from 'rxjs';
+import { StatisticsComponent } from '../statistics/statistics.component';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { PermissionChecker } from './auth/permission-checker.service';
 import { CommunicationModule } from './communication/communication.module';
+import { AddCourierComponent } from './courier/add-courier/add-courier.component';
+import { CourierComponent } from './courier/courier.component';
 import { DeliveryModule } from './delivery/delivery.module';
 import { DeliveryComponent } from './delivery/delivery/delivery.component';
 import { RequiredStarDirective } from './directives/required-star.directive';
 import { TakeSpaceDirective } from './directives/take-space.directive';
+import { AddMenuComponent } from './menu/add-menu/add-menu.component';
+import { AddMenuitemComponent } from './menu/add-menuitem/add-menuitem.component';
+import { MenuComponent } from './menu/menu.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { OrderManagerComponent } from './orders/order-manager/order-manager.component';
 import { OrdersModule } from './orders/orders.module';
 import { ManagersManagementComponent } from './personel-management/managers-management/managers-management.component';
 import { PersonelManagementModule } from './personel-management/personel-management.module';
+import { RegionalmanagersManagementComponent } from './personel-management/regionalmanagers-management/regionalmanagers-management.component';
 import { RestaurantPersonelManagementComponent } from './personel-management/restaurant-personel-management/restaurant-personel-management.component';
+import { RestaurantModule } from './restaurant/restaurant.module';
+import { RestaurantComponent } from './restaurant/restaurant/restaurant.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { UserTypes } from './utils/UserTypes';
 import { UtilsModule } from './utils/utils.module';
 import { WelcomeComponent } from './welcome/welcome.component';
-import { RegionalmanagersManagementComponent } from './personel-management/regionalmanagers-management/regionalmanagers-management.component';
-import { RestaurantComponent } from './restaurant/restaurant/restaurant.component';
-import { RestaurantModule } from './restaurant/restaurant.module';
-import { MenuComponent } from './menu/menu.component';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { AddMenuitemComponent } from './menu/add-menuitem/add-menuitem.component';
-import { AddMenuComponent } from './menu/add-menu/add-menu.component';
-import { CourierComponent } from './courier/courier.component';
-import { AddCourierComponent } from './courier/add-courier/add-courier.component';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -172,6 +174,12 @@ export const ROUTES: Array<Route> = [
         canActivate: [canActivateUserTypes],
         data: { userTypes: [UserTypes.regionalManager] },
       },
+      {
+        path: 'statistics',
+        component: StatisticsComponent,
+        canActivate: [canActivateUserTypes],
+        data: { userTypes: [UserTypes.globalManager] },
+      },
     ],
   },
   { path: '**', redirectTo: '' },
@@ -212,6 +220,8 @@ export const ROUTES: Array<Route> = [
     OrdersModule,
     PersonelManagementModule,
     RestaurantModule,
+    NgChartsModule,
+    StatisticsComponent,
   ],
   providers: [
     { provide: APP_ID, useValue: 'serverApp' },

@@ -128,6 +128,12 @@ export class NavMenuComponent implements OnInit, OnDestroy, AfterViewInit {
       url: '/courier',
       canActivate: false,
     },
+    {
+      name: 'Statistics',
+      id: 10,
+      url: '/statistics',
+      canActivate: false,
+    },
   ];
 
   get pages(): Array<IPage> {

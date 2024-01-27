@@ -1,0 +1,15 @@
+.chart-container {
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+
+  h5 {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  canvas {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
