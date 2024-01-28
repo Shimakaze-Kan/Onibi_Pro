@@ -4,28 +4,74 @@ services:
   onibi-redis-container:
     image: redis:latest
     container_name: onibi-redis-container
-    ports:
-      - "6379:6379"
+    networks:
+      - onibi-network
+    
+  onibi-mongodb-container:
+    image: mongodb/mongodb-community-server
+    container_name: mongodb-container
     networks:
       - onibi-network
 
   onibi-app:
-    image: onibi-pro:lastest
+    build:
+      context: .
+      dockerfile: ./Onibi_Pro/Dockerfile
+    image: onibi-pro:latest
     container_name: onibi-app
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
     ports:
       - "8080:80"
     networks:
       - onibi-network
 
   onibi-client:
+    build:
+      context: ./Onibi_Pro/ClientApp
+      dockerfile: Dockerfile
     image: onibi-client-app:latest
     container_name: onibi-client
-    ports:
-      - "8081:80"
     networks:
       - onibi-network
+
+  onibi-communication:
+    build:
+      context: ./Onibi_Pro.Communication
+      dockerfile: ./Onibi_Pro.Communication/Dockerfile
+    image: onibi-communication-service:latest
+    container_name: onibi-communication
+    networks:
+      - onibi-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "bM897y[54r£>TOJt.oS"
+      ACCEPT_EULA: "Y"
+    networks:
+      - onibi-network
+    volumes:
+     - ./data/mssql:/scripts/
+    command:
+      - /bin/bash
+      - -c 
+      - |
+        # Launch MSSQL and send to background
+        /opt/mssql/bin/sqlservr &
+        # Wait 30 seconds for it to be available
+        # (lame, I know, but there's no nc available to start prodding network ports)
+        sleep 30
+        # Run every script in /scripts
+        # TODO set a flag so that this is only done once on creation, 
+        #      and not every time the container runs
+        for foo in /scripts/*.sql
+          do /opt/mssql-tools/bin/sqlcmd -U sa -P $$SA_PASSWORD -l 30 -e -i $$foo
+        done
+        # So that the container doesn't shut down, sleep this thread
+        sleep infinity
 
 networks:
   onibi-network:

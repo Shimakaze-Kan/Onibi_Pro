@@ -80,7 +80,7 @@ export class NewMessageComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(() =>
           this.receiverId
-            ? this.identityClient.users(undefined, this.receiverId)
+            ? this.identityClient.users(this.receiverId, undefined)
             : []
         ),
         tap((receiverResult) => {
@@ -106,7 +106,7 @@ export class NewMessageComponent implements OnInit, OnDestroy {
           if (!value || value.trim() === '') {
             return of([]);
           } else {
-            return this.identityClient.users(value.toLowerCase(), undefined);
+            return this.identityClient.users(undefined, value.toLowerCase());
           }
         }),
         map((users) => {

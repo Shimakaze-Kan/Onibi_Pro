@@ -1,5 +1,5 @@
-@baseUrl =  https://localhost:7002/api
-#@baseUrl =  http://localhost:8080/api
+#@baseUrl =  https://localhost:7002/api
+@baseUrl =  http://localhost:8080/api
 
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6IkdMT0JBTE1BTkFHRVIiLCJqdGkiOiI1Mzc1ZDY2YS05YTM1LTQwYTktYjc0Zi1hOGRmNGFlYzU0YWEiLCJDTElFTlRfTkFNRSI6Ik1jRG93ZWwiLCJleHAiOjE3MDM2MjkyNjIsImlzcyI6Ik9uaWJpUHJvIiwiYXVkIjoiT25pYmlQcm8ifQ.z8TK6yBjyKEEiem1yJlrCeGX3bFFUuAg5eMQyWK9WxM
 

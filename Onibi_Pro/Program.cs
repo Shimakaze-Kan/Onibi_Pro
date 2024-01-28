@@ -33,9 +33,6 @@ internal class Program
                 });
             }
 
-            app.UseCors(options
-                => options.WithOrigins("https://localhost:44406").AllowAnyMethod());
-
             app.UseExceptionHandler();
 
             app.UseStatusCodePages(async (context)
