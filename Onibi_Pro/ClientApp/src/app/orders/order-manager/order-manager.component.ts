@@ -64,7 +64,7 @@ export class OrderManagerComponent implements OnInit {
         tap(() => (this.loading = true)),
         mergeMap(() =>
           forkJoin({
-            orders: this.getOrders(undefined, undefined),
+            orders: this.getOrders(this.getStartRow(), this.pageSize),
             menus: this.menuClient.menusGet(),
             restaurantId: this.identity
               .getUserData()
@@ -117,9 +117,7 @@ export class OrderManagerComponent implements OnInit {
           (result): result is { reload: boolean } => !!result && result.reload
         ),
         tap(() => (this.loading = true)),
-        switchMap(() =>
-          this.getOrders(this.pageIndex * this.pageSize, this.pageSize)
-        ),
+        switchMap(() => this.getOrders(this.getStartRow(), this.pageSize)),
         tap(() => (this.loading = false))
       )
       .subscribe();

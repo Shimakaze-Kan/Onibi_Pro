@@ -2,25 +2,13 @@
 #@baseUrl =  http://localhost:8080/api
 @baseUrlWithoutApi = https://localhost:7002
 
-### register
-POST {{baseUrl}}/authentication/register
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-    "firstName": "John",
-    "lastName": "Johnson",
-    "email": "multipleClients@john.com",
-    "password": "pass123@!"
-}
-
 ### login
 # @name login
 POST {{baseUrl}}/authentication/login
 Content-Type: application/json
 
 {
-    "email": "john@john.com",
+    "email": "globalManager@mcDowel.com",
     "password": "pass123@!"
 }
 
@@ -34,12 +22,6 @@ Authorization: Bearer {{token}}
 ### random page
 GET {{baseUrlWithoutApi}}/delivery
 Cookie: OnibiAuth={{token}}
-
-###
-POST {{baseUrl}}/WeatherForecast/set/dupa/1234
-
-###
-GET {{baseUrl}}/WeatherForecast/get/dupa
 
 ###
 POST {{baseUrl}}/authentication/logout

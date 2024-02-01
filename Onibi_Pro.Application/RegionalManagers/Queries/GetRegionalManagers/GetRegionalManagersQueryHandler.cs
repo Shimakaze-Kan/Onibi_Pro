@@ -67,7 +67,7 @@ internal sealed class GetRegionalManagersQueryHandler
             group.Key.LastName,
             group.Key.Email,
             group.Key.NumberOfManagers,
-            group.Select(rm => rm.RestaurantId).Distinct().ToList()));
+            group.Select(rm => rm.RestaurantId).OfType<Guid>().Distinct().ToList()));
 
         return new([.. items], totalRecords);
     }
@@ -86,7 +86,7 @@ internal sealed class GetRegionalManagersQueryHandler
                         AS {nameof(RegionalManagerIntermediateDto.NumberOfManagers)}
                 FROM
                     dbo.RegionalManagers rm
-                JOIN
+                LEFT JOIN
                     dbo.RegionalManagerRestaurantIds rmri ON rmri.RegionalManagerId = rm.RegionalManagerId
                 JOIN
                     dbo.Users u ON u.Id = rm.UserId
@@ -107,7 +107,7 @@ internal sealed class GetRegionalManagersQueryHandler
                     RegionalManagerId IN (SELECT 
                         RegionalManagerId 
                         FROM ManagerCountCTE 
-                        WHERE RestaurantId LIKE @RestaurantIdFilter)
+                        WHERE RestaurantId LIKE @RestaurantIdFilter OR RestaurantId IS NULL)
             )
             SELECT
                 RegionalManagerId,
@@ -142,7 +142,7 @@ internal sealed class GetRegionalManagersQueryHandler
         public string FirstName { get; init; } = "";
         public string LastName { get; init; } = "";
         public string Email { get; init; } = "";
-        public Guid RestaurantId { get; init; }
+        public Guid? RestaurantId { get; init; }
         public int NumberOfManagers { get; init; }
     }
 }

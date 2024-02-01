@@ -28,7 +28,7 @@ export class AddRegionalmanagerComponent implements OnInit, OnDestroy {
   restaurants: Array<string> = [];
 
   newRegionalManagerForm = new FormGroup({
-    restaurants: new FormControl<Array<string>>([], Validators.required),
+    restaurants: new FormControl<Array<string>>([]),
     email: new FormControl<string>('', Validators.required),
     firstName: new FormControl<string>('', Validators.required),
     lastName: new FormControl<string>('', Validators.required),

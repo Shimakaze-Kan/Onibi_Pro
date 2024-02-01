@@ -87,3 +87,71 @@ I would like to highlight the shipping process, which is quite complex and depen
 In my application, all the rules are in the aggregate along with a graph representing valid transitions along with conditions. This solution demonstrates the full potential of DDD.
 
 Another new approach I took in the application is to avoid exceptions and global middleware to catch them and present them to the user. Instead, methods that might fail return an `ErrorOr`, which is a discriminated union that allows an error to be returned when something goes wrong. This can then be handled in a cleaner way than exceptions.
+
+## Running the Onibi Pro Application:
+
+### Demo Environment:
+
+To run the application in demo mode, execute the following command:
+
+```
+docker-compose up --build
+```
+
+This command will create all the necessary containers and populate the SQL server with seed data, including sample users, menus, and more. This ensures that the application is ready to use immediately.
+
+Optionally, set the environment variables for the `onibi-app` if you plan to create new users, it will be used for receiving the account activation link:
+
+```Docker
+- EmailConfig__Host=sandbox.smtp.mailtrap.io
+- EmailConfig__Port=587
+- EmailConfig__UserName=your_username
+- EmailConfig__Password=your_password
+```
+
+### Development Environment:
+
+For the development setup, create containers for Redis and MongoDB using the following commands:
+
+```
+docker run -d -p 90:6379 --name onibi-redis-container redis:latest
+docker run -d -p 27017:27017 --name onibi-mongodb-container mongodb/mongodb-community-server:latest
+```
+
+Use scripts from the `data/mssql` directory in the local instance of SQL Server to create databases. Also, update the connection string in `appsettings`.
+
+The solution for the monolith is in the main folder (`Onibi_Pro.sln`), and the solution for the Communication Microservice is in `Onibi_Pro.Communication/Onibi_Pro.Communication.sln`.
+
+To run the Angular app, use the command `npm start` in the `Onibi_Pro/ClientApp` folder.
+
+## Application Screenshots
+
+Take a look at a few selected screenshots showcasing the functionality and user interface of Onibi Pro
+
+#### Main Page
+
+![main_page](./imgs/Screenshot_2024-02-01_at_20-08-29_Main_Page_Onibi_Pro.png)
+
+#### Personel Management
+
+![personel_management](./imgs/Screenshot_2024-02-01_at_20-10-10_Personel_Management_Onibi_Pro.png)
+
+#### Orders
+
+![orders](./imgs/Screenshot_2024-02-01_at_20-09-30_Order_Onibi_Pro.png)
+
+#### Request Supplies
+
+![request_ingredients](./imgs/Screenshot_2024-02-01_at_20-13-48_Delivery_Onibi_Pro.png)
+
+#### Regional Manager Delivery Approve
+
+![delivery_approve](./imgs/Screenshot_2024-02-01_at_20-16-29_Delivery_Onibi_Pro.png)
+
+#### Messages Panel
+
+![messages_panel](./imgs/Screenshot_2024-02-01_at_20-18-43_Main_Page_Onibi_Pro.png)
+
+#### Login Page
+
+![login](./imgs/Screenshot_2024-02-01_at_20-19-05_Login_Onibi_Pro.png)

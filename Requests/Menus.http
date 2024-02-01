@@ -1,7 +1,5 @@
-#@baseUrl =  https://localhost:7002/api
-@baseUrl =  http://localhost:8080/api
-
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTljZjY5OC02ZjY1LTQ5MDItODU5My04N2U3OTA5MzFjYmYiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiSm9obnNvbiIsImVtYWlsIjoiam9obkBqb2huLmNvbSIsIlVTRVJfVFlQRSI6IkdMT0JBTE1BTkFHRVIiLCJqdGkiOiI1Mzc1ZDY2YS05YTM1LTQwYTktYjc0Zi1hOGRmNGFlYzU0YWEiLCJDTElFTlRfTkFNRSI6Ik1jRG93ZWwiLCJleHAiOjE3MDM2MjkyNjIsImlzcyI6Ik9uaWJpUHJvIiwiYXVkIjoiT25pYmlQcm8ifQ.z8TK6yBjyKEEiem1yJlrCeGX3bFFUuAg5eMQyWK9WxM
+@baseUrl =  https://localhost:7002/api
+#@baseUrl =  http://localhost:8080/api
 
 ### create
 POST {{baseUrl}}/menus
@@ -9,119 +7,124 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "Name": "Deluxe Menu",
+  "Name": "Street Food Craze",
   "MenuItems": [
     {
-      "Name": "Grilled Chicken Salad",
-      "Price": 8.99,
+      "Name": "Spicy Beef Taco",
+      "Price": 2.99,
       "Ingredients": [
         {
-          "Name": "Grilled Chicken",
+          "Name": "Beef Mince",
           "Unit": "Grams",
-          "Quantity": 200
+          "Quantity": 120
         },
         {
-          "Name": "Mixed Greens",
-          "Unit": "Grams",
-          "Quantity": 150
+          "Name": "Taco Shell",
+          "Unit": "Pieces",
+          "Quantity": 1
         },
         {
-          "Name": "Cherry Tomatoes",
+          "Name": "Jalapenos",
           "Unit": "Pieces",
           "Quantity": 5
         },
         {
-          "Name": "Avocado",
-          "Unit": "Pieces",
-          "Quantity": 1
+          "Name": "Shredded Lettuce",
+          "Unit": "Grams",
+          "Quantity": 30
         },
         {
-          "Name": "Balsamic Vinaigrette",
-          "Unit": "Milliliters",
+          "Name": "Grated Cheese",
+          "Unit": "Grams",
           "Quantity": 40
+        },
+        {
+          "Name": "Sour Cream",
+          "Unit": "Milliliters",
+          "Quantity": 20
         }
       ]
     },
     {
-      "Name": "Seafood Pasta",
-      "Price": 12.99,
+      "Name": "Giant Meatball Sub",
+      "Price": 6.49,
       "Ingredients": [
         {
-          "Name": "Shrimp",
-          "Unit": "Grams",
-          "Quantity": 150
+          "Name": "Meatballs",
+          "Unit": "Pieces",
+          "Quantity": 4
         },
         {
-          "Name": "Scallops",
-          "Unit": "Grams",
-          "Quantity": 100
-        },
-        {
-          "Name": "Linguine Pasta",
-          "Unit": "Grams",
-          "Quantity": 200
-        },
-        {
-          "Name": "Tomato Sauce",
+          "Name": "Marinara Sauce",
           "Unit": "Milliliters",
-          "Quantity": 100
+          "Quantity": 60
+        },
+        {
+          "Name": "Provolone Cheese",
+          "Unit": "Pieces",
+          "Quantity": 2
+        },
+        {
+          "Name": "Sub Roll",
+          "Unit": "Pieces",
+          "Quantity": 1
         },
         {
           "Name": "Parmesan Cheese",
           "Unit": "Grams",
+          "Quantity": 15
+        }
+      ]
+    },
+    {
+      "Name": "BBQ Pulled Pork Sandwich",
+      "Price": 5.99,
+      "Ingredients": [
+        {
+          "Name": "Pulled Pork",
+          "Unit": "Grams",
+          "Quantity": 150
+        },
+        {
+          "Name": "BBQ Sauce",
+          "Unit": "Milliliters",
+          "Quantity": 50
+        },
+        {
+          "Name": "Coleslaw",
+          "Unit": "Grams",
+          "Quantity": 70
+        },
+        {
+          "Name": "Sandwich Bun",
+          "Unit": "Pieces",
+          "Quantity": 1
+        }
+      ]
+    },
+    {
+      "Name": "Fried Chicken Wings",
+      "Price": 4.99,
+      "Ingredients": [
+        {
+          "Name": "Chicken Wings",
+          "Unit": "Pieces",
+          "Quantity": 5
+        },
+        {
+          "Name": "Flour",
+          "Unit": "Grams",
+          "Quantity": 50
+        },
+        {
+          "Name": "Hot Sauce",
+          "Unit": "Milliliters",
           "Quantity": 30
-        }
-      ]
-    },
-    {
-      "Name": "Fruit Smoothie",
-      "Price": 4.49,
-      "Ingredients": [
-        {
-          "Name": "Banana",
-          "Unit": "Pieces",
-          "Quantity": 1
         },
         {
-          "Name": "Strawberries",
+          "Name": "Butter",
           "Unit": "Grams",
-          "Quantity": 100
-        },
-        {
-          "Name": "Mango",
-          "Unit": "Pieces",
-          "Quantity": 1
-        },
-        {
-          "Name": "Orange Juice",
-          "Unit": "Milliliters",
-          "Quantity": 150
-        }
-      ]
-    },
-    {
-      "Name": "Classic Margherita Pizza",
-      "Price": 10.99,
-      "Ingredients": [
-        {
-          "Name": "Pizza Dough",
-          "Unit": "Grams",
-          "Quantity": 200
-        },
-        {
-          "Name": "Tomato Sauce",
-          "Unit": "Milliliters",
-          "Quantity": 80
-        },
-        {
-          "Name": "Fresh Mozzarella",
-          "Unit": "Grams",
-          "Quantity": 150
-        },
-        {
-          "Name": "Basil",
-          "Unit": "Grams",
-          "Quantity": 10
+          "Quantity": 20
         }
       ]
     }
@@ -134,7 +137,7 @@ POST {{baseUrl}}/authentication/login
 Content-Type: application/json
 
 {
-    "email": "john@john.com",
+    "email": "globalManager@mcDowel.com",
     "password": "pass123@!"
 }
 
