@@ -88,11 +88,11 @@ In my application, all the rules are in the aggregate along with a graph represe
 
 Another new approach I took in the application is to avoid exceptions and global middleware to catch them and present them to the user. Instead, methods that might fail return an `ErrorOr`, which is a discriminated union that allows an error to be returned when something goes wrong. This can then be handled in a cleaner way than exceptions.
 
-## Running the Onibi Pro Application:
+## Setting Up and Running the Onibi Pro Application:
 
-### Demo Environment:
+### Full-Featured Local Setup:
 
-To run the application in demo mode, execute the following command:
+To run a fully operational version of the application locally, execute the following command:
 
 ```
 docker-compose up --build
@@ -122,7 +122,7 @@ Optionally, set the environment variables for the `onibi-app` if you plan to cre
 - EmailConfig__Password=your_password
 ```
 
-### Development Environment:
+### Local Development Setup:
 
 For the development setup, create containers for Redis and MongoDB using the following commands:
 
