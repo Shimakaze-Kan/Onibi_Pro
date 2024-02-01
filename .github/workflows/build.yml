@@ -1,0 +1,37 @@
+name: Build .NET and Angular apps
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore and build Core Monolith
+      run: |
+        dotnet restore
+        dotnet build --no-restore -c Release
+
+    - name: Restore and build Communication microservice
+      run: |
+        cd Onibi_Pro.Communication/
+        dotnet restore Onibi_Pro.Communication.sln
+        dotnet build Onibi_Pro.Communication.sln --no-restore -c Release
+
+    - name: Setup Node.js for Angular
+      uses: actions/setup-node@v4.0.1
+      with:
+        node-version: '18.x'
+
+    - name: Install npm dependencies and build Angular project
+      run: |
+        cd Onibi_Pro/ClientApp/
+        npm install
+        npm run build
