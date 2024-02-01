@@ -80,7 +80,7 @@ This system architecture brings together modular components, providing scalabili
 
 ## Insights and Observations:
 
-The Domain-Driven Design (DDD) approach proved to be appropriate for this application, as it allowed for the simplification of many processes. Although it took more time (especially due to several conceptual changes during development), DDD proved invaluable in certain areas of the application.
+The DDD approach proved to be appropriate for this application, as it allowed for the simplification of many processes. Although it took more time (especially due to several conceptual changes during development), DDD proved invaluable in certain areas of the application.
 
 I would like to highlight the shipping process, which is quite complex and depends on several factors such as regional manager approval, package receipt, and pickup location. In a feature-driven development approach (i.e., no time, just code), any logic related to shipments would be fragmented into many handlers, where duplication would undoubtedly occur. If the business process changed, the logic would have to be changed everywhere, which is asking for trouble. Not to mention that applying the right principles in the right handlers would be difficult and could evolve into what is commonly referred to as "tribal knowledge".
 
@@ -98,7 +98,20 @@ To run the application in demo mode, execute the following command:
 docker-compose up --build
 ```
 
+<br />
 This command will create all the necessary containers and populate the SQL server with seed data, including sample users, menus, and more. This ensures that the application is ready to use immediately.
+
+<br />
+
+| Email                          | User Type        | Password  |
+| ------------------------------ | ---------------- | --------- |
+| `benjaminManager@mcDowell.com` | Manager          | pass123@! |
+| `emilyManager@mcDowell.com`    | Manager          | pass123@! |
+| `globalManager@mcDowel.com`    | Global Manager   | pass123@! |
+| `regionalManager@mcDowell.com` | Regional Manager | pass123@! |
+| `chloeCourier@mcDowell.com`    | Courier          | pass123@! |
+
+<br />
 
 Optionally, set the environment variables for the `onibi-app` if you plan to create new users, it will be used for receiving the account activation link:
 
