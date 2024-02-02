@@ -101,4 +101,4 @@ jobs:
         git config user.email "github-actions@github.com"
         git add imgs/loc-badge.svg
         git commit -m "Updated LOC badge" || echo "No changes to commit"
-        git push origin badges
+        git push -f origin badges
