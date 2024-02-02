@@ -1,4 +1,4 @@
-![loc_badge](https://github.com/Shimakaze-Kan/Onibi_Pro/tree/badges/imgs/loc-badge.svg)
+[![Build .NET and Angular apps](https://github.com/Shimakaze-Kan/Onibi_Pro/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Shimakaze-Kan/Onibi_Pro/actions/workflows/build.yml) ![loc_badge](https://raw.githubusercontent.com/Shimakaze-Kan/Onibi_Pro/badges/imgs/loc-badge.svg)
 
 # Onibi Pro - Scalable Fast Food Network Management System
 
