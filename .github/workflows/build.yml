@@ -52,9 +52,13 @@ jobs:
 
     - name: Create or checkout 'badges' branch
       run: |
-        git fetch --all
-        git checkout badges || git checkout -b badges
-        git merge origin/master --no-edit
+        run: |
+          git fetch --all
+          git checkout master
+          git pull
+          git checkout -b badges || git checkout badges
+          git pull origin badges || true
+          git merge master --allow-unrelated-histories --no-edit || true
 
     - name: Run PowerShell Script
       run: |
