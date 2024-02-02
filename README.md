@@ -1,3 +1,5 @@
+![loc_badge](https://github.com/Shimakaze-Kan/Onibi_Pro/tree/badges/imgs/loc-badge.svg)
+
 # Onibi Pro - Scalable Fast Food Network Management System
 
 <img src="./imgs/onibi_readme.svg" alt="Onibi Logo" width="300" height="auto">
