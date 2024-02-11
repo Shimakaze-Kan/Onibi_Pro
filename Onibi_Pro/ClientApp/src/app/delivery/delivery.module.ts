@@ -21,7 +21,6 @@ import { QRCodeModule } from 'angularx-qrcode';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { UtilsModule } from '../utils/utils.module';
-import { ApproveAtSourceRestaurantComponent } from './approve/approve-at-source-restaurant/approve-at-source-restaurant.component';
 import { ApproveNotRestaurantOriginComponent } from './approve/approve-not-restaurant-origin/approve-not-restaurant-origin.component';
 import { ApproveRestaurantOriginComponent } from './approve/approve-restaurant-origin/approve-restaurant-origin.component';
 import { ConfirmDeliveryComponent } from './confirm-delivery/confirm-delivery.component';
@@ -37,7 +36,6 @@ import { ShowQrCodeComponent } from './show-qr-code/show-qr-code.component';
     ShowQrCodeComponent,
     ApproveRestaurantOriginComponent,
     ApproveNotRestaurantOriginComponent,
-    ApproveAtSourceRestaurantComponent,
   ],
   imports: [
     CommonModule,

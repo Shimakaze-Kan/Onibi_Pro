@@ -9,8 +9,7 @@
     "start:default": "ng serve --port 44406 --ssl --ssl-cert \"$HOME/.aspnet/https/${npm_package_name}.pem\" --ssl-key \"$HOME/.aspnet/https/${npm_package_name}.key\"",
     "build": "ng build",
     "build:ssr": "ng run Onibi_Pro:server:dev",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "watch": "ng build --watch --configuration development"
   },
   "private": true,
   "dependencies": {
@@ -41,6 +40,7 @@
     "ngx-mat-select-search": "^7.0.4",
     "ngx-skeleton-loader": "^8.1.0",
     "oidc-client": "^1.11.5",
+    "playwright": "^1.41.2",
     "popper.js": "^1.16.0",
     "print-js": "^1.6.0",
     "run-script-os": "^1.1.6",
@@ -52,6 +52,7 @@
     "@angular-devkit/build-angular": "^16.2.7",
     "@angular/cli": "^16.2.7",
     "@angular/compiler-cli": "^16.2.10",
+    "@playwright/test": "^1.41.2",
     "@types/jasmine": "~4.3.1",
     "@types/jasminewd2": "~2.0.10",
     "@types/node": "^18.16.3",

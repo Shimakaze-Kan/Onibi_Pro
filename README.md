@@ -33,6 +33,10 @@ Onibi Pro is a project based on the principles of Domain-Driven Design, crafted 
 - .NET 8
 - Angular 16.2.10
 
+### E2E
+
+- Playwright 1.41.2
+
 ### Tools and IDEs:
 
 - NSwagStudio 14.0.1.0
@@ -124,7 +128,7 @@ Optionally, set the environment variables for the `onibi-app` if you plan to cre
 - EmailConfig__Password=your_password
 ```
 
-### Local Development Setup:
+### <a id="local_dev_setup"></a> Local Development Setup:
 
 For the development setup, create containers for Redis and MongoDB using the following commands:
 
@@ -170,3 +174,28 @@ Take a look at a few selected screenshots showcasing the functionality and user 
 #### Login Page
 
 ![login](./imgs/Screenshot_2024-02-01_at_20-19-05_Login_Onibi_Pro.png)
+
+## Tests
+
+I don't see much point in writing unit tests for frontend, especially in an application of this type. That's why I focused on end-to-end tests, which were written using Playwright. To run the tests, follow the steps in the [Local Development Setup](#local_dev_setup) section, run backend as well as frontend, and then execute the `run_e2e.ps1` script.
+
+If everything is set up correctly, the output should look something like this:
+
+```
+Pre run...
+Running tests...
+
+Running 2 tests using 1 worker
+  2 passed (1.1m)
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+Cleaning up...
+2
+1
+Script execution completed successfully.
+```
+
+This script will handle running the tests and cleaning up afterwards. In a typical development setup, you would create a separate database for e2e tests as well as separate configurations. However, since there are few tests, it made more sense to use the development database and write a script to revert the changes made by the tests
