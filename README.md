@@ -33,7 +33,7 @@ Onibi Pro is a project based on the principles of Domain-Driven Design, crafted 
 - .NET 8
 - Angular 16.2.10
 
-### E2E
+### Tests:
 
 - Playwright 1.41.2
 
